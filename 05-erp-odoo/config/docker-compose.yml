@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - odoo-db:/var/lib/postgresql/data
+  odoo:
+    image: odoo:18.0
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8069:8069"
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./config:/etc/odoo
+volumes:
+  odoo-db:
+  odoo-data:
