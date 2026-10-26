@@ -50,7 +50,9 @@ sed -i '/^ARRAY /d' /etc/mdadm/mdadm.conf
 mdadm --detail --scan >> /etc/mdadm/mdadm.conf
 update-initramfs -u
 
-systemctl start mariadb 2>/dev/null || true
+# --no-block: este script corre como servicio ordenado ANTES de mariadb; un start normal
+# esperaría a que este mismo servicio termine y se quedaría bloqueado para siempre
+systemctl start --no-block mariadb 2>/dev/null || true
 mkdir -p /etc/almichain && date '+%F %T' > "$MARCA"
 cat /proc/mdstat
 df -h /var/lib/mysql

@@ -164,20 +164,39 @@ Se simula un desastre: se borra la base de datos entera y se recupera de la copi
 
 ## Prueba de fallo de disco (B11)
 
-Se hace en la VM ALMI-BD de VirtualBox.
+Hecha en la VM ALMI-BD con sus dos discos de 10 GB.
 
-**Prueba A, disco marcado como roto (sin apagar):**
+**RAID creado** (el servicio `almi-crear-raid` lo crea en el primer arranque): los dos discos forman `md0`, montado en `/var/lib/mysql` por UUID y guardado en `mdadm.conf`.
+
+![RAID 1 con sdb y sdc en [UU], montado en /var/lib/mysql](capturas/13-raid-creado.png)
+
+**Prueba A, un disco se rompe con el servidor en marcha.** Se marca `sdc` como roto: el RAID pasa a `[U_]` (*clean, degraded*) y la base de datos **sigue funcionando y se puede escribir** (se inserta un cliente "Prueba RAID").
 
 ```bash
 sudo mdadm /dev/md0 --fail /dev/sdc
-cat /proc/mdstat                        # [U_]: funciona con un solo disco
-sudo mariadb -e "INSERT INTO almichain.cliente (nombre, apellidos, telefono) VALUES ('Prueba', 'RAID', '699999999'); SELECT COUNT(*) FROM almichain.cliente;"
-sudo mdadm /dev/md0 --remove /dev/sdc
-sudo mdadm /dev/md0 --add /dev/sdc
-watch cat /proc/mdstat                  # reconstrucción hasta [UU]
+cat /proc/mdstat
+sudo mariadb -e "INSERT INTO almichain.cliente (nombre, apellidos, telefono) VALUES ('Prueba', 'RAID', '699999999');"
 ```
 
-**Prueba B, quitar el disco de verdad**: VM apagada → **Configuración → Almacenamiento** → quitar `ALMI-BD-raid2` → arrancar → `cat /proc/mdstat` muestra un solo disco y MariaDB responde → apagar, añadir un disco nuevo de 10 GB, arrancar y `sudo mdadm /dev/md0 --add /dev/sdc` → reconstrucción hasta `[UU]`.
+![Disco sdc marcado como roto: [U_] y MariaDB sigue escribiendo](capturas/14-raid-fallo-disco.png)
+
+**Cambio del disco y reconstrucción**: se quita del RAID y se vuelve a añadir (en un servidor real sería el disco nuevo); mdadm copia los datos del disco bueno al nuevo.
+
+```bash
+sudo mdadm /dev/md0 --remove /dev/sdc
+sudo mdadm /dev/md0 --add /dev/sdc
+watch cat /proc/mdstat
+```
+
+![Reconstrucción en marcha (recovery)](capturas/15-raid-reconstruccion.png)
+
+![Reconstrucción terminada: [UU], 0 discos fallidos y el dato escrito con un solo disco sigue ahí](capturas/16-raid-reconstruido.png)
+
+**Después de reiniciar** el RAID se monta solo, MariaDB arranca y el servicio de creación no se vuelve a ejecutar:
+
+![Tras reiniciar: md0 montado y MariaDB activa](capturas/17-raid-tras-reiniciar.png)
+
+**Prueba B, quitar el disco de verdad** (en VirtualBox): VM apagada → **Configuración → Almacenamiento** → quitar `ALMI-BD-raid2` → arrancar → `cat /proc/mdstat` muestra un solo disco y MariaDB responde → apagar, añadir un disco nuevo de 10 GB, arrancar y `sudo mdadm /dev/md0 --add /dev/sdc` → reconstrucción hasta `[UU]`.
 
 ## Seguridad aplicada
 
@@ -200,8 +219,9 @@ watch cat /proc/mdstat                  # reconstrucción hasta [UU]
 | 6 | Solo lectura | `DELETE` y `DROP` como `consulta` | ERROR 1142 | ERROR 1142 en los dos | [08](capturas/08-consulta-no-puede-borrar.png) |
 | 7 | Copia automática | `copia-bd.sh` y `crontab -l` | Copia local, huella, copia en ALMI-ODOO y cron a las 02:00 | Correcto | [09](capturas/09-copia-automatica.png) |
 | 8 | Restauración | Borrar la base y restaurar | `diff` sin diferencias | "RESTAURACION CORRECTA: datos identicos" | [10](capturas/10-restauracion-1-antes.png) [11](capturas/11-restauracion-2-borrado.png) [12](capturas/12-restauracion-3-recuperada.png) |
-| 9 | Fallo de un disco del RAID | `mdadm --fail` y escribir en la base | `[U_]` y la base sigue funcionando | Pendiente de captura en la VM | — |
-| 10 | Reconstrucción | `mdadm --add` | Vuelve a `[UU]` | Pendiente de captura en la VM | — |
+| 9 | Fallo de un disco del RAID | `mdadm --fail` y escribir en la base | `[U_]` y la base sigue funcionando | `[U_]` *clean, degraded*; INSERT correcto | [14](capturas/14-raid-fallo-disco.png) |
+| 10 | Reconstrucción | `mdadm --add` | Vuelve a `[UU]` | `[UU]`, 0 fallidos, el dato sigue | [15](capturas/15-raid-reconstruccion.png) [16](capturas/16-raid-reconstruido.png) |
+| 11 | RAID tras reiniciar | `sudo reboot` | md0 montado y MariaDB activa | Correcto | [17](capturas/17-raid-tras-reiniciar.png) |
 
 ## Problemas encontrados y solución
 
@@ -209,6 +229,7 @@ watch cat /proc/mdstat                  # reconstrucción hasta [UU]
 |---|---|---|
 | El diagrama del equipo y la guía tenían modelos distintos | La guía proponía 15 tablas; el equipo diseñó el suyo | Se implementa el modelo del equipo (13 tablas) |
 | Los datos de MariaDB tienen que estar en el RAID desde el principio | Si se instala MariaDB antes del RAID, los datos quedan en el disco de sistema | Se copian con `rsync -aAX` con el servicio parado y se monta el RAID en `/var/lib/mysql` |
+| El servicio que crea el RAID en el primer arranque se quedaba "activating" para siempre | Hacía `systemctl start mariadb` desde un servicio que está ordenado *antes* de mariadb: cada uno esperaba al otro | `systemctl start --no-block mariadb` |
 | `mariadb-dump` necesita contraseña en cron | cron no puede escribirla | `/root/.my.cnf` con permisos 600 y el usuario `copias` de solo lectura |
 
 ## Fuentes
