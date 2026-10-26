@@ -1,0 +1,22 @@
+# Secretos: NUNCA al repo
+*.kdbx
+*.pem
+*.key
+.env
+terraform.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+.my.cnf
+# Máquinas virtuales e ISOs
+*.iso
+*.vdi
+*.vmdk
+*.ova
+# Volcados de base de datos con datos
+*.sql.gz
+*.dump
+# Sistema
+.DS_Store
+Thumbs.db

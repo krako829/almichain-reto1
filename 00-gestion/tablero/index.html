@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tablero Almi-Chain</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="marca">
+      <span class="eyebrow">Reto 1 · ASIR1 · 16 oct – 13 nov 2026</span>
+      <h1>Tablero Almi-Chain</h1>
+    </div>
+    <div class="acciones">
+      <label class="soy" for="soy" title="Quién está usando el tablero. Cada cambio se apunta a su nombre.">
+        <span>Soy</span>
+        <select id="soy"></select>
+      </label>
+      <button type="button" class="btn primario" id="btn-nueva">+ Nueva tarea</button>
+      <button type="button" class="btn" id="btn-exportar" title="Descarga un .json con todo el tablero">Exportar</button>
+      <button type="button" class="btn" id="btn-importar" title="Carga un .json exportado antes">Importar</button>
+      <input type="file" id="archivo-importar" accept=".json,application/json" hidden>
+      <button type="button" class="btn peligro" id="btn-reset" title="Vuelve a las tareas iniciales">Restablecer</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Resumen: progreso total y semanas -->
+    <section class="resumen" aria-label="Resumen del reto">
+      <div class="total" id="total"></div>
+      <div class="semanas" id="semanas"></div>
+    </section>
+
+    <!-- Bloques del reto -->
+    <section aria-labelledby="t-bloques">
+      <div class="titulo-seccion">
+        <h2 id="t-bloques">Bloques</h2>
+        <span class="ayuda">Pulsa un bloque para ver solo sus tareas. El número de guía es el apartado del documento «Guías paso a paso».</span>
+      </div>
+      <div class="bloques" id="bloques"></div>
+    </section>
+
+    <!-- Equipo -->
+    <section aria-labelledby="t-equipo">
+      <div class="titulo-seccion">
+        <h2 id="t-equipo">Equipo</h2>
+        <span class="ayuda">Pulsa una persona para ver sus tareas. Para quedarte una tarea, elige tu nombre en «Soy» y pulsa «Me la quedo».</span>
+      </div>
+      <div class="equipo" id="equipo"></div>
+    </section>
+
+    <!-- Herramientas -->
+    <section class="herramientas" aria-label="Vista y filtros">
+      <div class="vistas" role="tablist" aria-label="Vista">
+        <button type="button" role="tab" id="vista-estado" aria-selected="true">Por estado</button>
+        <button type="button" role="tab" id="vista-semanas" aria-selected="false">Por semanas</button>
+      </div>
+      <div class="filtros">
+        <label for="f-semana">Semana
+          <select id="f-semana">
+            <option value="">Todas</option>
+            <option value="1">S1 · 16–23 oct</option>
+            <option value="2">S2 · 26–30 oct</option>
+            <option value="3">S3 · 2–6 nov</option>
+            <option value="4">S4 · 9–13 nov</option>
+          </select>
+        </label>
+        <label class="buscar" for="f-texto">Buscar
+          <input type="search" id="f-texto" placeholder="Título, ID, guía…">
+        </label>
+        <label class="check" for="f-libres"><input type="checkbox" id="f-libres"> Sin asignar</label>
+        <label class="check" for="f-retrasadas"><input type="checkbox" id="f-retrasadas"> Retrasadas</label>
+        <button type="button" class="btn suave" id="btn-limpiar">Quitar filtros</button>
+      </div>
+    </section>
+    <p class="filtro-activo" id="filtro-activo" hidden></p>
+
+    <section class="tablero" id="tablero" aria-label="Tareas"></section>
+
+    <section class="actividad">
+      <h2>Actividad reciente</h2>
+      <ol id="actividad"></ol>
+    </section>
+  </main>
+
+  <dialog id="modal" aria-labelledby="modal-titulo">
+    <form id="form-tarea" method="dialog">
+      <header class="modal-cab" id="modal-cab">
+        <span class="modal-icono" id="modal-icono"></span>
+        <h2 id="modal-titulo">Tarea</h2>
+        <button type="button" class="cerrar" id="btn-cerrar" aria-label="Cerrar">×</button>
+      </header>
+      <div class="campos">
+        <label class="ancho" for="t-titulo">Título
+          <input id="t-titulo" required maxlength="140">
+        </label>
+        <label class="ancho" for="t-descripcion">Qué hay que hacer
+          <textarea id="t-descripcion" rows="3"></textarea>
+        </label>
+        <label for="t-bloque">Bloque <select id="t-bloque"></select></label>
+        <label for="t-guia">Apartado de la guía <input id="t-guia" maxlength="40" placeholder="Ej.: 2.4"></label>
+        <label for="t-responsable">Responsable <select id="t-responsable"></select></label>
+        <label for="t-estado">Estado <select id="t-estado"></select></label>
+        <label for="t-inicio">Inicio <input type="date" id="t-inicio"></label>
+        <label for="t-fin">Fin previsto <input type="date" id="t-fin"></label>
+        <label for="t-hecha">Hecha por <select id="t-hecha"></select></label>
+        <label class="check" for="t-hito"><input type="checkbox" id="t-hito"> Es un hito o revisión</label>
+        <fieldset class="ancho">
+          <legend>Le ayudan</legend>
+          <div id="t-colaboradores" class="colabs"></div>
+        </fieldset>
+        <label class="ancho" for="t-notas">Notas (enlaces, problemas, comandos…)
+          <textarea id="t-notas" rows="3"></textarea>
+        </label>
+      </div>
+      <details class="historial">
+        <summary>Historial de la tarea</summary>
+        <ol id="t-historial"></ol>
+      </details>
+      <footer class="modal-pie">
+        <button type="button" class="btn peligro" id="btn-eliminar">Eliminar</button>
+        <span class="espacio"></span>
+        <button type="button" class="btn" id="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn primario" id="btn-guardar">Guardar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+
+  <script src="js/tareas.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
