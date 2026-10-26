@@ -78,6 +78,8 @@ sudo mkdir -p /usr/local/share/games/mame/roms
 
 **Juegos**: *Pong* y *Breakout* funcionan **sin ROMs** (MAME los emula a partir del esquema del circuito original). Para más juegos se descargan ROMs legales de mamedev.org (robby, gridlee, supertnk) a `/usr/local/share/games/mame/roms/` y se comprueban con `mame -verifyroms`. Las ROMs no se suben al repositorio.
 
+![MAME 0.264, Pong y Breakout sin ROMs, y X y MAME corriendo como arcade](capturas/04-mame-version-juegos.png)
+
 ### 5. Arranque directo a MAME (A06)
 
 | Archivo | Dónde | Qué hace |
@@ -104,6 +106,10 @@ Para administrar con MAME abierto: **Ctrl + Alt + F2** y entrar como `almiadmin`
 | Sin `systemd-networkd-wait-online` | Arranque más rápido |
 | [`config/mame.ini`](config/mame.ini) del usuario arcade | `video soft`, `waitvsync 0`, `autoframeskip 1`, `samplerate 22050`, `skip_gameinfo 1`, `joystick 1` |
 
+Resultado: solo 10 servicios en marcha (dos de ellos son de la sesión de administración por consola de la prueba), 2 temporizadores, el registro en memoria y SSH y las actualizaciones automáticas desactivados.
+
+![Servicios y temporizadores tras optimizar](capturas/05-servicios-optimizados.png)
+
 
 ### 7. Benchmark y monitorización (A07, A09)
 
@@ -122,6 +128,10 @@ Resultados con MAME 0.264 limitado a **1 núcleo**, con la configuración por de
 
 El `.xinitrc` guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mientras se juega. Las columnas `si` y `so` (memoria que entra y sale del swap) tienen que estar siempre a 0.
 
+En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y `so` siempre a 0** y 422 MB de RAM usada de 961. La CPU sale al 100 % porque esta prueba se hizo en una máquina virtual sin aceleración por hardware (todo el procesador emulado); en VirtualBox con VT-x el uso es mucho menor. Las cifras de velocidad buenas son las del benchmark de arriba.
+
+![Registro de vmstat con MAME abierto: swap siempre a 0](capturas/06-vmstat.png)
+
 
 ## Seguridad aplicada
 
@@ -136,10 +146,10 @@ El `.xinitrc` guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mien
 | 1 | 1 núcleo | `nproc` | 1 | 1 | [02](capturas/02-nucleo-memoria-swap.png) |
 | 2 | 1 GB de RAM | `free -m` | Total menor de 1024 MB | 961 MB | [02](capturas/02-nucleo-memoria-swap.png) |
 | 3 | Sin swap | `swapon --show` | Sin salida | Sin salida; Swap 0 | [02](capturas/02-nucleo-memoria-swap.png) |
-| 4 | No se usa swap al jugar | Registro de vmstat | `si` y `so` siempre 0 | Pendiente de captura | — |
+| 4 | No se usa swap al jugar | Registro de vmstat | `si` y `so` siempre 0 | 0 y 0 en 84 muestras | [06](capturas/06-vmstat.png) |
 | 5 | Arranque directo a MAME | Encender | MAME sin pedir contraseña | Autologin de arcade y MAME abierto | [01a](capturas/01a-autologin-arcade.png) [01](capturas/01-arranque-mame.png) |
 | 6 | arcade sin privilegios | `groups arcade`; `sudo -l` como arcade | Sin sudo | No está en sudo | [03](capturas/03-usuarios-seguridad.png) |
-| 7 | Juegos disponibles | `mame -listroms pong breakout` | No necesitan ROMs | "No ROMs required" | Pendiente de captura |
+| 7 | Juegos disponibles | `mame -listroms pong breakout` | No necesitan ROMs | "No ROMs required" | [04](capturas/04-mame-version-juegos.png) |
 | 8 | Mejora de rendimiento | Tabla del benchmark | Igual o mayor velocidad después | Pong +6 %, Breakout +17 % | — |
 | 9 | Stick en MAME | Ver bloque 03 | Se juega con el stick | | |
 

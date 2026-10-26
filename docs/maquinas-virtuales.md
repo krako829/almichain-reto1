@@ -1,6 +1,15 @@
 # Anexo. Máquinas virtuales exportadas
 
-Las tres máquinas Linux del reto están exportadas en formato **OVA** (Open Virtualization Format) para importarlas en VirtualBox ya configuradas. Se descargan de la sección **Releases** del repositorio (`almichain-reto1` → *Releases* → `maquinas-virtuales`).
+Las tres máquinas Linux del reto están exportadas en formato **OVA** (Open Virtualization Format) para importarlas en VirtualBox ya configuradas. Las .ova no están dentro del repositorio (GitHub no admite archivos de ese tamaño): se entregan aparte, partidas en trozos de menos de 400 MB (`ALMI-ODOO.ova.parte1`, `parte2`…), con su huella `.sha256` y dos scripts para unirlas.
+
+### Unir los trozos
+
+Descargar todos los trozos, el `.sha256` de cada .ova y los scripts en **la misma carpeta**:
+
+- **Zorin / Linux**: `bash unir-ova-linux.sh` → une los trozos, comprueba la huella (`OK`) y borra los trozos.
+- **Windows**: doble clic en `unir-ova-windows.bat` → une los trozos y muestra la huella calculada y la esperada, que tienen que coincidir.
+
+A mano en Linux: `cat ALMI-ODOO.ova.parte1 ALMI-ODOO.ova.parte2 ALMI-ODOO.ova.parte3 > ALMI-ODOO.ova` y `sha256sum -c ALMI-ODOO.ova.sha256`.
 
 | Archivo | Máquina | Hardware | Red | Qué hace al importarla |
 |---|---|---|---|---|

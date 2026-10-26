@@ -168,7 +168,7 @@ Hecha en la VM ALMI-BD con sus dos discos de 10 GB.
 
 **RAID creado** (el servicio `almi-crear-raid` lo crea en el primer arranque): los dos discos forman `md0`, montado en `/var/lib/mysql` por UUID y guardado en `mdadm.conf`.
 
-![RAID 1 con sdb y sdc en [UU], montado en /var/lib/mysql](capturas/13-raid-creado.png)
+![RAID 1 con sdb y sdc en UU, montado en /var/lib/mysql](capturas/13-raid-creado.png)
 
 **Prueba A, un disco se rompe con el servidor en marcha.** Se marca `sdc` como roto: el RAID pasa a `[U_]` (*clean, degraded*) y la base de datos **sigue funcionando y se puede escribir** (se inserta un cliente "Prueba RAID").
 
@@ -178,7 +178,7 @@ cat /proc/mdstat
 sudo mariadb -e "INSERT INTO almichain.cliente (nombre, apellidos, telefono) VALUES ('Prueba', 'RAID', '699999999');"
 ```
 
-![Disco sdc marcado como roto: [U_] y MariaDB sigue escribiendo](capturas/14-raid-fallo-disco.png)
+![Disco sdc marcado como roto: U_ y MariaDB sigue escribiendo](capturas/14-raid-fallo-disco.png)
 
 **Cambio del disco y reconstrucción**: se quita del RAID y se vuelve a añadir (en un servidor real sería el disco nuevo); mdadm copia los datos del disco bueno al nuevo.
 
@@ -190,7 +190,7 @@ watch cat /proc/mdstat
 
 ![Reconstrucción en marcha (recovery)](capturas/15-raid-reconstruccion.png)
 
-![Reconstrucción terminada: [UU], 0 discos fallidos y el dato escrito con un solo disco sigue ahí](capturas/16-raid-reconstruido.png)
+![Reconstrucción terminada: UU, 0 discos fallidos y el dato escrito con un solo disco sigue ahí](capturas/16-raid-reconstruido.png)
 
 **Después de reiniciar** el RAID se monta solo, MariaDB arranca y el servicio de creación no se vuelve a ejecutar:
 

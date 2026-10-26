@@ -51,7 +51,7 @@ flowchart LR
 
 ## Máquinas virtuales exportadas
 
-Las VM Linux se exportan en formato **.ova** y se publican en la sección **Releases** de este repositorio (en preparación). Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Red NAT → ALMICHAIN**. Las contraseñas no están en el repositorio: están en el gestor de contraseñas del equipo.
+Las VM Linux (ALMI-ODOO, ALMI-BD y ALMI-ARCADE) están exportadas en formato **.ova**. No caben en el repositorio, así que se entregan aparte en trozos con un script para unirlos: ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md). Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Red NAT → ALMICHAIN**. Las contraseñas no están en el repositorio: están en el gestor de contraseñas del equipo.
 
 ## Reglas del repositorio
 
