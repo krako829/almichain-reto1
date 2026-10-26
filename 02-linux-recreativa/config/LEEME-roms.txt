@@ -1,0 +1,12 @@
+Carpeta de ROMs de la recreativa (solo lectura para el usuario arcade).
+
+Pong y Breakout funcionan sin ROMs: MAME los emula a partir de los esquemas
+del circuito original. Para añadir más juegos, descargad ROMs legales de
+https://www.mamedev.org/roms/ (por ejemplo robby, gridlee y supertnk) y
+copiadlas aquí como administrador:
+
+  sudo cp robby.zip gridlee.zip supertnk.zip /usr/local/share/games/mame/roms/
+  sudo chmod 644 /usr/local/share/games/mame/roms/*.zip
+  mame -verifyroms robby gridlee supertnk
+
+Las ROMs no se suben al repositorio ni se redistribuyen.

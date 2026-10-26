@@ -1,0 +1,6 @@
+Directiva "Interfaz de usuario personalizada" de TPV1 (guía 2.7) — Nombre del intérprete:
+
+"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --kiosk https://192.168.10.30/pos/ui?config_id=1 --edge-kiosk-type=fullscreen --kiosk-printing --no-first-run
+
+Para TPV2, la misma línea con config_id=2 (Barra 2). Los números se han comprobado en Odoo:
+Barra 1 = config_id 1, Barra 2 = config_id 2.

@@ -1,0 +1,11 @@
+# Copia este fichero como "terraform.tfvars" y rellena tus datos.
+# terraform.tfvars NO se debe subir a GitHub (lleva el token).
+
+duckdns_subdominio = "almichain2"           # almichain2.duckdns.org
+duckdns_token      = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+email              = "tu-correo@gmail.com"
+
+# Opcionales (estos son los valores por defecto):
+# region          = "us-east-1"
+# tipo_instancia  = "t3.micro"
+# certbot_staging = false        # true mientras hacéis pruebas de destroy/apply

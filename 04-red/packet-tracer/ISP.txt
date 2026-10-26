@@ -1,0 +1,17 @@
+! Almi-Chain · Router ISP (2911): simula el operador
+! Pegar en la pestaña CLI de Packet Tracer bloque a bloque.
+! <contraseña> se cambia por la del gestor de contraseñas (KeePassXC). No subir las contraseñas reales.
+!
+enable
+configure terminal
+hostname ISP
+interface g0/0
+ip address 203.0.113.1 255.255.255.252
+no shutdown
+exit
+interface g0/1
+ip address 198.51.100.1 255.255.255.0
+no shutdown
+exit
+end
+write memory

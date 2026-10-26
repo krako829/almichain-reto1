@@ -1,0 +1,5 @@
+# /home/arcade/.bash_profile  (propietario root: arcade no puede cambiarlo)
+# Al entrar arcade en tty1 arranca el servidor gráfico, que abre MAME
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+  exec startx -- -nocursor > /dev/null 2>&1
+fi

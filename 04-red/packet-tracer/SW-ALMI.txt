@@ -1,0 +1,83 @@
+! Almi-Chain · Switch SW-ALMI (2960-24TT): VLAN, seguridad de puertos, troncal y SSH
+! Pegar en la pestaña CLI de Packet Tracer bloque a bloque.
+! <contraseña> se cambia por la del gestor de contraseñas (KeePassXC). No subir las contraseñas reales.
+!
+enable
+configure terminal
+hostname SW-ALMI
+enable secret <contraseña>
+service password-encryption
+no ip domain-lookup
+banner motd #Acceso solo para personal autorizado de Almi-Chain#
+
+vlan 10
+name GESTION
+vlan 20
+name TPV
+vlan 30
+name CLIENTES
+vlan 99
+name ADMIN
+vlan 998
+name SIN-USO
+vlan 999
+name NATIVA
+exit
+
+interface range fa0/1 - 3
+switchport mode access
+switchport access vlan 10
+switchport port-security
+switchport port-security maximum 1
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+exit
+
+interface range fa0/5 - 7
+switchport mode access
+switchport access vlan 20
+switchport port-security
+switchport port-security maximum 1
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+spanning-tree portfast
+exit
+
+interface range fa0/10 - 12
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+exit
+
+interface gig0/1
+switchport mode trunk
+switchport trunk native vlan 999
+switchport trunk allowed vlan 10,20,30,99
+exit
+
+interface range fa0/4 , fa0/8 - 9 , fa0/13 - 24 , gig0/2
+switchport mode access
+switchport access vlan 998
+shutdown
+exit
+
+interface vlan 99
+ip address 192.168.99.2 255.255.255.0
+no shutdown
+exit
+ip default-gateway 192.168.99.1
+
+ip domain-name almichain.local
+username almiadmin privilege 15 secret <contraseña>
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+line vty 0 15
+login local
+transport input ssh
+exit
+line console 0
+login local
+exit
+end
+write memory

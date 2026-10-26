@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Almi Bites · Restaurante</title>
+  <meta name="description" content="Almi Bites: pequeños bocados para compartir, cocina de mercado y buen ambiente en el corazón de Bilbao.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+
+  <header class="top">
+    <a class="brand" href="#inicio" aria-label="Almi Bites, ir al inicio">
+      <img src="img/logo.png" alt="Almi Bites Restaurantes" width="485" height="468">
+    </a>
+    <nav aria-label="Principal">
+      <ul>
+        <li><a href="#platos">Platos estrella</a></li>
+        <li><a href="#carta">Carta</a></li>
+        <li><a href="#menu-dia">Menú del día</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#donde">Dónde estamos</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="inicio">
+      <div class="hero-text">
+        <h1>Pequeños bocados,<br>grandes ratos.</h1>
+        <p>Cocina de mercado para compartir, vino por copas y una barra donde siempre hay sitio para uno más.</p>
+        <a class="btn" href="#platos">Ver platos estrella</a>
+      </div>
+    </section>
+
+    <section class="platos" id="platos" aria-labelledby="t-platos">
+      <h2 id="t-platos">Platos estrella</h2>
+      <p class="lead">Los tres que más se repiten en las mesas.</p>
+
+      <div class="slider">
+        <input type="radio" name="slide" id="s1" checked aria-label="Plato 1">
+        <input type="radio" name="slide" id="s2" aria-label="Plato 2">
+        <input type="radio" name="slide" id="s3" aria-label="Plato 3">
+
+        <div class="slides">
+          <figure class="slide slide-1">
+            <span class="emoji" aria-hidden="true">🍤</span>
+            <figcaption>
+              <h3>Croquetas de rabo de toro</h3>
+              <p>Cremosas por dentro, crujientes por fuera, con salsa de vino tinto.</p>
+              <strong>8,50 €</strong>
+            </figcaption>
+          </figure>
+          <figure class="slide slide-2">
+            <span class="emoji" aria-hidden="true">🍔</span>
+            <figcaption>
+              <h3>Mini burger Almi</h3>
+              <p>Carne madurada, queso curado y cebolla caramelizada en pan brioche.</p>
+              <strong>9,90 €</strong>
+            </figcaption>
+          </figure>
+          <figure class="slide slide-3">
+            <span class="emoji" aria-hidden="true">🍰</span>
+            <figcaption>
+              <h3>Tarta de queso cremosa</h3>
+              <p>Al estilo vasco, con el centro casi líquido y un toque de vainilla.</p>
+              <strong>6,00 €</strong>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="dots">
+          <label for="s1">Plato 1</label>
+          <label for="s2">Plato 2</label>
+          <label for="s3">Plato 3</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="carta" id="carta" aria-labelledby="t-carta">
+      <h2 id="t-carta">Nuestra carta</h2>
+      <p class="lead">Raciones pensadas para compartir. Pide varias y prueba de todo.</p>
+      <div class="carta-grid">
+      <article class="cat">
+        <h3><span aria-hidden="true">🥘</span> Para picar</h3>
+        <ul>
+          <li><div class="plato"><h4>Croquetas caseras de jamón</h4><span class="precio">7,50 €</span></div><p>Bechamel cremosa y rebozado fino.</p></li>
+          <li><div class="plato"><h4>Patatas bravas Almi</h4><span class="precio">6,50 €</span></div><p>Con salsa brava de la casa y alioli suave.</p></li>
+          <li><div class="plato"><h4>Pimientos de Gernika</h4><span class="precio">7,00 €</span></div><p>Fritos con sal gruesa, como mandan los cánones.</p></li>
+          <li><div class="plato"><h4>Jamón ibérico de bellota</h4><span class="precio">16,00 €</span></div><p>Cortado a cuchillo, con pan de cristal y tomate.</p></li>
+        </ul>
+      </article>
+      <article class="cat">
+        <h3><span aria-hidden="true">🥗</span> Frescos</h3>
+        <ul>
+          <li><div class="plato"><h4>Ensalada de tomate y ventresca</h4><span class="precio">11,50 €</span></div><p>Tomate de temporada, cebolla dulce y aceite de oliva virgen.</p></li>
+          <li><div class="plato"><h4>Ensalada templada de cabra</h4><span class="precio">10,90 €</span></div><p>Queso de cabra gratinado, nueces y vinagreta de miel.</p></li>
+          <li><div class="plato"><h4>Carpaccio de ternera</h4><span class="precio">12,90 €</span></div><p>Láminas finas, parmesano, rúcula y piñones.</p></li>
+          <li><div class="plato"><h4>Hummus con crudités</h4><span class="precio">8,50 €</span></div><p>Garbanzos, tahini y verduras crujientes.</p></li>
+        </ul>
+      </article>
+      <article class="cat">
+        <h3><span aria-hidden="true">🍽️</span> Principales</h3>
+        <ul>
+          <li><div class="plato"><h4>Bacalao al pil-pil</h4><span class="precio">18,50 €</span></div><p>Lomo de bacalao con su ligada de ajo y guindilla.</p></li>
+          <li><div class="plato"><h4>Presa ibérica</h4><span class="precio">17,90 €</span></div><p>Con patatas panadera y pimientos asados.</p></li>
+          <li><div class="plato"><h4>Arroz meloso de verduras</h4><span class="precio">14,50 €</span></div><p>Verdura de temporada y alioli de ajo asado.</p></li>
+          <li><div class="plato"><h4>Trío de mini burgers</h4><span class="precio">12,90 €</span></div><p>Ternera madurada, queso curado y cebolla caramelizada.</p></li>
+        </ul>
+      </article>
+      <article class="cat">
+        <h3><span aria-hidden="true">🍰</span> Postres</h3>
+        <ul>
+          <li><div class="plato"><h4>Tarta de queso cremosa</h4><span class="precio">6,00 €</span></div><p>Al estilo vasco, con el centro casi líquido.</p></li>
+          <li><div class="plato"><h4>Torrija caramelizada</h4><span class="precio">5,50 €</span></div><p>Brioche, canela y helado de vainilla.</p></li>
+          <li><div class="plato"><h4>Brownie de chocolate</h4><span class="precio">6,00 €</span></div><p>Tibio, con nueces y bola de helado.</p></li>
+          <li><div class="plato"><h4>Fruta de temporada</h4><span class="precio">4,50 €</span></div><p>Cortada al momento, con un toque de menta.</p></li>
+        </ul>
+      </article>
+      </div>
+      <p class="bebidas"><strong>Bebidas:</strong> vino de la casa (copa 3,50 €) · cerveza artesana 3,80 € · refrescos 2,50 € · agua 2,00 € · café 1,60 €</p>
+    </section>
+
+    <section class="menu-dia" id="menu-dia" aria-labelledby="t-menu">
+      <div class="menu-dia-box">
+        <p class="etiqueta">De lunes a viernes, al mediodía</p>
+        <h2 id="t-menu">Menú del día</h2>
+        <p class="precio-grande">14,90 € <small>bebida y café incluidos</small></p>
+      </div>
+      <ul class="menu-dia-lista">
+        <li><strong>Primero a elegir</strong>Ensalada templada de cabra · Crema de calabaza · Croquetas caseras</li>
+        <li><strong>Segundo a elegir</strong>Arroz meloso de verduras · Presa ibérica · Merluza a la plancha</li>
+        <li><strong>Postre</strong>Tarta de queso · Fruta de temporada · Helado</li>
+      </ul>
+    </section>
+
+    <section class="nosotros" id="nosotros" aria-labelledby="t-nosotros">
+      <div class="nosotros-box">
+        <h2 id="t-nosotros">Cocina sencilla, producto de temporada</h2>
+        <p>En Almi Bites cocinamos raciones pequeñas para que pruebes más y compartas todo. Trabajamos con proveedores locales y cambiamos la carta cada temporada.</p>
+        <p>Pasa a comer, a cenar o a tomar algo en la barra. Si vienes en grupo, te recomendamos reservar.</p>
+      </div>
+      <dl class="horario">
+        <div><dt>Lunes a jueves</dt><dd>12:30 – 23:00</dd></div>
+        <div><dt>Viernes y sábado</dt><dd>12:30 – 00:30</dd></div>
+        <div><dt>Domingo</dt><dd>12:30 – 17:00</dd></div>
+      </dl>
+    </section>
+
+    <section class="opiniones" id="opiniones" aria-labelledby="t-op">
+      <h2 id="t-op">Lo que dicen de nosotros</h2>
+      <div class="op-layout">
+      <div class="op-grid">
+        <blockquote><p class="valoracion" role="img" aria-label="5 de 5 estrellas">★★★★★</p><p>“Fuimos a cenar con amigos y acabamos pidiendo todo para compartir. Las croquetas, de otro nivel.”</p><cite>Laura M.</cite></blockquote>
+        <blockquote><p class="valoracion" role="img" aria-label="4 de 5 estrellas">★★★★<span class="off">★</span></p><p>“Local acogedor, servicio rápido y un menú del día que merece mucho la pena.”</p><cite>Iker A.</cite></blockquote>
+        <blockquote><p class="valoracion" role="img" aria-label="5 de 5 estrellas">★★★★★</p><p>“La tarta de queso es la mejor que he probado en mucho tiempo. Volveremos seguro.”</p><cite>Marta y Pablo</cite></blockquote>
+      </div>
+
+        <form class="resena" aria-labelledby="t-resena">
+          <h3 id="t-resena">Deja tu reseña</h3>
+          <p>Cuéntanos qué tal fue tu visita.</p>
+
+          <label for="r-nombre">Nombre</label>
+          <input type="text" id="r-nombre" name="nombre" placeholder="Tu nombre">
+
+          <fieldset class="estrellas">
+            <legend>Tu valoración</legend>
+            <div class="stars">
+              <input type="radio" name="valoracion" id="v5"><label for="v5" title="5 estrellas">★<span class="sr">5 estrellas</span></label>
+              <input type="radio" name="valoracion" id="v4"><label for="v4" title="4 estrellas">★<span class="sr">4 estrellas</span></label>
+              <input type="radio" name="valoracion" id="v3"><label for="v3" title="3 estrellas">★<span class="sr">3 estrellas</span></label>
+              <input type="radio" name="valoracion" id="v2"><label for="v2" title="2 estrellas">★<span class="sr">2 estrellas</span></label>
+              <input type="radio" name="valoracion" id="v1"><label for="v1" title="1 estrella">★<span class="sr">1 estrella</span></label>
+            </div>
+          </fieldset>
+
+          <label for="r-texto">Tu opinión</label>
+          <textarea id="r-texto" name="opinion" rows="4" placeholder="¿Qué fue lo que más te gustó?"></textarea>
+
+          <button class="btn" type="button">Publicar reseña</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="donde" id="donde" aria-labelledby="t-donde">
+      <h2 id="t-donde">Dónde estamos</h2>
+      <p class="lead">Avda. Lehendakari Aguirre 29, 48014 Bilbao</p>
+      <iframe title="Mapa con la ubicación del restaurante" loading="lazy"
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-2.9560%2C43.2670%2C-2.9380%2C43.2760&amp;layer=mapnik&amp;marker=43.2715%2C-2.9470"></iframe>
+      <div class="geo">
+        <button class="btn" type="button" id="geo-btn">📍 ¿A cuánto estoy?</button>
+        <p class="geo-out" id="geo-out" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="contacto" id="contacto" aria-labelledby="t-contacto">
+      <h2 id="t-contacto">Contacto</h2>
+      <p class="lead">Escríbenos y te respondemos lo antes posible.</p>
+      <form>
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Tu nombre">
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" placeholder="tu@correo.com">
+
+        <label for="mensaje">Mensaje</label>
+        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Cuéntanos qué necesitas"></textarea>
+
+        <button class="btn" type="button">Enviar mensaje</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Almi Bites · Proyecto del Reto 1 Almi-Chain, ASIR 1</p>
+    <p>Avda. Lehendakari Aguirre 29, Bilbao · 944 10 38 37 · almibites@gmail.com</p>
+  </footer>
+  <script src="geo.js" defer></script>
+</body>
+</html>

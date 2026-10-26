@@ -1,0 +1,12 @@
+#!/bin/sh
+# /home/arcade/.xinitrc — se ejecuta al arrancar X: abre MAME y guarda la monitorización
+# Sin salvapantallas ni apagado de pantalla
+xset s off -dpms
+# Monitorización: CPU, RAM y swap cada 5 segundos mientras se juega
+mkdir -p "$HOME/rendimiento"
+vmstat -t 5 >> "$HOME/rendimiento/vmstat-$(date +%F_%H%M).log" &
+VMSTAT_PID=$!
+# La recreativa
+mame
+# Al salir de MAME se para la monitorización (y getty vuelve a abrir la sesión: es una recreativa)
+kill "$VMSTAT_PID"

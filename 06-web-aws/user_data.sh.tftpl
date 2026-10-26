@@ -1,0 +1,107 @@
+#!/bin/bash
+# ================================================================
+#  Script de arranque de la EC2 (lo genera Terraform con templatefile)
+#  1) Instala Nginx y Certbot
+#  2) Configura Nginx (la web la sube Terraform por SSH a /var/www/almibites)
+#  3) Apunta el dominio DuckDNS a la IP elástica
+#  4) Pide el certificado HTTPS a Let's Encrypt y redirige HTTP -> HTTPS
+#  Log: /var/log/almibites-setup.log
+# ================================================================
+exec > >(tee -a /var/log/almibites-setup.log) 2>&1
+set -x
+
+DOMINIO="${dominio}"
+SUBDOMINIO="${duckdns_subdominio}"
+DUCK_TOKEN="${duckdns_token}"
+EIP="${eip}"
+EMAIL="${email}"
+STAGING="${staging}"
+WEBROOT="/var/www/almibites"
+
+echo "==> [1/4] Instalando paquetes"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -y
+apt-get install -y nginx certbot python3-certbot-nginx dnsutils curl
+
+echo "==> [2/4] Preparando la carpeta de la web"
+mkdir -p "$WEBROOT"
+if [ ! -f "$WEBROOT/index.html" ]; then
+  echo "<h1>Almi Bites</h1><p>Subiendo la web...</p>" > "$WEBROOT/index.html"
+fi
+chown -R www-data:www-data "$WEBROOT"
+
+echo "==> Configurando Nginx (HTTP; Certbot añadirá HTTPS)"
+cat > /etc/nginx/sites-available/almibites <<'EOF'
+server {
+    listen 80;
+    listen [::]:80;
+    server_name DOMINIO_AQUI;
+
+    root /var/www/almibites;
+    index index.html;
+
+    server_tokens off;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # La web pide la ubicación del visitante (geolocalización)
+    add_header Permissions-Policy "geolocation=(self)" always;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~* \.(css|js|png|jpg|jpeg|webp|svg|ico)$ {
+        expires 7d;
+        add_header Cache-Control "public";
+    }
+}
+EOF
+sed -i "s/DOMINIO_AQUI/$DOMINIO/" /etc/nginx/sites-available/almibites
+ln -sf /etc/nginx/sites-available/almibites /etc/nginx/sites-enabled/almibites
+rm -f /etc/nginx/sites-enabled/default
+nginx -t && systemctl enable nginx && systemctl restart nginx
+
+echo "==> [3/4] Actualizando DuckDNS: $DOMINIO -> $EIP"
+RESP=""
+for i in $(seq 1 10); do
+  RESP=$(curl -fsS "https://www.duckdns.org/update?domains=$SUBDOMINIO&token=$DUCK_TOKEN&ip=$EIP" || true)
+  [ "$RESP" = "OK" ] && break
+  sleep 10
+done
+if [ "$RESP" != "OK" ]; then
+  echo "ERROR: DuckDNS respondió '$RESP'. Revisa el subdominio y el token. La web queda solo en HTTP."
+  exit 1
+fi
+
+# Esperar a que la IP elástica esté asociada a esta máquina
+IMDS_TOKEN=$(curl -sX PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+for i in $(seq 1 30); do
+  MI_IP=$(curl -s -H "X-aws-ec2-metadata-token: $IMDS_TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)
+  [ "$MI_IP" = "$EIP" ] && break
+  echo "Esperando a que se asocie la IP elástica ($MI_IP != $EIP)..."
+  sleep 10
+done
+
+# Esperar a que el DNS de DuckDNS devuelva la IP elástica
+for i in $(seq 1 30); do
+  DNS_IP=$(dig +short "$DOMINIO" @ns1.duckdns.org | tail -n1)
+  [ "$DNS_IP" = "$EIP" ] && break
+  echo "Esperando DNS ($DNS_IP != $EIP)..."
+  sleep 10
+done
+
+echo "==> [4/4] Pidiendo certificado HTTPS a Let's Encrypt"
+EXTRA=""
+[ "$STAGING" = "true" ] && EXTRA="--staging"
+for i in 1 2 3; do
+  if certbot --nginx -d "$DOMINIO" --non-interactive --agree-tos -m "$EMAIL" --redirect $EXTRA; then
+    echo "==> LISTO: https://$DOMINIO"
+    break
+  fi
+  echo "Certbot falló (intento $i/3), reintento en 60 s..."
+  sleep 60
+done
+
+# El paquete certbot de Ubuntu ya trae un timer que renueva el certificado solo
+systemctl list-timers | grep -i certbot || true
