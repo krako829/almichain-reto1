@@ -51,7 +51,7 @@ flowchart LR
 
 ## Máquinas virtuales exportadas
 
-Las VM Linux están exportadas en formato **.ova** en la sección **Releases** de este repositorio. Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Red NAT → ALMICHAIN**. Las contraseñas no están en el repositorio: están en el gestor de contraseñas del equipo.
+Las VM Linux se exportan en formato **.ova** y se publican en la sección **Releases** de este repositorio (en preparación). Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Red NAT → ALMICHAIN**. Las contraseñas no están en el repositorio: están en el gestor de contraseñas del equipo.
 
 ## Reglas del repositorio
 

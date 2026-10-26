@@ -1,12 +1,15 @@
 #!/bin/sh
-# /home/arcade/.xinitrc — se ejecuta al arrancar X: abre MAME y guarda la monitorización
+# /home/arcade/.xinitrc - se ejecuta al arrancar X: abre MAME y guarda la monitorizacion
 # Sin salvapantallas ni apagado de pantalla
 xset s off -dpms
-# Monitorización: CPU, RAM y swap cada 5 segundos mientras se juega
+# Monitorizacion: CPU, RAM y swap cada 5 segundos mientras se juega
 mkdir -p "$HOME/rendimiento"
 vmstat -t 5 >> "$HOME/rendimiento/vmstat-$(date +%F_%H%M).log" &
 VMSTAT_PID=$!
-# La recreativa
-mame
-# Al salir de MAME se para la monitorización (y getty vuelve a abrir la sesión: es una recreativa)
+# Si la maquina no tiene tarjeta de sonido, MAME se cierra al arrancar: sin sonido en ese caso
+SONIDO=""
+grep -q '^ *[0-9]' /proc/asound/cards 2>/dev/null || SONIDO="-sound none"
+# La recreativa (los errores quedan en rendimiento/mame.log)
+/usr/games/mame $SONIDO >> "$HOME/rendimiento/mame.log" 2>&1
+# Al salir de MAME se para la monitorizacion (y getty vuelve a abrir la sesion: es una recreativa)
 kill "$VMSTAT_PID"
