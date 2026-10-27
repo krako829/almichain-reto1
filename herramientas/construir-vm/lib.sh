@@ -194,3 +194,26 @@ cron_root() {
 # Las copias que llegan del otro servidor las borra quien las recibe (el que envía no puede)
 # shellcheck disable=SC2034
 LIMPIAR_RECIBIDAS='15 3 * * * find /srv/copias-remotas -type f -mtime +30 -delete'
+
+# cortafuegos_al_arrancar <script>: el cortafuegos se pone en el primer arranque ANTES de que haya red
+# (DefaultDependencies=no y Before=network-pre.target), así el servidor nunca está en la red sin él
+cortafuegos_al_arrancar() {
+  install -m 700 "$1" "$R/usr/local/sbin/almi-cortafuegos.sh"
+  cat > "$R/etc/systemd/system/almi-cortafuegos.service" <<'EOS'
+[Unit]
+Description=Almi-Chain: cortafuegos (primer arranque, antes de que haya red)
+DefaultDependencies=no
+After=local-fs.target ufw.service
+Before=network-pre.target ssh.service
+Wants=network-pre.target
+ConditionPathExists=!/etc/almichain/cortafuegos-hecho
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/almi-cortafuegos.sh
+
+[Install]
+WantedBy=multi-user.target
+EOS
+  en_chroot "systemctl enable almi-cortafuegos.service >/dev/null 2>&1"
+}

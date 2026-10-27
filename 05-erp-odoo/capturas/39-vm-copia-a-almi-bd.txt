@@ -1,8 +1,8 @@
 $ sudo /usr/local/bin/copia-odoo.sh && sudo tail -1 /var/log/copia-odoo.log
 Warning: Permanently added '192.168.10.20' (ED25519) to the list of known hosts.
-2026-10-27 12:49:08 copia OK
+2026-10-27 17:20:15 copia OK
 $ sudo ls /var/backups/odoo
-almichain-2026-10-27_1248.dump	filestore-2026-10-27_1248.tar.gz  huellas-2026-10-27_1248.sha256
+almichain-2026-10-27_1719.dump	filestore-2026-10-27_1719.tar.gz  huellas-2026-10-27_1719.sha256
 $ sudo crontab -l | grep -v '^#'
 30 2 * * * /usr/local/bin/copia-odoo.sh
 15 3 * * * find /srv/copias-remotas -type f -mtime +30 -delete

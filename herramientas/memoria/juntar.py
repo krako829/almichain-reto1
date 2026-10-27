@@ -71,7 +71,15 @@ def procesar(ruta, titulo, anexo=False):
     if titulo:
         md = re.sub(r'^# .*$', f'# {titulo}', md, count=1, flags=re.M)
     if anexo:  # todos los títulos un nivel más abajo; el H1 pasa a H2 del capítulo "Anexos"
-        md = re.sub(r'^(#{1,5}) ', lambda m: '#' + m.group(1) + ' ', md, flags=re.M)
+        # (sin tocar las líneas de dentro de los bloques de código: los comentarios de bash empiezan por #)
+        lineas, en_codigo = [], False
+        for l in md.split('\n'):
+            if l.lstrip().startswith('```'):
+                en_codigo = not en_codigo
+            elif not en_codigo and re.match(r'^#{1,5} ', l):
+                l = '#' + l
+            lineas.append(l)
+        md = '\n'.join(lineas)
 
     def figura_de(m):
         """Imágenes y diagramas Mermaid en una sola pasada, para numerarlos en orden."""
@@ -100,6 +108,8 @@ def procesar(ruta, titulo, anexo=False):
         if destino in ('.', ''):
             destino = 'raíz del repositorio'
         limpio = texto.strip('`')
+        if '/' in limpio and not limpio.startswith('/'):   # texto que es una ruta relativa (../x): normalizarla
+            limpio = os.path.normpath(os.path.join(base, limpio)).replace('\\', '/')
         # Si el texto ya es la ruta (o el nombre del archivo), no se repite
         if limpio.rstrip('/') in (destino, os.path.basename(destino)) or destino.endswith(limpio.rstrip('/')):
             return f'`{destino}`'

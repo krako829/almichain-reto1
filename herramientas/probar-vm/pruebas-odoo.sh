@@ -48,9 +48,11 @@ $C transcribir "$CAP/37-vm-certificado-servidor.txt" 120 \
   "sudo ls -l /etc/ssl/almichain/" "cat /etc/issue.d/almichain-odoo.issue" | limpia
 sudo_v
 $C transcribir "$CAP/38-vm-secretos-cortafuegos.txt" 120 \
-  "sudo ufw status" "ss -ltn | grep -E ':(22|80|443|8069) '" \
+  "sudo ufw status" "systemctl status almi-cortafuegos --no-pager | sed -n 3,4p" "ss -ltn | grep -E ':(22|80|443|8069) '" \
   "sudo stat -c '%a %U %n' /opt/odoo/.env /root/credenciales-primer-arranque.txt" \
   "sudo grep -c 'contraseña maestra larga' /opt/odoo/config/odoo.conf" \
-  "ls /etc/ssh/ssh_host_*_key.pub; systemctl is-active ssh nginx docker" \
+  "sudo grep -E '^  [^ ]+@[^ ]+: ' /root/credenciales-primer-arranque.txt | sed 's/: .*/: (contraseña nueva, oculta)/'" \
+  "$DC exec -T db psql -U odoo -d almichain -At -c \"SELECT key, length(value) FROM ir_config_parameter WHERE key IN ('database.secret','database.uuid')\"" \
+  "ls -l --time-style=+%F_%T /etc/ssh/ssh_host_*_key.pub; systemctl is-active ssh nginx docker" \
   "sudo chage -l almiadmin | head -1" | limpia
 echo "Pruebas de ALMI-ODOO terminadas: $CAP"

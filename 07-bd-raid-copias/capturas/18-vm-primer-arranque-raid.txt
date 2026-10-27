@@ -18,7 +18,7 @@ active
 $ sudo mount --bind / /mnt && sudo ls -A /mnt/var/lib/mysql | wc -l; sudo umount /mnt
 0
 $ grep -E '^(ARRAY|PROGRAM)' /etc/mdadm/mdadm.conf; grep INITRDSTART /etc/default/mdadm
-ARRAY /dev/md0 metadata=1.2 UUID=166a2992:35fe2e76:370b5c2a:60732ed7
+ARRAY /dev/md0 metadata=1.2 UUID=e3ef775e:b4bf03b6:2aa14044:18b3f038
 PROGRAM /usr/local/sbin/aviso-raid.sh
 INITRDSTART='none'
 $ systemctl is-enabled almi-raid-degradado; systemctl is-active mdmonitor

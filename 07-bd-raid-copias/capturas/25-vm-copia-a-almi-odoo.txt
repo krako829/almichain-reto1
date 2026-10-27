@@ -1,8 +1,8 @@
 $ sudo /usr/local/bin/copia-bd.sh && sudo tail -1 /var/log/copia-bd.log
 Warning: Permanently added '192.168.10.30' (ED25519) to the list of known hosts.
-2026-10-27 12:49:18 copia OK: /var/backups/mariadb/almichain-2026-10-27_1249.sql.gz
+2026-10-27 17:20:25 copia OK: /var/backups/mariadb/almichain-2026-10-27_1720.sql.gz
 $ sudo ls /var/backups/mariadb
-almichain-2026-10-27_1249.sql.gz  almichain-2026-10-27_1249.sql.gz.sha256
+almichain-2026-10-27_1720.sql.gz  almichain-2026-10-27_1720.sql.gz.sha256
 $ sudo crontab -l | grep -v '^#'
 0 2 * * * /usr/local/bin/copia-bd.sh
 15 3 * * * find /srv/copias-remotas -type f -mtime +30 -delete

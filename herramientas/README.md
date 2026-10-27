@@ -19,9 +19,9 @@ Los README de los bloques 02, 05 y 07 explican la instalación **como la haríam
 3. GRUB para arranque por BIOS, con un `grub.cfg` escrito a mano (por UUID).
 4. [`hacer-ova.py`](construir-vm/hacer-ova.py) convierte los discos a VMDK y escribe el `.ovf` y el manifiesto `.mf` con las huellas SHA-256.
 
-Diferencias con una instalación hecha con el instalador: **no hay LVM** (una sola partición ext4), no se instala nada que el instalador ponga y aquí no haga falta (por eso es más pequeña), y la imagen no tiene **ningún secreto propio**: cada VM importada genera en su primer arranque sus claves de host SSH, su certificado HTTPS (Odoo), sus contraseñas de PostgreSQL y de Odoo, y las de los usuarios de MariaDB (BD). La contraseña de `almiadmin` es una inicial que **obliga a cambiarla** la primera vez que se entra (`chage -d 0`).
+Diferencias con una instalación hecha con el instalador: **no hay LVM** (una sola partición ext4), no se instala nada que el instalador ponga y aquí no haga falta (por eso es más pequeña), y la imagen no lleva **claves de servidor ni contraseñas de servicio**: cada VM importada pone el cortafuegos antes de que haya red y genera en su primer arranque sus claves de host SSH, su certificado HTTPS, sus contraseñas de PostgreSQL, la maestra de Odoo, las de los usuarios de Odoo y el secreto de sesiones de Odoo (ODOO), y las de los usuarios de MariaDB (BD). La contraseña de `almiadmin` es una inicial que **obliga a cambiarla** la primera vez que se entra (`chage -d 0`).
 
-Lo único que comparten todas las copias de las OVA es la pareja de claves de las **copias cruzadas** (para que funcionen nada más importar las dos VM). Esa clave solo puede escribir en la carpeta de copias del otro servidor y solo desde su IP (`rrsync -wo -no-del`, `from=`). Para cambiarla, ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md).
+Lo que comparten todas las copias de las OVA es la contraseña inicial de `almiadmin` (obligatorio cambiarla) y la pareja de claves de las **copias cruzadas** (para que funcionen nada más importar las dos VM). Esa clave solo puede escribir en la carpeta de copias del otro servidor y solo desde su IP (`rrsync -wo -no-del`, `from=`). Para cambiarla, ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md).
 
 ### Construirlas
 
@@ -54,6 +54,17 @@ Si hace falta un proxy con certificado propio para descargar paquetes: `APT_CA=/
 
 Todas las VM arrancadas así comparten una red (como la Red NAT ALMICHAIN), así que ALMI-ODOO y ALMI-BD pueden hacerse las copias cruzadas.
 
+Los guiones de prueba se ejecutan en este orden (cada uno deja su transcripción en la carpeta `capturas/` del bloque):
+
+```bash
+cd herramientas/probar-vm
+export CLAVE_INICIAL=... CLAVE_NUEVA=...          # contraseña inicial de almiadmin y la nueva
+./pruebas-odoo.sh  $SALIDA ../../05-erp-odoo/capturas 2560    # deja ALMI-ODOO encendida
+./pruebas-bd.sh    $SALIDA ../../07-bd-raid-copias/capturas   # deja ALMI-BD encendida
+./pruebas-copias.sh ../../05-erp-odoo/capturas ../../07-bd-raid-copias/capturas
+./pruebas-arcade.sh $SALIDA ../../02-linux-recreativa/capturas
+```
+
 **Límites de estas pruebas** (dichos también en cada README):
 
 - Es **QEMU sin KVM**, no VirtualBox: el procesador está emulado (lento; no sirve para medir rendimiento) y no se prueba el importador de VirtualBox, su controlador gráfico ni su audio.
@@ -61,7 +72,13 @@ Todas las VM arrancadas así comparten una red (como la Red NAT ALMICHAIN), así
 
 ## Cómo se hacen las capturas de terminal
 
-1. [`consola.py`](probar-vm/consola.py) `transcribir` ejecuta las órdenes en la VM y guarda **la salida real** en un `.txt` (`$ orden` y debajo lo que sale).
-2. [`pintar-terminal.py`](probar-vm/pintar-terminal.py) dibuja ese `.txt` como una ventana de terminal (`.png`). No cambia ni añade texto.
+1. [`consola.py`](probar-vm/consola.py) `transcribir` ejecuta las órdenes en la VM y guarda **la salida real** en un `.txt` (`$ orden` y debajo lo que sale). Solo se le quitan dos cosas, y siempre a propósito: los mensajes del núcleo que salen mezclados por la consola serie (líneas `[ 123.45…]`) y los *hash* de contraseñas, que se sustituyen por `…(hash recortado)…`.
+2. [`pintar-terminal.py`](probar-vm/pintar-terminal.py) dibuja ese `.txt` como una ventana de terminal (`.png`). Añade solo el *prompt* (`usuario@host:~$`, siempre con `~`) y el título de la ventana; el resto es el texto del `.txt`.
 
 Por eso las capturas de terminal hechas así tienen al lado un `.txt` con el mismo nombre. Las capturas del navegador (Odoo) se hicieron con Chromium sin interfaz y la barra de dirección está dibujada. Las capturas de las carpetas `05-erp-odoo/capturas/01`–`35` y `07-bd-raid-copias/capturas/01`–`12` son de un **servidor de pruebas** (ver "Origen de las evidencias" en el [README principal](../README.md)), no de las VM.
+
+## Cómo se genera la memoria
+
+`herramientas/memoria/generar.sh` junta los README en `docs/Documentacion-Reto1-Almi-Chain.docx` y `.pdf`. Necesita pandoc 3, `python3-docx`, Pillow, `mmdc` (la CLI de Mermaid) y LibreOffice. Los enlaces a archivos del repositorio salen como su ruta (el repositorio es privado), las figuras se numeran solas y los diagramas Mermaid se convierten en imágenes.
+
+Las capturas no son correlativas en algunos bloques (en 05 faltan la 20 y la 24; en 07, de la 13 a la 17) porque se quitaron capturas repetidas o de una versión anterior de la VM; se mantiene la numeración para no romper referencias.

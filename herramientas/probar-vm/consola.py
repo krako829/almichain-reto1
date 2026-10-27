@@ -115,6 +115,8 @@ def main():
         partes = []
         for o in a[4:]:
             rc, salida = c.orden(o, float(a[3]))
+            # fuera los mensajes del núcleo que salen mezclados por la consola serie ([ 123.45] ...)
+            salida = '\n'.join(l for l in salida.split('\n') if not re.match(r'^\[ *\d+\.\d+\] ', l))
             partes.append(f'$ {o}\n{salida}' if salida else f'$ {o}')
             if rc is None:
                 partes.append('(sin terminar en el tiempo máximo)')

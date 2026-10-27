@@ -69,6 +69,7 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 EOF
+cortafuegos_al_arrancar "$B/scripts/cortafuegos-bd.sh"
 en_chroot "systemctl enable almi-crear-raid.service almi-primer-arranque-bd.service mariadb >/dev/null 2>&1"
 
 instalar_grub ""

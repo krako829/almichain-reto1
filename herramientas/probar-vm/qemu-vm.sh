@@ -10,7 +10,7 @@
 #   En vez de un .raw se puede dar una capa .qcow2 de antes, para seguir una prueba (por ejemplo,
 #   arrancar ALMI-BD sin uno de los discos del RAID).
 # - serie: arranca el núcleo de la propia imagen directamente, añadiendo console=ttyS0, para poder
-#   manejarla por la consola serie ($TRABAJO/NOMBRE/serie.sock, con qser.py). La imagen entregada
+#   manejarla por la consola serie ($TRABAJO/NOMBRE/serie.sock, con consola.py). La imagen entregada
 #   no tiene consola serie (en VirtualBox no hace falta).
 # - grub:  arranca como lo haría VirtualBox (BIOS → GRUB del disco), sin consola serie; se ve con
 #   "pantalla".

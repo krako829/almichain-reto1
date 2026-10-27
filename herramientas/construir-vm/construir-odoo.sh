@@ -55,6 +55,7 @@ TimeoutStartSec=3600
 WantedBy=multi-user.target
 EOF
 touch "$R/opt/odoo/primer-arranque/PENDIENTE"
+cortafuegos_al_arrancar "$B/scripts/cortafuegos-odoo.sh"
 en_chroot "systemctl enable docker nginx almi-primer-arranque.service >/dev/null 2>&1"
 
 instalar_grub ""

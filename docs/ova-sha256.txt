@@ -1,0 +1,5 @@
+# Huellas SHA-256 de las máquinas virtuales exportadas (OVA construidas el 27/10/2026 con herramientas/construir-vm)
+# Comprobar con: sha256sum -c ova-sha256.txt (en la carpeta de las .ova) o con unir-ova-linux.sh / unir-ova-windows.bat
+0e323c2f7c8a56dbf49da43279eeaf00decaff2ecf7b32b0daf6097d36aa42e3  ALMI-ARCADE.ova
+bd6585c6ef6aa09b79cf834e35fc5d5d858c2e05fc0cecd4538dc08328316521  ALMI-BD.ova
+a1c8e445bbfe7db7e0740b5f48feeb0223ec302b4d21589e36af0999555eae38  ALMI-ODOO.ova

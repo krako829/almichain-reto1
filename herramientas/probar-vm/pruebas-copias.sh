@@ -25,8 +25,9 @@ $B transcribir "$CB/25-vm-copia-a-almi-odoo.txt" 600 \
 $O transcribir "$CO/40-vm-copias-recibidas-de-bd.txt" 120 \
   "hostname; sudo ls -l /srv/copias-remotas/bd" | limpia
 # Lo que la clave de copias NO puede hacer (desde ALMI-ODOO contra ALMI-BD)
+$B transcribir "$CB/26-vm-clave-copias-en-almi-bd.txt" 60 \
+  "hostname; sudo cat /home/copias/.ssh/authorized_keys | cut -c1-95" | limpia
 $O transcribir "$CO/41-vm-clave-copias-restringida.txt" 300 \
-  "sudo cat /home/copias/.ssh/authorized_keys | cut -c1-95" \
   "$CLAVE copias@192.168.10.20 'ls /'; echo \"código \$?\"" \
   "sudo rsync -a --delete -e '$CLAVE' /var/backups/odoo/ copias@192.168.10.20: 2>&1 | head -2" \
   "sudo rsync -a -e '$CLAVE' copias@192.168.10.20:. /tmp/leer-copias 2>&1 | head -2" \

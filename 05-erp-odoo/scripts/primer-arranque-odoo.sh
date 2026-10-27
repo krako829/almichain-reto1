@@ -1,7 +1,8 @@
 #!/bin/bash
 # Almi-Chain · Primer arranque de ALMI-ODOO importada desde la OVA
 # Genera los secretos propios de ESTA máquina, carga las imágenes de Docker, restaura la base
-# de datos "almichain" y los adjuntos, arranca Odoo y aplica el cortafuegos.
+# de datos "almichain" y los adjuntos, cambia las contraseñas de los usuarios de Odoo y arranca Odoo.
+# (El cortafuegos lo pone antes el servicio almi-cortafuegos: scripts/cortafuegos-odoo.sh.)
 # Se ejecuta una sola vez (servicio almi-primer-arranque).
 set -euo pipefail
 DIR=/opt/odoo/primer-arranque
@@ -60,24 +61,41 @@ if ! $DC exec -T db psql -U odoo -lqt | cut -d'|' -f1 | grep -qw almichain; then
   $DC exec -T db createdb -U odoo almichain
   $DC exec -T db pg_restore -U odoo -d almichain < "$DIR/almichain.dump"
 fi
+# El volcado trae el secreto con el que Odoo firma las sesiones y los enlaces (database.secret)
+# y el identificador de la base: se cambian, para que no sean iguales en todas las copias
+$DC exec -T db psql -U odoo -d almichain -q -c \
+  "UPDATE ir_config_parameter SET value = gen_random_uuid()::text WHERE key IN ('database.secret', 'database.uuid')"
 
 # 4. Adjuntos (logotipo, imágenes de productos, PDF de facturas)
 $DC run --rm --no-deps --entrypoint "" -v "$DIR:/restaurar:ro" odoo \
   bash -c "mkdir -p /var/lib/odoo/filestore && tar xzf /restaurar/filestore.tar.gz -C /var/lib/odoo && chown -R odoo:odoo /var/lib/odoo"
+
+# 4b. Contraseñas nuevas para los usuarios de Odoo (administrador, gerente y camareros): el volcado
+#     trae las de la base de ejemplo. Se generan aquí y se guardan en $CRED
+#     (odoo shell con los datos de conexión del contenedor; sirve con la imagen oficial y con la de la VM)
+# shellcheck disable=SC2016  # $PASSWORD y $B se expanden dentro del contenedor
+$DC run --rm --no-deps -T --entrypoint /bin/sh odoo -c '
+  B=$(command -v odoo || echo /opt/odoo/odoo-bin)
+  set -- shell -c /etc/odoo/odoo.conf --db_host db --db_user odoo --db_password "$PASSWORD" -d almichain --no-http --log-level=warn
+  if command -v gosu >/dev/null; then exec gosu odoo python3 "$B" "$@"; else exec "$B" "$@"; fi' <<'PY' | grep -v '^Warn' >> "$CRED"
+import secrets
+print("\nUsuarios de Odoo (https://192.168.10.30) con contraseña nueva:")
+for u in env["res.users"].search([("share", "=", False), ("id", "!=", 1)]):
+    clave = secrets.token_urlsafe(12)
+    u.password = clave
+    print(f"  {u.login}: {clave}")
+env.cr.commit()
+PY
+chmod 600 "$CRED"
 
 # 5. Odoo y nginx en marcha (nginx no podía arrancar antes: no había certificado)
 $DC up -d
 $DC ps
 systemctl restart nginx
 
-# 6. Cortafuegos con las redes del diseño (04-red): SSH desde gestión (VLAN 10) y administración (VLAN 99);
-#    HTTP y HTTPS desde gestión y TPV (VLAN 20). En el laboratorio todo está en 192.168.10.0/24.
-ufw --force reset >/dev/null
-ufw default deny incoming
-ufw default allow outgoing
-for red in 192.168.10.0/24 192.168.99.0/24; do ufw allow from "$red" to any port 22 proto tcp; done
-for red in 192.168.10.0/24 192.168.20.0/24; do ufw allow from "$red" to any port 80,443 proto tcp; done
-ufw --force enable
+# 6. El cortafuegos ya está puesto: lo pone el servicio almi-cortafuegos antes de que haya red
+#    (scripts/cortafuegos-odoo.sh)
+ufw status | head -1
 
 # 7. Limpiar: los archivos grandes ya no hacen falta
 rm -f "$DIR/odoo-imagenes.tar" "$DIR/PENDIENTE"

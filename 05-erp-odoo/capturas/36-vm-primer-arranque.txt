@@ -1,10 +1,10 @@
 $ sudo grep -E '^== ' /var/log/almi-primer-arranque.log
-== 2026-10-27 11:55:37 Primer arranque de ALMI-ODOO ==
-== 2026-10-27 12:12:21 Listo: https://192.168.10.30 · huella del certificado: CC:9B:03:B3:6E:28:B4:16:7C:F6:76:FF:3C:31:F8:09:5A:58:0C:43:5A:EE:24:62:44:E2:9A:05:86:D9:27:11 ==
+== 2026-10-27 17:01:52 Primer arranque de ALMI-ODOO ==
+== 2026-10-27 17:17:31 Listo: https://192.168.10.30 · huella del certificado: B2:7E:21:36:CA:87:8B:3E:58:5A:1C:2F:62:19:7B:E3:14:E9:AD:1C:4D:AC:16:BF:F3:FD:55:C2:71:78:BA:03 ==
 $ sudo docker compose --project-directory /opt/odoo ps --format 'table {{.Name}}\t{{.Image}}\t{{.Status}}'
 NAME          IMAGE         STATUS
-odoo-db-1     postgres:16   Up 40 minutes
-odoo-odoo-1   odoo:18.0     Up 36 minutes
+odoo-db-1     postgres:16   Up 6 minutes
+odoo-odoo-1   odoo:18.0     Up About a minute
 $ curl -s -o /dev/null -w 'HTTPS %{http_code}\n' --cacert /etc/ssl/almichain/odoo.crt https://192.168.10.30/web/login
 HTTPS 200
 $ sudo docker compose --project-directory /opt/odoo exec -T db psql -U odoo -d almichain -c 'SELECT name, state, amount_total FROM pos_order ORDER BY id'

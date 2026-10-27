@@ -4,7 +4,7 @@ mdadm: added /dev/sdc
 $ sleep 5; cat /proc/mdstat | sed -n 2,4p
 md0 : active raid1 sdc[2] sdb[0]
       10476544 blocks super 1.2 [2/1] [U_]
-      [==>..................]  recovery = 10.9% (1145856/10476544) finish=0.6min speed=229171K/sec
+      [=>...................]  recovery =  5.7% (599616/10476544) finish=1.3min speed=119923K/sec
 $ sudo mdadm --wait /dev/md0; cat /proc/mdstat | sed -n 2,3p
 md0 : active raid1 sdc[2] sdb[0]
       10476544 blocks super 1.2 [2/2] [UU]

@@ -50,16 +50,16 @@ $C transcribir "$CAP/19-vm-usuarios-secretos-cortafuegos.txt" 200 \
   "sudo stat -c '%a %U %n' /root/credenciales-primer-arranque.txt /root/.my.cnf /home/almiadmin/.consulta.cnf" \
   "mariadb --defaults-file=\$HOME/.consulta.cnf -e 'SELECT CURRENT_USER(), COUNT(*) AS facturas FROM almichain.factura'" \
   "mariadb --defaults-file=\$HOME/.consulta.cnf -e 'DELETE FROM almichain.factura'" \
-  "sudo ufw status" "ls /etc/ssh/ssh_host_*_key.pub; systemctl is-active ssh" \
+  "sudo ufw status" "systemctl status almi-cortafuegos --no-pager | sed -n 3,4p" "ls -l --time-style=+%F_%T /etc/ssh/ssh_host_*_key.pub; systemctl is-active ssh" \
   "sudo chage -l almiadmin | head -1" | limpia
 # El hash de la contraseña (de esta prueba) no se deja en la transcripción
 sed -i "s/IDENTIFIED BY PASSWORD '\*[0-9A-F]\{40\}'/IDENTIFIED BY PASSWORD '*…(hash recortado)…'/" "$CAP/19-vm-usuarios-secretos-cortafuegos.txt"
 
 # --- 2. Prueba A: fallo de un disco en marcha, aviso y reconstrucción ---
 $C transcribir "$CAP/20-vm-raid-fallo-y-aviso.txt" 300 \
-  "sudo mdadm /dev/md0 --fail /dev/sdc 2>&1" "cat /proc/mdstat | sed -n 2,3p" \
+  "date '+%T'; sudo mdadm /dev/md0 --fail /dev/sdc 2>&1" "cat /proc/mdstat | sed -n 2,3p" \
   "sudo mariadb -e \"INSERT INTO almichain.cliente (nombre, apellidos, telefono) VALUES ('Prueba', 'RAID', '699999999'); SELECT COUNT(*) AS clientes FROM almichain.cliente\"" \
-  "sleep 70; sudo tail -3 /var/log/aviso-raid.log" | limpia
+  "sleep 70; date '+%T'; sudo tail -3 /var/log/aviso-raid.log" "sudo journalctl -t aviso-raid --no-pager -o short | tail -2" | limpia
 $C transcribir "$CAP/21-vm-raid-reconstruccion.txt" 900 \
   "sudo mdadm /dev/md0 --remove /dev/sdc && sudo mdadm /dev/md0 --add /dev/sdc" \
   "sleep 5; cat /proc/mdstat | sed -n 2,4p" "sudo mdadm --wait /dev/md0; cat /proc/mdstat | sed -n 2,3p" \

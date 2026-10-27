@@ -1,5 +1,3 @@
-$ sudo cat /home/copias/.ssh/authorized_keys | cut -c1-95
-command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/bd/",from="192.168.10.20",restrict ssh
 $ sudo ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes copias@192.168.10.20 'ls /'; echo "código $?"
 /usr/bin/rrsync error: SSH_ORIGINAL_COMMAND does not run rsync
 código 1

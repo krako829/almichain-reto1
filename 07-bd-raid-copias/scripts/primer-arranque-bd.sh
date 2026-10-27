@@ -3,7 +3,7 @@
 # Se ejecuta una sola vez (servicio almi-primer-arranque-bd), DESPUÉS de crear el RAID
 # (almi-crear-raid) y con MariaDB ya en marcha:
 #   1. Contraseñas nuevas para app_almichain, consulta y copias (distintas en cada copia de la OVA)
-#   2. Cortafuegos: solo SSH desde las VLAN 10 y 99
+#   (El cortafuegos lo pone antes el servicio almi-cortafuegos: scripts/cortafuegos-bd.sh)
 set -euo pipefail
 LOG=/var/log/almi-primer-arranque-bd.log
 CRED=/root/credenciales-primer-arranque.txt
@@ -42,12 +42,9 @@ chmod 600 "$CRED"
 unset P_APP P_CONSULTA P_COPIAS
 mariadb -e "SELECT User, Host FROM mysql.user WHERE User IN ('app_almichain','consulta','copias')"
 
-# 2. Cortafuegos: este servidor no tiene web; SSH solo desde gestión (VLAN 10) y administración (VLAN 99)
-ufw --force reset >/dev/null
-ufw default deny incoming
-ufw default allow outgoing
-for red in 192.168.10.0/24 192.168.99.0/24; do ufw allow from "$red" to any port 22 proto tcp; done
-ufw --force enable
+# 2. El cortafuegos ya está puesto: lo pone el servicio almi-cortafuegos antes de que haya red
+#    (scripts/cortafuegos-bd.sh)
+ufw status | head -1
 
 mkdir -p /etc/almichain && date '+%F %T' > "$MARCA"
 echo "== $(date '+%F %T') Listo. Contraseñas nuevas en $CRED (solo root) =="
