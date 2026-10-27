@@ -24,3 +24,6 @@ __pycache__/
 # Sistema
 .DS_Store
 Thumbs.db
+# Discos y OVA que generan las herramientas
+herramientas/construir-vm/salida/
+herramientas/memoria/trabajo/

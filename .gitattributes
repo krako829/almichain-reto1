@@ -1,0 +1,11 @@
+# Archivos binarios: Git no intenta hacer diffs de texto con ellos
+*.pdf  binary
+*.docx binary
+*.png  binary
+*.jpg  binary
+*.webp binary
+*.ico  binary
+# Scripts de Windows con fin de línea de Windows; los de Linux, con el de Linux
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.sh   text eol=lf
