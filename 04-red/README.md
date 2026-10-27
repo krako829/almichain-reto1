@@ -21,7 +21,7 @@ Tareas del tablero: R01 a R10.
 
 ## Línea WAN (R02)
 
-Criterios: fibra simétrica de 300 Mb/s o más, **IP fija**, soporte 24 h y respaldo móvil 4G/5G para que el TPV no se quede sin línea. La comparativa de operadores (precio, enlace y fecha) está en el [presupuesto](../presupuesto/README.md#red-r02-r04).
+Criterios: fibra simétrica de 300 Mb/s o más, **IP fija**, soporte 24 h y respaldo móvil 4G/5G para que el TPV no se quede sin línea. La comparativa de 4 operadores (precio, enlace y fecha) irá en el [presupuesto](../presupuesto/README.md#red-r02-r04): **pendiente** (la fila está «por completar»).
 
 ## Plan de direccionamiento (R03)
 
@@ -125,20 +125,22 @@ Guía detallada: [`routers/configuracion-routers.md`](routers/configuracion-rout
 
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
-| 1 | VLAN | `show vlan brief` en SW-ALMI | Puertos en 10, 20, 30 y 998 | | |
-| 2 | Troncal | `show interfaces trunk` | Gi0/1, nativa 999, VLAN 10,20,30,99 | | |
-| 3 | DHCP | `show ip dhcp binding` en R-ALMI | IPs a PCs y portátiles | | |
-| 4 | Cliente a Internet | CLIENTE1 → http://www.ejemplo.com | Abre la web | | |
-| 5 | Cliente aislado | CLIENTE1 `ping 192.168.10.30` y `192.168.20.100` | Fallan | | |
-| 6 | TPV solo a Odoo | TPV1 → http://192.168.10.30 y `ping 192.168.10.20` | Abre Odoo; el ping falla | | |
-| 7 | Gerente | `ping 192.168.10.20` y `198.51.100.10` | Responden | | |
-| 8 | NAT y ACL | `show ip nat translations` y `show access-lists` | Traducciones y coincidencias en los deny | | |
-| 9 | SSH | PC-GERENTE `ssh -l almiadmin 192.168.10.1` | Entra en R-ALMI | | |
-| 9b | SSH bloqueado desde fuera de gestión | CLIENTE1 `ssh -l almiadmin 192.168.30.1` y TPV1 `ssh -l almiadmin 192.168.20.1` | Conexión rechazada | | |
-| 10 | Routers seguros | Contraseña de fábrica y WPS | No entra con la de la pegatina; WPS desactivado | | |
-| 11 | Cliente en R2 recibe IP de R1 | `ip -4 addr` y `ip route` | Red de R1, puerta = R1 | | |
-| 12 | Repetidor sin pérdidas | `ping -c 20` a R1 y a 8.8.8.8 | 0 % de pérdidas | | |
-| 13 | Velocidad y cobertura | `iperf3 -c` en 4 puntos | Por R2 ~la mitad (normal en WDS); en el punto más lejano R2 da más señal | | |
+| 1 | VLAN | `show vlan brief` en SW-ALMI | Puertos en 10, 20, 30 y 998 | Pendiente — en clase | |
+| 2 | Troncal | `show interfaces trunk` | Gi0/1, nativa 999, VLAN 10,20,30,99 | Pendiente — en clase | |
+| 3 | DHCP | `show ip dhcp binding` en R-ALMI | IPs a PCs y portátiles | Pendiente — en clase | |
+| 4 | Cliente a Internet | CLIENTE1 → http://www.ejemplo.com | Abre la web | Pendiente — en clase | |
+| 5 | Cliente aislado | CLIENTE1 `ping 192.168.10.30` y `192.168.20.100` | Fallan | Pendiente — en clase | |
+| 6 | TPV solo a Odoo | TPV1 → http://192.168.10.30 y `ping 192.168.10.20` | Abre Odoo; el ping falla | Pendiente — en clase | |
+| 7 | Gerente | `ping 192.168.10.20` y `198.51.100.10` | Responden | Pendiente — en clase | |
+| 8 | NAT y ACL | `show ip nat translations` y `show access-lists` | Traducciones y coincidencias en los deny | Pendiente — en clase | |
+| 9 | SSH | PC-GERENTE `ssh -l almiadmin 192.168.10.1` | Entra en R-ALMI | Pendiente — en clase | |
+| 9b | SSH bloqueado desde fuera de gestión | CLIENTE1 `ssh -l almiadmin 192.168.30.1` y TPV1 `ssh -l almiadmin 192.168.20.1` | Conexión rechazada | Pendiente — en clase | |
+| 10 | Routers seguros | Contraseña de fábrica y WPS | No entra con la de la pegatina; WPS desactivado | Pendiente — en clase | |
+| 11 | Cliente en R2 recibe IP de R1 | `ip -4 addr` y `ip route` | Red de R1, puerta = R1 | Pendiente — en clase | |
+| 12 | Repetidor sin pérdidas | `ping -c 20` a R1 y a 8.8.8.8 | 0 % de pérdidas | Pendiente — en clase | |
+| 13 | Velocidad y cobertura | `iperf3 -c` en 4 puntos | Por R2 ~la mitad (normal en WDS); en el punto más lejano R2 da más señal | Pendiente — en clase | |
+
+**Estado**: la red todavía no se ha montado en Packet Tracer ni con los routers físicos: las configuraciones se han revisado a mano, pero ninguna prueba está hecha. El `.pkt`, las capturas y los resultados se hacen en clase.
 
 ## Problemas encontrados y previstos
 

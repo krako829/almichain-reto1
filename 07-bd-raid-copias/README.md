@@ -119,6 +119,8 @@ sudo update-initramfs -u
 sudo systemctl start mariadb
 ```
 
+> **Mejor con el script.** Los comandos de arriba hacen el RAID, pero **no** dos cosas que sí hace [`scripts/crear-raid.sh`](scripts/crear-raid.sh) (apartados 7 y 8): el **aviso** cuando falla un disco y el servicio que **arranca el RAID con un solo disco** si falta el otro. Por eso, en un servidor nuevo con los dos discos vacíos, lo recomendado es `sudo ./scripts/crear-raid.sh /dev/sdb /dev/sdc`, que además comprueba que los discos están vacíos.
+
 - `nofail`: si el RAID fallara del todo, el servidor arranca igualmente y se puede reparar por SSH.
 - `RequiresMountsFor`: pero **MariaDB no arranca** si el RAID no está montado. Por eso se vacía la carpeta original: si quedaran los datos viejos debajo del montaje, MariaDB arrancaría con ellos sin avisar y el restaurante trabajaría sobre datos antiguos.
 
@@ -135,7 +137,7 @@ sudo mariadb < 02-datos.sql
 sudo ~/scripts/crear-usuarios-bd.sh 03-usuarios.sql
 ```
 
-[`scripts/crear-usuarios-bd.sh`](scripts/crear-usuarios-bd.sh) pide las tres contraseñas sin enseñarlas (mínimo 12 caracteres) y se las pasa a MariaDB por la entrada estándar, así no quedan en el historial de bash ni se ven con `ps`. [`03-usuarios.sql`](sql/03-usuarios.sql) se para antes de tocar nada si falta alguna contraseña, usa `QUOTE()` (una comilla en la contraseña no rompe nada) y `CREATE OR REPLACE USER` (sirve también para cambiarlas). El script deja la contraseña de `copias` en `/root/.my.cnf` (600) para las copias automáticas.
+[`scripts/crear-usuarios-bd.sh`](scripts/crear-usuarios-bd.sh) pide las tres contraseñas sin enseñarlas (mínimo 12 caracteres) y se las pasa a MariaDB por la entrada estándar, así no quedan en el historial de bash ni se ven con `ps`. [`03-usuarios.sql`](sql/03-usuarios.sql) se para antes de tocar nada si falta alguna contraseña (probado: con `mariadb < 03-usuarios.sql` sin contraseñas sale con código 1 y los usuarios no cambian), usa `QUOTE()` (una comilla en la contraseña no rompe nada) y `CREATE OR REPLACE USER` (sirve también para cambiarlas). El script deja la contraseña de `copias` en `/root/.my.cnf` (600) para las copias automáticas.
 
 ![Esquema y datos cargados: 13 tablas y la vista](capturas/02-esquema-cargado.png)
 
@@ -186,7 +188,26 @@ En **los dos** servidores:
   command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/bd/",from="192.168.10.20",restrict ssh-ed25519 …
   ```
 
-  Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado con un sshd local: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan (transcripción en el informe de auditoría).
+  Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado entre las dos VM: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan (captura [41 de Odoo](../05-erp-odoo/capturas/41-vm-clave-copias-restringida.png) y [26](capturas/26-vm-clave-copias-en-almi-bd.png), con la línea de `authorized_keys` de ALMI-BD).
+- A mano (lo mismo que hace `herramientas/construir-vm/lib.sh`). Los archivos del repositorio se llevan a la VM con `git clone` o `scp -r`. En **ALMI-ODOO**, que envía a ALMI-BD:
+
+  ```bash
+  sudo ssh-keygen -t ed25519 -N '' -C copias-odoo -f /root/.ssh/copias_ed25519
+  sudo cat /root/.ssh/copias_ed25519.pub          # se copia para el otro servidor
+  sudo install -m 700 05-erp-odoo/scripts/copia-odoo.sh /usr/local/bin/copia-odoo.sh
+  ```
+
+  En **ALMI-BD**, que la recibe:
+
+  ```bash
+  sudo useradd -m -s /bin/bash -c 'Copias de seguridad' copias && sudo passwd -l copias
+  sudo install -d -o copias -g copias -m 700 /srv/copias-remotas /srv/copias-remotas/odoo /home/copias/.ssh
+  echo 'command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/odoo/",from="192.168.10.30",restrict ssh-ed25519 AAAA…pegar…' \
+    | sudo tee /home/copias/.ssh/authorized_keys
+  sudo chown copias:copias /home/copias/.ssh/authorized_keys && sudo chmod 600 /home/copias/.ssh/authorized_keys
+  ```
+
+  Y lo mismo al revés (clave en ALMI-BD, `copia-bd.sh`, carpeta `bd` y `from="192.168.10.20"` en ALMI-ODOO). En el cron de root de cada uno (`sudo crontab -e`): `0 2 * * * /usr/local/bin/copia-bd.sh` (o `30 2 … copia-odoo.sh`) y la limpieza de abajo. La primera copia se lanza a mano (`sudo /usr/local/bin/copia-bd.sh`) para que `ssh` guarde la clave de host del otro.
 - El que recibe las copias es quien borra las viejas: en el cron de root, `find /srv/copias-remotas -type f -mtime +30 -delete` (30 días).
 - La primera vez que un servidor envía, guarda la clave de host del otro (`StrictHostKeyChecking=accept-new`); si después cambiara, `ssh` se niega a conectar.
 - Contraseña del usuario `copias` de MariaDB en `/root/.my.cnf` (permisos 600).
@@ -226,7 +247,7 @@ sudo mariadb -e "INSERT INTO almichain.cliente (nombre, apellidos, telefono) VAL
 sudo tail /var/log/aviso-raid.log
 ```
 
-![Disco sdc roto: U_, MariaDB sigue escribiendo y llega el aviso](capturas/20-vm-raid-fallo-y-aviso.png)
+![Disco sdc roto a las 17:07:16: U_, MariaDB sigue escribiendo y el aviso llega a las 17:07:50 (34 s) al registro propio, al del sistema y a la pantalla](capturas/20-vm-raid-fallo-y-aviso.png)
 
 **Cambio del disco y reconstrucción**: se quita del RAID y se vuelve a añadir; mdadm copia los datos del disco bueno al otro.
 
@@ -258,6 +279,8 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 
 ![ALMI-BD hace su copia y la envía a ALMI-ODOO](capturas/25-vm-copia-a-almi-odoo.png)
 
+![La clave de Odoo en ALMI-BD solo puede escribir en su carpeta (rrsync -wo -no-del) y solo desde 192.168.10.30](capturas/26-vm-clave-copias-en-almi-bd.png)
+
 ## Seguridad aplicada
 
 - MariaDB solo escucha en 127.0.0.1; root solo por socket local; sin usuarios anónimos ni base `test`.
@@ -265,7 +288,7 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 - Contraseñas fuera del repositorio (variables al cargar `03-usuarios.sql`, `/root/.my.cnf` con permisos 600).
 - Copias con permisos 700, huella SHA-256 y enviadas con una clave SSH que solo sirve desde la IP del otro servidor, sin terminal y solo para escribir en la carpeta de copias (`rrsync -wo -no-del`).
 - MariaDB no arranca si el RAID no está montado: nunca trabaja con datos viejos por error.
-- Cortafuegos ufw: solo SSH (22) desde la VLAN 10 (gestión) y la 99 (administración).
+- Cortafuegos ufw: solo SSH (22) desde la VLAN 10 (gestión) y la 99 (administración). En la VM exportada lo pone el servicio `almi-cortafuegos` ([`scripts/cortafuegos-bd.sh`](scripts/cortafuegos-bd.sh)) antes de que haya red.
 - Secretos propios en cada VM importada: claves de host SSH y contraseñas de los 3 usuarios de MariaDB se generan en el primer arranque (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)).
 - RAID 1: si falla un disco, la base de datos sigue funcionando.
 

@@ -2,16 +2,16 @@
 %% Hecho a partir de 07-bd-raid-copias/sql/01-esquema.sql. Notación de pata de gallo:
 %% |o = 0..1   || = 1   }o = 0..N   }| = 1..N
 erDiagram
-  CATEGORIA ||--o{ PLATO : "agrupa"
-  COMANDA }o--o{ PLATO : "contiene (cantidad, precio_unitario)"
-  PLATO }o--o{ INGREDIENTE : "lleva (cantidad_necesaria) = receta"
-  PROVEEDOR }o--o{ INGREDIENTE : "suministra (precio_compra)"
-  MESA ||--o{ COMANDA : "se sirve en"
-  EMPLEADO ||--o{ COMANDA : "atiende"
-  CLIENTE |o--o{ COMANDA : "pide (opcional)"
-  COMANDA ||--o| FACTURA : "se cobra con"
   CLIENTE ||--o{ RESERVA : "hace"
   MESA ||--o{ RESERVA : "se reserva en"
+  CLIENTE |o--o{ COMANDA : "pide (opcional)"
+  MESA ||--o{ COMANDA : "se sirve en"
+  EMPLEADO ||--o{ COMANDA : "atiende"
+  COMANDA ||--o| FACTURA : "se cobra con"
+  COMANDA }o--o{ PLATO : "contiene (cantidad, precio_unitario)"
+  CATEGORIA ||--o{ PLATO : "agrupa"
+  PLATO }o--o{ INGREDIENTE : "lleva (cantidad_necesaria) = receta"
+  PROVEEDOR }o--o{ INGREDIENTE : "suministra (precio_compra)"
   CLIENTE { int id_cliente PK
     string nombre
     string apellidos

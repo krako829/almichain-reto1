@@ -7,10 +7,10 @@ Precios con IVA en tiendas online, con el enlace y la fecha en que se miraron, p
 | Elemento | Cant. | Modelo elegido | Características clave | Precio unidad (€) | Total (€) | Enlace y fecha |
 |---|---|---|---|---|---|---|
 | TPV táctil de barra | 2 | Geon Zazoo POS 360 | Intel N150, 8 GB, SSD 128 GB, táctil 15" Full HD, Windows 11, 4×USB 3.0, LAN | 556,94 | 1.113,88 | [PcComponentes](https://www.pccomponentes.com/tpv-tactil-geon-zazoo-pos-360-intel-n150-8gb-128gb-15) · 26/10/2026 |
-| Impresora de tickets | 2 | Epson TM-T20III (USB + serie) | Térmica 80 mm, ESC/POS, corte automático | 251,58 | 503,16 | [PcComponentes](https://www.pccomponentes.com/opiniones/epson-tm-t20iii-impresora-tickets-usb-serial-negra) · 26/10/2026 |
+| Impresora de tickets | 2 | Epson TM-T20III (USB + serie) | Térmica 80 mm, ESC/POS, corte automático | 251,58 | 503,16 | [PcComponentes](https://www.pccomponentes.com/epson-tm-t20iii-impresora-tickets-usb-serial-negra) · 26/10/2026 |
 | Cajón portamonedas | 2 | AVPos Cash-U280 | Acero, 5 billetes y 8 monedas, conector RJ11 (lo abre la impresora) | 45,99 | 91,98 | [PcComponentes](https://www.pccomponentes.com/cajon-portamonedas-avpos-cash-u280-acero-5-billetes-8-monedas-negro-rj-11) · 27/10/2026 |
 | Equipo del gerente | 1 | *por completar* (4 núcleos, 16 GB, SSD NVMe 500 GB, **Windows 11 Pro incluido**) | | | | |
-| Monitor del gerente | 1 | LG 24BA560-B | 23,8" IPS Full HD, altura ajustable, altavoces | 132,97 | 132,97 | [PcComponentes, monitores de 24"](https://www.pccomponentes.com/categorias/monitores-pc/24-pulgadas) · 27/10/2026 |
+| Monitor del gerente | 1 | LG 24BA560-B | 23,8" IPS Full HD, altura ajustable, altavoces | 132,97 | 132,97 | [PcComponentes](https://www.pccomponentes.com/monitor-lg-24ba560-b-23-8-led-ips-fullhd-100hz-altavoces-altura-ajustable) · 27/10/2026 |
 | SAI | 1 | APC Back-UPS BE850G2-GR | 850 VA, 8 enchufes Schuko, 2 USB (router, switch y servidores) | 144,99 | 144,99 | [PcComponentes](https://www.pccomponentes.com/apc-be850g2-gr-sai-850va-8-x-schucko-plus-2-x-usb) · 27/10/2026 |
 | **Subtotal equipos** | | | | | **1.986,98** | Sin el equipo del gerente |
 
@@ -23,7 +23,7 @@ Precios con IVA en tiendas online, con el enlace y la fecha en que se miraron, p
 | Elemento | Cant. | Modelo / tarifa | Características | Precio (€) | Enlace y fecha |
 |---|---|---|---|---|---|
 | Línea de fibra para empresas | 1 | *por completar* (comparar 4 operadores: Movistar Empresas, Vodafone Business, Orange Empresas, Euskaltel/Digi; cuota mensual × 12) | Simétrica ≥ 300 Mb/s, IP fija, soporte 24 h, respaldo 4G/5G | /mes | |
-| Router del local | 1 | MikroTik hEX (RB750Gr3) | 5 puertos Gigabit, VLAN 802.1Q, NAT, cortafuegos, SSH | 61,90 | [Galaxus](https://galaxus.at/en/s1/product/mikrotik-rb750gr3-hex-routers-5831427) · 27/10/2026 |
+| Router del local | 1 | MikroTik hEX (RB750Gr3) | 5 puertos Gigabit, VLAN 802.1Q, NAT, cortafuegos, SSH | 61,90 | [Galaxus (Austria)](https://galaxus.at/en/s1/product/mikrotik-rb750gr3-hex-routers-5831427) · 27/10/2026. **Precio con IVA austriaco y sin envío; falta buscarlo en una tienda española** |
 | Switch gestionable 24 puertos | 1 | TP-Link TL-SG3428 | 24 Gigabit + 4 SFP, gestionable L2, VLAN 802.1Q, seguridad de puerto, SSH | 214,81 | [PcComponentes](https://www.pccomponentes.com/tp-link-tlsg3428-switch-24-puertos-gigabit-plus-4-sfp) · 27/10/2026 |
 | Punto de acceso / router Wi-Fi | 2 | Los 2 routers del laboratorio | WDS, WPA2-AES | 0 | — |
 | Cable Cat 6 U/UTP, conectores, tomas y panel | 1 lote | *por completar* | T568B | | |

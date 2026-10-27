@@ -32,22 +32,23 @@ Los dos Windows (ALMI-GERENTE y ALMI-TPV) no se exportan: necesitan la ISO y la 
 
 ## Primer acceso y secretos
 
-**Ninguna VM lleva secretos propios de serie**: cada copia importada genera los suyos la primera vez que arranca, así dos equipos que importen la misma OVA no comparten contraseñas ni certificados.
+**Las VM no llevan claves de servidor ni contraseñas de servicio propias**: cada copia importada las genera la primera vez que arranca, así dos equipos que importen la misma OVA no comparten esas contraseñas ni certificados. Lo que **sí** comparten todas las copias está al final de este apartado.
 
 | Máquina | Qué se genera | Dónde queda |
 |---|---|---|
+| ALMI-ODOO y ALMI-BD | Cortafuegos, **antes de que haya red** (servicio `almi-cortafuegos`) | `ufw status` |
 | ALMI-ODOO y ALMI-BD | Claves de host SSH (`ssh-keygen -A` justo antes de arrancar el servidor SSH) | `/etc/ssh/ssh_host_*` |
 | ALMI-ODOO | Contraseña de PostgreSQL | `/opt/odoo/.env` (solo root) |
-| ALMI-ODOO | Contraseña maestra de Odoo y certificado HTTPS (`CA:FALSE`) | `/root/credenciales-primer-arranque.txt` (solo root) y `/etc/ssl/almichain/`. La **huella del certificado** sale también en la consola, encima de `login:`, para comprobarla en los Windows |
+| ALMI-ODOO | Contraseña maestra de Odoo, contraseñas nuevas de los 4 usuarios de Odoo (administrador, gerente y camareros), secreto con el que Odoo firma las sesiones (`database.secret`) y certificado HTTPS (`CA:FALSE`) | `/root/credenciales-primer-arranque.txt` (solo root) y `/etc/ssl/almichain/`. La **huella del certificado** sale también en la consola, encima de `login:`, para comprobarla en los Windows |
 | ALMI-BD | Contraseñas de `app_almichain`, `consulta` y `copias` | `/root/credenciales-primer-arranque.txt` (solo root); la de `copias` en `/root/.my.cnf` y la de `consulta` en `~almiadmin/.consulta.cnf` |
 
 Pasos la primera vez:
 
 1. Entrar como `almiadmin` con la **contraseña inicial**, que el equipo entrega aparte (no está en el repositorio). El sistema **obliga a cambiarla** en ese momento (`chage -d 0`).
 2. `sudo cat /root/credenciales-primer-arranque.txt` → pasar los secretos a KeePassXC → `sudo shred -u /root/credenciales-primer-arranque.txt`.
-3. En ALMI-ODOO: los usuarios web de Odoo (administrador, gerente y los dos camareros) vienen con las contraseñas de la base de datos de ejemplo: cambiarlas en Odoo (**Preferencias → Seguridad de la cuenta**).
+3. En ALMI-ODOO, las contraseñas de los usuarios de Odoo (administrador, gerente y los dos camareros) también están en ese archivo: son nuevas, distintas en cada copia. Cada uno puede cambiar la suya en Odoo (**Preferencias → Seguridad de la cuenta**).
 
-**Lo que sí comparten todas las copias**: la pareja de claves de las copias cruzadas (`/root/.ssh/copias_ed25519`), para que funcionen nada más importar las dos VM. Esa clave solo sirve desde la IP del otro servidor y solo para escribir en su carpeta de copias (`rrsync -wo -no-del`). Para cambiarla:
+**Lo que sí comparten todas las copias**: (1) la **contraseña inicial de `almiadmin`**, que hay que cambiar al entrar (el sistema obliga), y (2) la pareja de claves de las copias cruzadas (`/root/.ssh/copias_ed25519`), para que funcionen nada más importar las dos VM. Esa clave solo sirve desde la IP del otro servidor y solo para escribir en su carpeta de copias (`rrsync -wo -no-del`). Para cambiarla:
 
 ```bash
 # En ALMI-ODOO (y lo mismo al revés en ALMI-BD, con sus IP y carpetas)
@@ -81,8 +82,8 @@ ssh -p 2220 almiadmin@localhost     # ALMI-BD
 | Nº | Qué se prueba | Dónde | Resultado |
 |---|---|---|---|
 | 1 | Importar cada .ova en VirtualBox 7 y arrancarla | VirtualBox en clase | **Pendiente — en clase** |
-| 2 | Huellas y formato | `sha256sum -c` y lectura del `.ovf` | Ver informe de auditoría |
-| 3 | Primer arranque de cada VM desde cero | QEMU | Ver los apartados "VM exportada" de los bloques [02](../02-linux-recreativa/README.md), [05](../05-erp-odoo/README.md) y [07](../07-bd-raid-copias/README.md) |
+| 2 | Huellas y formato | `sha256sum -c` con [`ova-sha256.txt`](ova-sha256.txt) y lectura del `.ovf` | Correcto (huellas de las 3 OVA; cada VMDK igual a su disco probado) |
+| 3 | Primer arranque de cada VM desde cero | QEMU | Ver las pruebas con la VM exportada de los bloques [02](../02-linux-recreativa/README.md), [05](../05-erp-odoo/README.md) y [07](../07-bd-raid-copias/README.md) |
 
 ## Si algo no va
 

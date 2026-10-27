@@ -2,7 +2,7 @@
 
 Proyecto del **Reto 1 de 1.º de ASIR en Almi**: la infraestructura informática de **Almi Bites**, el restaurante de la cadena ficticia **Almi-Chain**. Equipo: **Alberto, Oier, Julen, Gontzal y Richar** · 16 de octubre – 13 de noviembre de 2026.
 
-Todo se hace en máquinas virtuales de VirtualBox sobre los PC de clase (Zorin OS). Lo único físico son los 2 routers, la impresora de tickets y el arcade stick con Arduino. La web está en AWS Academy.
+El diseño es para máquinas virtuales de VirtualBox en los PC de clase (Zorin OS); dónde se ha probado de verdad cada cosa está en «Origen de las evidencias». Lo único físico son los 2 routers, la impresora de tickets y el arcade stick con Arduino. La web está en AWS Academy.
 
 ## Objetivo y alcance
 
@@ -21,8 +21,8 @@ Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Prob
 | 02 Recreativa | **Hecho y probado** (en QEMU) | 7 de 9 | Benchmark dentro de la VM en VirtualBox y prueba con el stick |
 | 03 Arcade stick | **Preparado, sin probar** (los programas compilan) | 0 de 6 | Montaje físico, cableado y pruebas con la placa real |
 | 04 Red | **Preparado, sin probar** | 0 de 14 | Archivo `.pkt`, plano del local y configuración de los routers físicos |
-| 05 ERP Odoo | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 9 de 11 completas, 2 a medias | Envío real del correo (contraseña de aplicación de Gmail) e impresión en la impresora física |
-| 06 Web en AWS | **Preparado, sin desplegar** | 0 de 10 | Despliegue en AWS Academy, capturas, SSL Labs y Lighthouse |
+| 05 ERP Odoo | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 8 de 11 completas, 3 a medias | Envío real del correo (contraseña de aplicación de Gmail) e impresión en la impresora física |
+| 06 Web en AWS | **Preparado, sin desplegar** | 0 de 10 (Lighthouse solo en local) | Despliegue en AWS Academy, capturas, SSL Labs y Lighthouse |
 | 07 Base de datos | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 15 de 15 | Repetir en VirtualBox las pruebas del RAID (hechas en QEMU) |
 | Presupuesto | **Incompleto** | — | Filas *por completar* |
 

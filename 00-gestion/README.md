@@ -25,7 +25,7 @@
 
 ## Equipo y plazo
 
-- **Equipo**: Alberto, Oier, Julen, Gontzal y Richar. El reparto está en el tablero.
+- **Equipo**: Alberto, Oier, Julen, Gontzal y Richar. El reparto **se hará** en el tablero (pendiente: ver «Estado de la gestión»).
 - **Plazo**: 4 semanas, del 16 de octubre al 13 de noviembre de 2026.
 
 | Semana | Fechas | Objetivo |
@@ -82,6 +82,8 @@ Una vez en cada PC que tenga máquinas del reto:
    ```bash
    VBoxManage dhcpserver modify --network=ALMICHAIN --lower-ip=192.168.10.100 --upper-ip=192.168.10.199
    VBoxManage list dhcpservers        # comprobar el rango
+   # Si dice que el servidor DHCP no existe, en algunas versiones se llama NatNetworkALMICHAIN:
+   # VBoxManage dhcpserver modify --network=NatNetworkALMICHAIN --lower-ip=... (pendiente de comprobar en clase)
    ```
 3. En cada VM: **Configuración → Red → Adaptador 1 → Red NAT → ALMICHAIN**.
 4. Para administrar desde el PC, en **Reenvío de puertos** de la red ALMICHAIN:

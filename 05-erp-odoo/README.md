@@ -116,7 +116,7 @@ sudo openssl req -x509 -nodes -newkey rsa:2048 -days 825 \
   -addext "subjectAltName=IP:192.168.10.30,DNS:almi-odoo,DNS:localhost,IP:127.0.0.1"
 sudo chmod 600 /etc/ssl/almichain/odoo.key
 sudo openssl x509 -in /etc/ssl/almichain/odoo.crt -noout -fingerprint -sha256   # se apunta: se comprueba en los Windows
-sudo cp nginx-odoo.conf /etc/nginx/sites-available/odoo
+sudo cp config/nginx-odoo.conf /etc/nginx/sites-available/odoo   # desde la carpeta 05-erp-odoo del repositorio
 sudo ln -s /etc/nginx/sites-available/odoo /etc/nginx/sites-enabled/odoo
 sudo rm /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
@@ -151,7 +151,7 @@ sudo docker compose --project-directory /opt/odoo restart odoo
 
 ### 5. Aplicaciones, empresa, usuarios, productos, TPV y regla (E05 a E10)
 
-Todo esto se hizo en la interfaz de Odoo siguiendo la guía y se dejó también en un script, [`scripts/configurar_odoo.py`](scripts/configurar_odoo.py), que lo rehace por XML-RPC en unos minutos si hay que reinstalar (las contraseñas se pasan como variables de entorno, no están en el script):
+Todo esto se configuró con el script [`scripts/configurar_odoo.py`](scripts/configurar_odoo.py), que hace por XML-RPC lo mismo que los pasos a mano de la guía (en la interfaz de Odoo) y sirve para rehacerlo en unos minutos si hay que reinstalar (las contraseñas se pasan como variables de entorno, no están en el script):
 
 ```bash
 export ODOO_URL=https://192.168.10.30 ODOO_CA=/etc/ssl/almichain/odoo.crt
@@ -273,7 +273,7 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 
 ![Certificado de servidor (CA:FALSE, serverAuth, SAN con la IP, almi-odoo y localhost), la misma huella publicada por HTTP, la clave no se publica y la huella en la consola](capturas/37-vm-certificado-servidor.png)
 
-![Cortafuegos con las redes del diseño, Odoo solo en 127.0.0.1:8069, secretos solo para root, la contraseña maestra ya no es la de la plantilla, claves SSH propias y contraseña de almiadmin cambiada](capturas/38-vm-secretos-cortafuegos.png)
+![Cortafuegos con las redes del diseño puesto antes que la red (17:01:22, antes de crear las claves SSH a las 17:01:34), Odoo solo en 127.0.0.1:8069, secretos solo para root, contraseña maestra cambiada, contraseñas nuevas para los 4 usuarios de Odoo, secreto de sesiones nuevo, claves SSH propias y contraseña de almiadmin cambiada](capturas/38-vm-secretos-cortafuegos.png)
 
 **Copias cruzadas entre las dos VM** (ALMI-ODOO y ALMI-BD encendidas a la vez en la misma red): la copia de Odoo llega a ALMI-BD, la de la base de datos llega aquí, y la clave de copias **no puede** ejecutar órdenes, borrar, leer ni salir de su carpeta.
 
@@ -287,7 +287,8 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 
 - **Solo HTTPS**: nginx redirige el 80 al 443 (salvo la descarga de la parte pública del certificado); Odoo solo escucha en 127.0.0.1. Certificado de servidor (`CA:FALSE`) instalado como de confianza en los Windows tras comprobar su huella.
 - **Cortafuegos** ufw: entrada denegada salvo SSH desde las VLAN 10 y 99, y HTTP/HTTPS desde las VLAN 10 y 20.
-- **Secretos propios en cada VM importada**: en el primer arranque se generan la contraseña de PostgreSQL, la contraseña maestra de Odoo, el certificado con su clave y las claves de host SSH. La OVA no los lleva.
+- **Secretos propios en cada VM importada**: en el primer arranque se generan la contraseña de PostgreSQL, la contraseña maestra de Odoo, contraseñas nuevas para los 4 usuarios de Odoo, el secreto con el que Odoo firma las sesiones (`database.secret`), el certificado con su clave y las claves de host SSH. La OVA no los lleva.
+- **Cortafuegos desde el primer segundo**: en la VM exportada lo pone el servicio `almi-cortafuegos` ([`scripts/cortafuegos-odoo.sh`](scripts/cortafuegos-odoo.sh)) antes de que haya red.
 - **Gestor de bases de datos oculto** (`list_db = False`) y contraseña maestra larga.
 - **Mínimo privilegio** en Odoo: los camareros solo usan el TPV; el gerente no tiene Ajustes; solo el administrador configura.
 - **Secretos fuera del repositorio**: `.env`, `odoo.conf` real, clave del certificado y contraseñas en KeePassXC.
