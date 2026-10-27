@@ -37,20 +37,25 @@
 
 ## Decisiones del equipo e indicaciones del profesor
 
-| Tema | Decisión |
-|---|---|
-| Qué cuenta | La lista de tareas del enunciado (los RA no se tienen en cuenta) |
-| Equipos físicos | Solo 2 routers, 1 impresora de tickets (la comparten los dos TPV) y el arcade stick con Arduino |
-| Resto | Máquinas virtuales de VirtualBox en los PC de clase (Zorin OS, 16 GB de RAM) |
-| Gerente | Windows 10 Pro en la VM ALMI-GERENTE (usuario Gerente). **Sin doble arranque**: la recreativa es una VM aparte |
-| TPV | Una sola VM, ALMI-TPV, con los usuarios TPV1 y TPV2 |
-| Recreativa | VM ALMI-ARCADE: 1 núcleo y 1 GB, sin swap, MAME |
-| Red | Packet Tracer y 2 routers reales: uno da señal al otro como repetidor (WDS) |
-| ERP | Odoo (que haga algo funcional de verdad, no hace falta usarlo entero) |
-| Web | Geolocalización, HTTPS y dominio de DuckDNS, desplegada con Terraform en AWS Academy |
-| Base de datos | Con RAID y con pruebas |
-| Seguridad | Mínimo privilegio: cada usuario solo accede a lo suyo |
-| Licencias | Windows 10 Pro/Education con licencia; todo lo demás gratis |
+Se distingue lo que **indicó el profesor** (de palabra, en clase) de lo que **decidió el equipo** después. Las decisiones del equipo que cambian algo del enunciado necesitan la **conformidad del profesor por escrito** (un correo o el acta en el Anexo II): está **pendiente** de pedirla.
+
+| Tema | Decisión | Quién |
+|---|---|---|
+| Qué cuenta | La lista de tareas del enunciado (los RA no se tienen en cuenta) | Profesor |
+| Equipos físicos | Solo 2 routers, 1 impresora de tickets y el arcade stick con Arduino | Profesor |
+| Resto | Máquinas virtuales de VirtualBox en los PC de clase (Zorin OS, 16 GB de RAM) | Profesor |
+| Red | Packet Tracer y 2 routers reales: uno da señal al otro como repetidor (WDS) | Profesor |
+| ERP | Odoo | Profesor |
+| Web | Geolocalización, HTTPS y dominio de DuckDNS, desplegada con Terraform en AWS Academy | Profesor |
+| Base de datos | Con RAID y con pruebas | Profesor |
+| Recreativa | 1 núcleo y 1 GB, sin swap, MAME | Profesor |
+| Seguridad | Mínimo privilegio: cada usuario solo accede a lo suyo | Profesor |
+| Licencias | Windows 10 Pro/Education con licencia; todo lo demás gratis | Profesor |
+| Gerente | **Sin doble arranque**: Windows 10 Pro en la VM ALMI-GERENTE y la recreativa en una VM aparte (ALMI-ARCADE). **El enunciado pide doble arranque: falta escribir aquí el motivo y conseguir la conformidad del profesor** | Equipo |
+| TPV | Una sola VM, ALMI-TPV, con los usuarios TPV1 y TPV2, que simulan los dos equipos de barra. **Falta el motivo y la conformidad del profesor** | Equipo |
+| Impresora | La comparten los dos TPV en el laboratorio (solo hay una física) | Equipo |
+| ERP | Que haga algo funcional de verdad (factura automática al cobrar), sin usar todas las aplicaciones | Equipo |
+| Recreativa | Ubuntu 24.04 mínimo en lugar de Debian (justificado en el bloque 02) | Equipo |
 
 ## Nombres comunes
 
@@ -72,6 +77,12 @@ Una vez en cada PC que tenga máquinas del reto:
 
 1. VirtualBox → **Archivo → Herramientas → Administrador de red** → pestaña **Redes NAT** → **Crear**.
 2. Nombre `ALMICHAIN`, prefijo `192.168.10.0/24`, **Habilitar DHCP** → **Aplicar**.
+   Después, acotar el DHCP para que no reparta las IP fijas de los servidores (.20 y .30). En una terminal del PC:
+
+   ```bash
+   VBoxManage dhcpserver modify --network=ALMICHAIN --lower-ip=192.168.10.100 --upper-ip=192.168.10.199
+   VBoxManage list dhcpservers        # comprobar el rango
+   ```
 3. En cada VM: **Configuración → Red → Adaptador 1 → Red NAT → ALMICHAIN**.
 4. Para administrar desde el PC, en **Reenvío de puertos** de la red ALMICHAIN:
 

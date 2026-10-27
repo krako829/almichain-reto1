@@ -94,8 +94,12 @@ Detalladas en [`docs/04-pruebas.md`](docs/04-pruebas.md). Las capturas se hacen 
 | 6 | SSL Labs | Nota A | Pendiente — en clase | |
 | 7 | Geolocalización | El botón pide permiso y calcula la distancia al restaurante | Pendiente — en clase | |
 | 8 | Vista móvil | Menú y secciones bien en 390 px | Pendiente — en clase | |
-| 9 | Lighthouse | 90 o más en las 4 categorías | Pendiente — en clase | |
+| 9 | Lighthouse | 90 o más en las 4 categorías | **En local** (servidor de pruebas, `http://127.0.0.1`, móvil): rendimiento 92, accesibilidad 100, buenas prácticas 96, SEO 100. Sin HTTPS ni la red real, y con Google Fonts y el mapa bloqueados por el entorno. **Repetir con la web desplegada** | [informe](pruebas/lighthouse-local-movil.html) |
 | 10 | Destruir y volver a crear | La web vuelve igual | Pendiente — en clase | |
+
+### Lighthouse en local
+
+Antes de desplegar se pasó Lighthouse 12.2.1 a la carpeta `web/` servida en local (perfil móvil). Encontró dos problemas de **contraste** que se corrigieron: los precios de la carta (ámbar `#c8771e` sobre blanco, 3,4:1) pasan a `#9a5a12` (5,5:1) y el fondo verde del menú del día se oscurece para que el texto ámbar llegue a 4,8:1; además faltaba el icono de la página (`favicon`). Resultado: rendimiento 92, accesibilidad 100, buenas prácticas 96 y SEO 100. El informe completo está en [`pruebas/lighthouse-local-movil.html`](pruebas/lighthouse-local-movil.html). No sustituye a la prueba 9 con la web publicada (HTTPS, DuckDNS y la red real).
 
 ## Problemas previstos y solución
 

@@ -4,6 +4,7 @@
   --brown: #4a2416;
   --brown-dark: #2e140b;
   --amber: #c8771e;
+  --amber-texto: #9a5a12;   /* ámbar más oscuro para texto sobre blanco (contraste 5,5:1, WCAG AA) */
   --amber-light: #efb04a;
   --leaf: #4f7a2b;
   --mist: #f3eadb;
@@ -158,12 +159,12 @@ section { padding: clamp(3rem, 7vw, 5.5rem) clamp(1rem, 4vw, 3rem); }
 .cat li:last-child { border: 0; }
 .plato { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
 .plato h4 { margin: 0; font-family: var(--font-title); font-size: 1.1rem; }
-.precio { font-weight: 700; color: var(--amber); white-space: nowrap; }
+.precio { font-weight: 700; color: var(--amber-texto); white-space: nowrap; }
 .cat li p { margin: .15rem 0 0; font-size: .95rem; color: #6b4b3c; }
 .bebidas { margin-top: 2rem; padding: 1rem 1.4rem; max-width: 1100px; border-radius: 10px; background: var(--mist); }
 
 /* ===== Menú del día ===== */
-.menu-dia { background: var(--leaf); color: #fff; display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+.menu-dia { background: #33501b; /* verde más oscuro que --leaf: el ámbar se lee (contraste 4,8:1) */ color: #fff; display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
 .menu-dia h2 { color: #fff; }
 .etiqueta { text-transform: uppercase; letter-spacing: .12em; font-weight: 700; font-size: .85rem; margin: 0 0 .5rem; color: var(--amber-light); }
 .precio-grande { font-family: var(--font-title); font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 800; margin: 0; line-height: 1; }
