@@ -49,11 +49,11 @@ Define los datos que se pueden cambiar sin tocar el código. Sus valores se pone
 | `region` | `us-east-1` | Región de AWS. El Learner Lab solo permite `us-east-1` y `us-west-2` |
 | `proyecto` | `almibites` | Prefijo de los nombres (`almibites-vpc`, `almibites-web`…) |
 | `duckdns_subdominio` | `almichain2` | Subdominio sin `.duckdns.org`. Tiene una **validación**: si alguien escribe `almichain2.duckdns.org`, Terraform da un error explicándolo |
-| `duckdns_token` | — (obligatoria) | Token de DuckDNS. Marcada `sensitive` para que no aparezca en pantalla |
+| `duckdns_token` | — (obligatoria) | Token de DuckDNS. Marcada `sensitive`: eso **solo** la oculta en la salida de Terraform. El valor viaja en el `user_data` de la EC2 (se puede leer desde la propia máquina y queda en `terraform.tfstate`), así que el `user_data` desactiva el trazado mientras lo usa para que no acabe en los logs. Si alguien entra en el servidor, conviene regenerar el token en duckdns.org |
 | `email` | — (obligatoria) | Correo para Let's Encrypt |
 | `certbot_staging` | `false` | `true` pide un certificado de prueba (ver [Mantenimiento](05-mantenimiento.md)) |
 | `tipo_instancia` | `t3.micro` | Tamaño de la EC2 (2 vCPU, 1 GB RAM) |
-| `ssh_cidr` | `0.0.0.0/0` | Desde qué IPs se permite SSH |
+| `ssh_cidr` | — (obligatoria) | Tu IP pública con `/32`. Tiene una validación que rechaza `0.0.0.0/0`: el SSH no se abre a todo Internet |
 | `vpc_cidr` | `10.0.0.0/16` | Rango de direcciones de la VPC |
 | `subred_publica_cidr` | `10.0.1.0/24` | Rango de la subred pública |
 
@@ -160,7 +160,7 @@ resource "terraform_data" "subir_web" {
 
 ## `user_data.sh.tftpl`
 
-Script Bash que ejecuta la EC2 al arrancar. Todo lo que hace queda registrado en `/var/log/almibites-setup.log`.
+Script Bash que ejecuta la EC2 al arrancar. Todo lo que hace queda registrado en `/var/log/almibites-setup.log` (permisos 600, solo root), salvo el token de DuckDNS: el trazado `set -x` se apaga mientras se usa.
 
 | Fase | Qué hace |
 |---|---|

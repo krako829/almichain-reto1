@@ -106,10 +106,13 @@ Déjalo así, con tus datos:
 duckdns_subdominio = "almichain2"
 duckdns_token      = "TU-TOKEN-DE-DUCKDNS"
 email              = "tu-correo@gmail.com"
+ssh_cidr           = "81.34.10.7/32"   # TU IP pública + /32
 region             = "us-east-1"   # la que pone en AWS Details
 ```
 
 El correo lo usa Let's Encrypt para avisar si el certificado va a caducar.
+
+`ssh_cidr` es obligatorio: el puerto 22 de la EC2 solo se abre a tu IP. Para saber tu IP pública: `curl -s https://checkip.amazonaws.com`. Terraform no acepta `0.0.0.0/0`. Si cambias de red (por ejemplo, de clase a casa), actualiza el valor y vuelve a hacer `terraform apply`.
 
 ---
 

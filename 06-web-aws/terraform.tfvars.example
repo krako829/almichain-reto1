@@ -4,6 +4,7 @@
 duckdns_subdominio = "almichain2"           # almichain2.duckdns.org
 duckdns_token      = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 email              = "tu-correo@gmail.com"
+ssh_cidr           = "TU_IP_PUBLICA/32"   # curl -s https://checkip.amazonaws.com  (añade /32)
 
 # Opcionales (estos son los valores por defecto):
 # region          = "us-east-1"

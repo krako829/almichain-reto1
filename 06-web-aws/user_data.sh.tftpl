@@ -5,14 +5,20 @@
 #  2) Configura Nginx (la web la sube Terraform por SSH a /var/www/almibites)
 #  3) Apunta el dominio DuckDNS a la IP elástica
 #  4) Pide el certificado HTTPS a Let's Encrypt y redirige HTTP -> HTTPS
-#  Log: /var/log/almibites-setup.log
+#  Log: /var/log/almibites-setup.log (solo lo lee root)
+#  El token de DuckDNS NO se escribe en el log: el trazado (set -x) se
+#  apaga mientras se usa.
 # ================================================================
+umask 077
 exec > >(tee -a /var/log/almibites-setup.log) 2>&1
+umask 022
 set -x
 
 DOMINIO="${dominio}"
 SUBDOMINIO="${duckdns_subdominio}"
+{ set +x; } 2>/dev/null
 DUCK_TOKEN="${duckdns_token}"
+set -x
 EIP="${eip}"
 EMAIL="${email}"
 STAGING="${staging}"
@@ -51,9 +57,14 @@ server {
         try_files $uri $uri/ =404;
     }
 
+    # En nginx, un add_header dentro de un location anula los del server:
+    # se repiten aquí para que CSS, JS e imágenes también los lleven.
     location ~* \.(css|js|png|jpg|jpeg|webp|svg|ico)$ {
         expires 7d;
-        add_header Cache-Control "public";
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "geolocation=(self)" always;
     }
 }
 EOF
@@ -64,11 +75,14 @@ nginx -t && systemctl enable nginx && systemctl restart nginx
 
 echo "==> [3/4] Actualizando DuckDNS: $DOMINIO -> $EIP"
 RESP=""
+{ set +x; } 2>/dev/null   # que el token no salga en el log
 for i in $(seq 1 10); do
   RESP=$(curl -fsS "https://www.duckdns.org/update?domains=$SUBDOMINIO&token=$DUCK_TOKEN&ip=$EIP" || true)
   [ "$RESP" = "OK" ] && break
   sleep 10
 done
+unset DUCK_TOKEN
+set -x
 if [ "$RESP" != "OK" ]; then
   echo "ERROR: DuckDNS respondió '$RESP'. Revisa el subdominio y el token. La web queda solo en HTTP."
   exit 1

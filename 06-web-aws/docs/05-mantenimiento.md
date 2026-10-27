@@ -57,7 +57,7 @@ Crea una EC2 nueva desde cero (con la misma IP elástica), vuelve a instalar tod
 
 - El **estado** (`terraform.tfstate`) está en el PC de quien hizo el `apply`. Debe desplegar **siempre la misma persona** desde la misma carpeta.
 - Si otra persona hace `apply` desde otro PC, Terraform no sabe que ya existe todo. Intentará crearlo otra vez y fallará (por ejemplo, porque ya existe el par de claves `almibites-key`) o creará una segunda copia.
-- Haced copia de seguridad de `terraform.tfstate`, `terraform.tfvars` y `almibites-key.pem` (USB o Drive privado). **No** los subáis a GitHub.
+- Haced copia de seguridad de `terraform.tfstate`, `terraform.tfvars` y `almibites-key.pem` (USB o Drive privado). **No** los subáis a GitHub. Ojo: `terraform.tfstate` contiene en claro la clave privada SSH (la genera `tls_private_key`) y el token de DuckDNS, así que se trata como un secreto más.
 
 ## Borrar todo
 

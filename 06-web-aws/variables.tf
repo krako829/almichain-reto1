@@ -45,9 +45,13 @@ variable "tipo_instancia" {
 }
 
 variable "ssh_cidr" {
-  description = "Desde qué IPs se permite SSH (puerto 22). Terraform lo usa para subir la web."
+  description = "IP desde la que se permite SSH (puerto 22), en formato x.x.x.x/32. Terraform lo usa para subir la web. Sin valor por defecto: abrirlo a todo Internet no está permitido."
   type        = string
-  default     = "0.0.0.0/0"
+
+  validation {
+    condition     = can(cidrhost(var.ssh_cidr, 0)) && var.ssh_cidr != "0.0.0.0/0"
+    error_message = "ssh_cidr tiene que ser tu IP pública con /32 (por ejemplo 81.34.10.7/32), no 0.0.0.0/0. Mírala con: curl -s https://checkip.amazonaws.com"
+  }
 }
 
 variable "vpc_cidr" {
