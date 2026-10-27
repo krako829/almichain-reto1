@@ -38,7 +38,16 @@ Los archivos están en [`config/`](config/) y [`scripts/`](scripts/).
 ### 1. VM e instalación (A01-A02)
 
 1. VirtualBox → **Nueva** → ALMI-ARCADE, Ubuntu (64-bit), **1024 MB y 1 CPU**, disco de 8 GB. Pantalla: VMSVGA. Red NAT ALMICHAIN. USB activado.
-2. Instalar **Ubuntu Server 24.04** en modo **minimized**, disco entero **sin swap** (en *Storage*: editar la partición y borrar el swap, o usar `swapoff -a` y quitar la línea de `/etc/fstab` al terminar), nombre `almi-arcade`, usuario `almiadmin`, **sin** OpenSSH.
+2. Instalar **Ubuntu Server 24.04** en modo **minimized** (**Omitir instalación desatendida** en VirtualBox), disco entero, nombre `almi-arcade`, usuario `almiadmin`, **sin** OpenSSH.
+3. **Quitar el swap**. Ubuntu 24.04 no crea una partición de intercambio sino un **archivo** `/swap.img`, y el instalador no deja quitarlo. Después de instalar:
+
+   ```bash
+   sudo swapoff -a
+   sudo sed -i '/swap.img/d' /etc/fstab
+   sudo rm -f /swap.img
+   swapon --show        # sin salida
+   free -m              # Swap: 0
+   ```
 
 ### 2. 1 núcleo y 1 GB (A03)
 
@@ -59,7 +68,8 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet mem=1024M nr_cpus=1"
 sudo useradd -m -s /bin/bash -c "Recreativa" -G audio,video,input arcade
 sudo passwd arcade
 sudo chmod 700 /home/arcade /home/almiadmin
-sudo apt install -y libpam-pwquality      # minlen = 12 en /etc/security/pwquality.conf
+sudo apt install -y libpam-pwquality cracklib-runtime   # cracklib-runtime: el diccionario de contraseñas débiles
+sudo sed -i 's/^# *minlen.*/minlen = 12/' /etc/security/pwquality.conf
 sudo ufw default deny incoming && sudo ufw default allow outgoing && sudo ufw enable
 ```
 
@@ -88,6 +98,19 @@ sudo mkdir -p /usr/local/share/games/mame/roms
 | [`config/recreativa-profile.sh`](config/recreativa-profile.sh) | `/etc/profile.d/recreativa.sh` (de root, 644) | Cuando `arcade` entra en tty1, arranca X sin cursor con la sesión de la recreativa |
 | [`config/recreativa-sesion`](config/recreativa-sesion) | `/usr/local/bin/recreativa-sesion` (de root, 755) | Desactiva el salvapantallas, guarda `vmstat` cada 5 s y abre MAME (sin sonido si la máquina no tiene tarjeta de sonido) |
 | [`config/ui.ini`](config/ui.ini) | `/home/arcade/.mame/ui.ini` | El menú de MAME se abre con Pong seleccionado |
+| [`config/mame.ini`](config/mame.ini) | `/home/arcade/.mame/mame.ini` | Configuración optimizada (apartado 6). Tiene que estar en ASCII y sin BOM |
+
+Desde la carpeta del repositorio:
+
+```bash
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+sudo install -m 644 config/autologin.conf /etc/systemd/system/getty@tty1.service.d/override.conf
+sudo install -o root -g root -m 644 config/recreativa-profile.sh /etc/profile.d/recreativa.sh
+sudo install -o root -g root -m 755 config/recreativa-sesion /usr/local/bin/recreativa-sesion
+sudo install -d -o arcade -g arcade /home/arcade/.mame /home/arcade/rendimiento
+sudo install -o arcade -g arcade -m 644 config/mame.ini config/ui.ini /home/arcade/.mame/
+sudo systemctl daemon-reload && sudo reboot
+```
 
 Para administrar con MAME abierto: **Ctrl + Alt + F2** y entrar como `almiadmin`.
 
@@ -106,16 +129,31 @@ Para administrar con MAME abierto: **Ctrl + Alt + F2** y entrar como `almiadmin`
 | Sin `systemd-networkd-wait-online` | Arranque más rápido |
 | [`config/mame.ini`](config/mame.ini) del usuario arcade | `video soft`, `waitvsync 0`, `autoframeskip 1`, `samplerate 22050`, `skip_gameinfo 1`, `joystick 1` |
 
-Resultado: solo 10 servicios en marcha (dos de ellos son de la sesión de administración por consola de la prueba), 2 temporizadores, el registro en memoria y SSH y las actualizaciones automáticas desactivados.
+Comandos:
+
+```bash
+sudo mkdir -p /etc/systemd/journald.conf.d
+printf '[Journal]\nStorage=volatile\nRuntimeMaxUse=20M\n' | sudo tee /etc/systemd/journald.conf.d/arcade.conf
+sudo sed -i 's/^#NAutoVTs=.*/NAutoVTs=2/' /etc/systemd/logind.conf
+for u in apt-daily.timer apt-daily-upgrade.timer man-db.timer e2scrub_all.timer fstrim.timer motd-news.timer unattended-upgrades.service; do
+  sudo systemctl disable --now "$u"
+done
+sudo systemctl disable --now ssh 2>/dev/null   # si se instaló
+sudo systemctl mask systemd-networkd-wait-online.service
+```
+
+Resultado en la VM exportada, probada en QEMU: 11 servicios en marcha en la captura, de los que 3 no estarían en uso normal: `serial-getty@ttyS0` (la consola serie que se usó para la prueba; la VM exportada ya no la activa) y `user@1000`/`user@1001` (las sesiones abiertas para la captura). 2 temporizadores, el registro en memoria y SSH y las actualizaciones automáticas desactivados.
 
 ![Servicios y temporizadores tras optimizar](capturas/05-servicios-optimizados.png)
 
 
 ### 7. Benchmark y monitorización (A07, A09)
 
-[`scripts/benchmark.sh`](scripts/benchmark.sh) (instalado como `benchmark-recreativa`) ejecuta `mame -bench 60` tres veces por juego como el usuario `arcade` y da la media. 100 % es la velocidad real de la máquina original; más de 100 % es que sobra potencia.
+[`scripts/benchmark.sh`](scripts/benchmark.sh) (instalado como `benchmark-recreativa`; se lanza con `sudo benchmark-recreativa`) ejecuta `mame -bench 60` tres veces por juego como el usuario `arcade` y da la media. 100 % es la velocidad real de la máquina original; más de 100 % es que sobra potencia.
 
-Resultados con MAME 0.264 limitado a **1 núcleo**, con la configuración por defecto (antes) y con el `mame.ini` optimizado (después):
+> **Dónde se midió.** Las cifras de esta tabla se midieron con MAME 0.264 **en el ordenador donde se preparó el proyecto, no dentro de la VM**, limitando MAME a 1 núcleo con `taskset -c 0`. Sirven para comparar antes y después del `mame.ini`, pero no son la velocidad de la recreativa en VirtualBox. La medida dentro de ALMI-ARCADE en el PC de clase está **pendiente** (prueba 8). Dentro de QEMU sin aceleración no tiene sentido medir: todo el procesador está emulado.
+
+Resultados con MAME 0.264 limitado a **1 núcleo** (en el anfitrión), con la configuración por defecto (antes) y con el `mame.ini` optimizado (después):
 
 | Medida | Antes de optimizar | Después de optimizar |
 |---|---|---|
@@ -128,7 +166,7 @@ Resultados con MAME 0.264 limitado a **1 núcleo**, con la configuración por de
 
 La sesión (`recreativa-sesion`) guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mientras se juega. Las columnas `si` y `so` (memoria que entra y sale del swap) tienen que estar siempre a 0.
 
-En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y `so` siempre a 0** y 422 MB de RAM usada de 961. La CPU sale al 100 % porque esta prueba se hizo en una máquina virtual sin aceleración por hardware (todo el procesador emulado); en VirtualBox con VT-x el uso es mucho menor. Las cifras de velocidad buenas son las del benchmark de arriba.
+En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y `so` siempre a 0** y 422 MB de RAM usada de 961. La CPU sale al 100 % porque esta prueba se hizo arrancando el disco de la VM en **QEMU sin aceleración por hardware** (todo el procesador emulado), no en VirtualBox; con VT-x el uso tiene que ser mucho menor (pendiente de medir en clase). Las cifras de velocidad buenas son las del benchmark de arriba.
 
 ![Registro de vmstat con MAME abierto: swap siempre a 0](capturas/06-vmstat.png)
 
@@ -150,8 +188,10 @@ En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y
 | 5 | Arranque directo a MAME | Encender | MAME sin pedir contraseña | Autologin de arcade y MAME abierto | [01a](capturas/01a-autologin-arcade.png) [01](capturas/01-arranque-mame.png) |
 | 6 | arcade sin privilegios | `groups arcade`; `sudo -l` como arcade | Sin sudo | No está en sudo | [03](capturas/03-usuarios-seguridad.png) |
 | 7 | Juegos disponibles | `mame -listroms pong breakout` | No necesitan ROMs | "No ROMs required" | [04](capturas/04-mame-version-juegos.png) |
-| 8 | Mejora de rendimiento | Tabla del benchmark | Igual o mayor velocidad después | Pong +6 %, Breakout +17 % | — |
-| 9 | Stick en MAME | Ver bloque 03 | Se juega con el stick | | |
+| 8 | Mejora de rendimiento | Tabla del benchmark | Igual o mayor velocidad después | En el anfitrión con 1 núcleo: Pong +6 %, Breakout +17 %. **Dentro de la VM en VirtualBox: pendiente — en clase** | — |
+| 9 | Stick en MAME | Ver bloque 03 | Se juega con el stick | Pendiente — en clase (hace falta el Arduino) | |
+
+Las pruebas 1 a 7 se hicieron arrancando el disco de `ALMI-ARCADE.ova` en **QEMU** (no en VirtualBox, que no estaba disponible donde se preparó el repositorio).
 
 ## Problemas encontrados y solución
 

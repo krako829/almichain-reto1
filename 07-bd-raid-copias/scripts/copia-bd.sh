@@ -2,6 +2,8 @@
 # Almi-Chain · Copia diaria de la base de datos almichain (ALMI-BD)
 # Se instala en /usr/local/bin/copia-bd.sh y la lanza cron a las 02:00
 set -euo pipefail
+# Si algo falla, queda escrito en el registro (si no, el fallo no se vería: cron no manda correo)
+trap 'echo "$(date "+%F %T") ERROR en la línea $LINENO: la copia NO se ha completado" >> /var/log/copia-bd.log' ERR
 
 DEST=/var/backups/mariadb
 FECHA=$(date +%F_%H%M)

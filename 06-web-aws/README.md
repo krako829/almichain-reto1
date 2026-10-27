@@ -2,7 +2,9 @@
 
 ## Objetivo
 
-La web informativa del restaurante **Almi Bites** (carta, galería, mapa con **geolocalización** y formulario de contacto), publicada en **AWS Academy** con **Terraform**, dominio gratuito de **DuckDNS** y **HTTPS** de Let's Encrypt: **https://almichain2.duckdns.org**. Con `terraform destroy` y `terraform apply` se rehace todo igual (despliegue reproducible).
+La web informativa del restaurante **Almi Bites** (carta, galería, mapa con **geolocalización** y formulario de contacto), preparada para publicarse en **AWS Academy** con **Terraform**, dominio gratuito de **DuckDNS** y **HTTPS** de Let's Encrypt en **https://almichain2.duckdns.org**. Con `terraform destroy` y `terraform apply` se rehace todo igual (despliegue reproducible).
+
+> **Estado**: el código está completo y revisado (el HCL se ha comprobado con un analizador, el script de arranque con `bash -n` y shellcheck, y la configuración de nginx con `nginx -t`), pero **en este repositorio no hay todavía pruebas del despliegue**: ni salida de `terraform apply`, ni capturas, ni el informe de Lighthouse. Donde se preparó el repositorio no había Terraform ni acceso a AWS Academy. El despliegue y la tabla de pruebas se completan en clase (tareas W05-W09).
 
 Tareas del tablero: W01 a W09. El código también está en su propio repositorio, [krako829/almichain-web-terraform](https://github.com/krako829/almichain-web-terraform); esta carpeta es una copia para tener todo el reto junto.
 
@@ -80,16 +82,16 @@ Detalladas en [`docs/04-pruebas.md`](docs/04-pruebas.md). Las capturas se hacen 
 
 | Nº | Qué se prueba | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|
-| 1 | `terraform plan` | 13 to add | | |
-| 2 | `terraform apply` | Apply complete, url = https://almichain2.duckdns.org | | |
-| 3 | HTTPS con candado | Certificado de Let's Encrypt válido | | |
-| 4 | HTTP redirige a HTTPS | 301 a https | | |
-| 5 | DNS | `nslookup almichain2.duckdns.org` = IP elástica | | |
-| 6 | SSL Labs | Nota A | | |
-| 7 | Geolocalización | El botón pide permiso y calcula la distancia al restaurante | | |
-| 8 | Vista móvil | Menú y secciones bien en 390 px | | |
-| 9 | Lighthouse | 90 o más en las 4 categorías | | |
-| 10 | Destruir y volver a crear | La web vuelve igual | | |
+| 1 | `terraform plan` | 13 to add | Pendiente — en clase | |
+| 2 | `terraform apply` | Apply complete, url = https://almichain2.duckdns.org | Pendiente — en clase | |
+| 3 | HTTPS con candado | Certificado de Let's Encrypt válido | Pendiente — en clase | |
+| 4 | HTTP redirige a HTTPS | 301 a https | Pendiente — en clase | |
+| 5 | DNS | `nslookup almichain2.duckdns.org` = IP elástica | Pendiente — en clase | |
+| 6 | SSL Labs | Nota A | Pendiente — en clase | |
+| 7 | Geolocalización | El botón pide permiso y calcula la distancia al restaurante | Pendiente — en clase | |
+| 8 | Vista móvil | Menú y secciones bien en 390 px | Pendiente — en clase | |
+| 9 | Lighthouse | 90 o más en las 4 categorías | Pendiente — en clase | |
+| 10 | Destruir y volver a crear | La web vuelve igual | Pendiente — en clase | |
 
 ## Fuentes
 

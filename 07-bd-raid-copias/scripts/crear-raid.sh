@@ -59,6 +59,20 @@ chown mysql:mysql /var/lib/mysql
 # 6. Que el RAID se llame siempre md0 y arranque con el sistema
 sed -i '/^ARRAY /d' /etc/mdadm/mdadm.conf
 mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+
+# 7. Aviso si un disco falla: mdadm --monitor (servicio mdmonitor) llama a este programa,
+#    que lo deja en /var/log/aviso-raid.log, en el journal y en la pantalla de quien esté conectado
+cat > /usr/local/sbin/aviso-raid.sh <<'EOF2'
+#!/bin/sh
+# $1 = suceso (Fail, DegradedArray, RebuildFinished...), $2 = RAID, $3 = disco
+MSG="$(date '+%F %T') RAID $2: $1 ${3:-}"
+echo "$MSG" >> /var/log/aviso-raid.log
+logger -t aviso-raid -p daemon.crit "$MSG"
+wall "AVISO Almi-Chain: $MSG" 2>/dev/null || true
+EOF2
+chmod 755 /usr/local/sbin/aviso-raid.sh
+sed -i '/^PROGRAM /d' /etc/mdadm/mdadm.conf
+echo "PROGRAM /usr/local/sbin/aviso-raid.sh" >> /etc/mdadm/mdadm.conf
 update-initramfs -u
 
 # --no-block: este script corre como servicio ordenado ANTES de mariadb; un start normal

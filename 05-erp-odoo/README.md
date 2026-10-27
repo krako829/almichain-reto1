@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-El restaurante necesita un ERP con facturación, clientes (CRM), personal, marketing, inventario y TPV. Se ha elegido **Odoo 18 Community**, instalado con **Docker** en la VM **ALMI-ODOO** y publicado solo por **HTTPS** con nginx. Los dos TPV de la barra son los puntos de venta **Barra 1** y **Barra 2** de Odoo. Cuando se cobra una venta a un cliente, Odoo **crea y publica la factura**, la **envía por correo** con el PDF y **descuenta el stock**, sin que nadie toque nada.
+El restaurante necesita un ERP con facturación, clientes (CRM), personal, marketing, inventario y TPV. Se ha elegido **Odoo 18 Community**, instalado con **Docker** en la VM **ALMI-ODOO** y publicado solo por **HTTPS** con nginx. Los dos TPV de la barra son los puntos de venta **Barra 1** y **Barra 2** de Odoo. Cuando se cobra una venta a un cliente, Odoo **crea y publica la factura**, la **deja preparada para enviarla por correo** con el PDF y **descuenta el stock**, sin que nadie toque nada. El envío real por Gmail está pendiente: falta poner la contraseña de aplicación de la cuenta del equipo (apartado 6, prueba 5).
 
 Tareas del tablero: E01 a E13.
 
@@ -52,9 +52,9 @@ Los archivos que se usan están en [`config/`](config/) y [`scripts/`](scripts/)
 
 ### 1. Ubuntu Server (E02)
 
-1. VirtualBox → **Nueva** → ALMI-ODOO, ISO de Ubuntu Server 24.04, Linux / Ubuntu (64-bit), 3072 MB, 2 CPU, 25 GB. Red: **Red NAT ALMICHAIN**.
+1. VirtualBox → **Nueva** → ALMI-ODOO, ISO de Ubuntu Server 24.04, Linux / Ubuntu (64-bit), **Omitir instalación desatendida** (si no, VirtualBox crea el usuario `vboxuser`), 3072 MB, 2 CPU, 25 GB. Red: **Red NAT ALMICHAIN**.
 2. Instalador: teclado español, red manual (192.168.10.30/24, puerta 192.168.10.1, DNS 1.1.1.1,9.9.9.9), disco entero, nombre `almi-odoo`, usuario `almiadmin`, **Install OpenSSH server**.
-3. Al terminar: `sudo apt update && sudo apt full-upgrade -y`.
+3. Al terminar: `sudo apt update && sudo apt full-upgrade -y`. El instalador usa LVM y solo da a la raíz la mitad del disco; para usarlo entero: `sudo lvextend -l +100%FREE -r /dev/ubuntu-vg/ubuntu-lv` (comprobar con `df -h /`).
 4. Cortafuegos con las redes del diseño ([plan de direccionamiento](../04-red/README.md)): la administración por SSH solo desde la VLAN 10 (gestión, donde están los servidores y el gerente) y la 99 (administración); la web de Odoo desde la VLAN 10 y la VLAN 20 (TPV). La VLAN 30 de clientes no llega a nada:
 
 ```bash
@@ -83,7 +83,7 @@ sudo chmod 600 /opt/odoo/.env
 
 `almiadmin` **no** se mete en el grupo `docker` (ese grupo equivale a ser root): siempre `sudo docker`.
 
-Se copian [`config/docker-compose.yml`](config/docker-compose.yml) a `/opt/odoo/docker-compose.yml` y [`config/odoo.conf`](config/odoo.conf) a `/opt/odoo/config/odoo.conf` (con la contraseña maestra del gestor). **La primera vez se comentan con `;` las líneas `list_db` y `dbfilter`**: si no, Odoo no enseña el formulario para crear la base (apartado 4). Y se arranca:
+Se copian [`config/docker-compose.yml`](config/docker-compose.yml) a `/opt/odoo/docker-compose.yml` y [`config/odoo.conf`](config/odoo.conf) a `/opt/odoo/config/odoo.conf`, **cambiando el texto entre `< >` de `admin_passwd` por la contraseña maestra** (`openssl rand -base64 24`, guardada en KeePassXC). Si se deja la plantilla tal cual, esa frase pública sería la contraseña. **La primera vez se comentan con `;` las líneas `list_db` y `dbfilter`**: si no, Odoo no enseña el formulario para crear la base (apartado 4). Y se arranca:
 
 ```bash
 sudo chmod 644 /opt/odoo/config/odoo.conf
@@ -201,7 +201,7 @@ python3 scripts/configurar_odoo.py
 
 ![Servidor de correo de Gmail](capturas/21-servidor-correo-gmail.png)
 
-**Factura automática** (E10): regla **TPV - Facturar pedidos con cliente** sobre *Pedidos de TPV*, que se dispara cuando el estado pasa a **Pagado** y el pedido tiene cliente:
+**Factura automática** (E10): regla **TPV - Facturar pedidos con cliente** sobre *Pedidos de TPV*, que se dispara cuando el estado pasa a **Pagado**, con el filtro `[('partner_id', '!=', False), ('to_invoice', '=', False), ('account_move', '=', False)]`: el pedido tiene cliente, el camarero **no** ha marcado ya *Factura* en el TPV (si lo marca, Odoo la hace él) y todavía no tiene factura. Así nunca sale una factura doble:
 
 ```python
 for order in records:
@@ -276,8 +276,8 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 | 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused | [05](capturas/05-certificado.png) |
 | 3 | Gestor de bases de datos oculto | Abrir `/web/database/manager` | No se abre | "The database manager has been disabled" | [08](capturas/08-gestor-bd-oculto.png) |
 | 4 | Camareros sin facturación | Entrar como Camarero Barra 1 | Sin menús de Facturación, Inventario ni CRM | Solo Punto de venta (y apps comunes: Conversaciones, Calendario, Contactos, Empleados) | [31](capturas/31-camarero-solo-tpv.png) |
-| 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Correcto. Los correos quedan en cola hasta poner la contraseña de Gmail | [27](capturas/27-pedidos-tpv.png) [28](capturas/28-facturas-publicadas.png) [30](capturas/30-stock-despues-de-vender.png) [33](capturas/33-cola-de-correos.png) |
-| 6 | Ticket impreso | Cobrar en cada barra | Ticket con cabecera y pie | Ticket generado con cabecera y pie (impresora física: ver bloque 01) | [ticket 1](capturas/25-barra1-4-ticket.png) [ticket 2](capturas/26-barra2-4-ticket.png) |
+| 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Factura, publicación y stock: correcto. **Correo: solo comprobado que queda en la cola con el PDF**; el envío real está pendiente de poner la contraseña de aplicación de Gmail | [27](capturas/27-pedidos-tpv.png) [28](capturas/28-facturas-publicadas.png) [30](capturas/30-stock-despues-de-vender.png) [33](capturas/33-cola-de-correos.png) |
+| 6 | Ticket impreso | Cobrar en cada barra | Ticket con cabecera y pie | Ticket generado en pantalla con cabecera y pie. **Impresión en la impresora física: pendiente — en clase** (bloque 01) | [ticket 1](capturas/25-barra1-4-ticket.png) [ticket 2](capturas/26-barra2-4-ticket.png) |
 | 7 | Copia y restauración | Restaurar en `almichain_restaurada` | Mismo número de pedidos | 2 y 2 | [35](capturas/35-restauracion-odoo.png) |
 | 8 | VM exportada | Arrancar `ALMI-ODOO.ova` desde cero | Odoo por HTTPS con los datos del reto | HTTPS 200 y 2 pedidos | [36](capturas/36-vm-ova-primer-arranque.png) |
 

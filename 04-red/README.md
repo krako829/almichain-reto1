@@ -65,7 +65,7 @@ Equipos: R-ALMI y ISP (Router 2911), SW-ALMI (2960-24TT), INTERNET (Server-PT), 
 | Gi0/1 | R-ALMI | troncal 10,20,30,99 | nativa 999 |
 | Resto | — | 998 | apagados |
 
-Configuraciones completas, listas para pegar en la pestaña CLI:
+Configuraciones por línea de comandos, listas para pegar en la pestaña **CLI** (lo que se hace con el ratón está justo después):
 
 | Archivo | Equipo | Qué configura |
 |---|---|---|
@@ -78,7 +78,27 @@ Listas de acceso del router:
 - **CLIENTES-SOLO-INTERNET** (entrada en G0/0.30): los clientes del Wi-Fi no llegan a Gestión, TPV ni Administración.
 - **TPV-SOLO-ODOO** (entrada en G0/0.20): los TPV solo llegan a Odoo (192.168.10.30) por **443** (y 80, que redirige a HTTPS); el resto de Gestión y Administración, bloqueado.
 
-Wi-Fi de clientes en los dos AP: SSID `AlmiChain-Clientes`, **WPA2-PSK AES** con clave de 12 caracteres o más.
+### Lo que se configura con el ratón (no tiene CLI en Packet Tracer)
+
+**Servidor INTERNET** (simula una web de fuera): **Desktop → IP Configuration → Static**: IP 198.51.100.10, máscara 255.255.255.0, puerta 198.51.100.1, DNS 198.51.100.10. **Services → DNS**: activado, nombre `www.ejemplo.com` → 198.51.100.10. **Services → HTTP**: activado.
+
+**Equipos con IP fija** (Desktop → IP Configuration → Static):
+
+| Equipo | IP | Máscara | Puerta de enlace | DNS |
+|---|---|---|---|---|
+| SRV-BD | 192.168.10.20 | 255.255.255.0 | 192.168.10.1 | 198.51.100.10 |
+| SRV-ODOO | 192.168.10.30 | 255.255.255.0 | 192.168.10.1 | 198.51.100.10 |
+| IMP-TICKET1 | 192.168.20.50 | 255.255.255.0 | 192.168.20.1 | — |
+
+En SRV-ODOO se dejan activados **Services → HTTP** y **HTTPS** (simulan la web de Odoo). La ACL de los TPV deja pasar los dos puertos, así que la prueba 6 se puede hacer con `http://` y con `https://`.
+
+**Equipos con DHCP**: PC-GERENTE, TPV1, TPV2 y RECREATIVA → **Desktop → IP Configuration → DHCP**. Tiene que salir una IP de su VLAN (por ejemplo 192.168.20.100 en TPV1).
+
+**Wi-Fi de clientes**:
+
+1. AP-SALA y AP-TERRAZA → **Config → Port 1**: SSID `AlmiChain-Clientes`, **WPA2-PSK**, clave de 12 caracteres o más, cifrado **AES** (los dos iguales).
+2. CLIENTE1 y CLIENTE2 → **Physical**: apagar, quitar el módulo de cable, poner **WPC300N**, encender.
+3. **Config → Wireless0**: mismo SSID, WPA2-PSK, la misma clave, IP por **DHCP**. Tiene que salir una IP 192.168.30.x.
 
 El archivo de Packet Tracer se guarda como `almichain.pkt` en esta carpeta.
 

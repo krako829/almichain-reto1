@@ -40,10 +40,7 @@ Para hacer pruebas, en `terraform.tfvars`:
 ```hcl
 certbot_staging = true
 ```
-Así se pide un certificado de **prueba**: el navegador dice que no es de confianza, pero no gasta el límite. Para la versión final, volved a `false` y recread la máquina:
-```bash
-terraform apply -replace=aws_instance.web
-```
+Así se pide un certificado de **prueba**: el navegador dice que no es de confianza, pero no gasta el límite. Para la versión final, volved a `false` y `terraform apply`: como cambia el script de arranque, Terraform **recrea** la máquina (`user_data_replace_on_change = true` en `main.tf`; el plan dice `must be replaced`) y pide el certificado bueno. Si no, se pararía y arrancaría sin volver a ejecutar el script y seguiría el certificado de prueba.
 
 ## Recrear solo el servidor
 

@@ -163,6 +163,9 @@ resource "aws_instance" "web" {
     email              = var.email
     staging            = var.certbot_staging
   })
+  # Si cambia el script de arranque (p. ej. certbot_staging = false, otro token o correo),
+  # la máquina se recrea: si solo se parara y arrancara, cloud-init no lo volvería a ejecutar
+  user_data_replace_on_change = true
 
   # Si Canonical publica una AMI nueva, NO recrear la máquina
   # (si no, habría que pedir otro certificado)
