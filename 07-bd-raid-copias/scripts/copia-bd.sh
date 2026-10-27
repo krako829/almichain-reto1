@@ -6,7 +6,9 @@ set -euo pipefail
 DEST=/var/backups/mariadb
 FECHA=$(date +%F_%H%M)
 ARCHIVO="$DEST/almichain-$FECHA.sql.gz"
-REMOTO=copias@192.168.10.30:/srv/copias-remotas/bd/
+# En ALMI-ODOO la clave solo puede ESCRIBIR en su carpeta de copias (rrsync -wo -no-del):
+# no puede leer, borrar, salir de la carpeta ni ejecutar órdenes. Por eso el destino es "copias@IP:".
+REMOTO=copias@192.168.10.30:
 
 mkdir -p "$DEST"
 chmod 700 "$DEST"
@@ -29,6 +31,8 @@ find "$DEST" -name 'almichain-*' -mtime +7 -delete
 find "$DEST" -name 'semanal-*' -mtime +28 -delete
 
 # Copia fuera de este servidor (regla 3-2-1): a ALMI-ODOO
-rsync -a -e "ssh -i /root/.ssh/copias_ed25519" "$DEST/" "$REMOTO"
+# accept-new: la primera vez se guarda la clave de host del otro servidor (se genera en su primer arranque);
+# si luego cambia, ssh se niega a conectar.
+rsync -a -e "ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes -o StrictHostKeyChecking=accept-new" "$DEST/" "$REMOTO"
 
 echo "$(date '+%F %T') copia OK: $ARCHIVO" >> /var/log/copia-bd.log

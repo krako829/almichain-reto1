@@ -69,8 +69,8 @@ Configuraciones completas, listas para pegar en la pestaña CLI:
 
 | Archivo | Equipo | Qué configura |
 |---|---|---|
-| [`packet-tracer/SW-ALMI.txt`](packet-tracer/SW-ALMI.txt) | Switch | VLAN, puertos de acceso con seguridad, troncal, puertos sin uso apagados, IP de gestión en VLAN 99, SSH v2 |
-| [`packet-tracer/R-ALMI.txt`](packet-tracer/R-ALMI.txt) | Router | Subinterfaces 802.1Q, DHCP por VLAN, NAT con sobrecarga, ACL de clientes y de TPV, SSH v2 |
+| [`packet-tracer/SW-ALMI.txt`](packet-tracer/SW-ALMI.txt) | Switch | VLAN, puertos de acceso con seguridad, troncal, puertos sin uso apagados, IP de gestión en VLAN 99, SSH v2 solo desde las VLAN 10 y 99 |
+| [`packet-tracer/R-ALMI.txt`](packet-tracer/R-ALMI.txt) | Router | Subinterfaces 802.1Q, DHCP por VLAN (solo en el rango del plan), NAT con sobrecarga, ACL de clientes y de TPV, SSH v2 solo desde las VLAN 10 y 99 (`access-class`), bloqueo tras 3 intentos fallidos |
 | [`packet-tracer/ISP.txt`](packet-tracer/ISP.txt) | Operador | Enlace WAN y red de "Internet" 198.51.100.0/24 |
 
 Listas de acceso del router:
@@ -103,6 +103,7 @@ Guía detallada: [`routers/configuracion-routers.md`](routers/configuracion-rout
 | 7 | Gerente | `ping 192.168.10.20` y `198.51.100.10` | Responden | | |
 | 8 | NAT y ACL | `show ip nat translations` y `show access-lists` | Traducciones y coincidencias en los deny | | |
 | 9 | SSH | PC-GERENTE `ssh -l almiadmin 192.168.10.1` | Entra en R-ALMI | | |
+| 9b | SSH bloqueado desde fuera de gestión | CLIENTE1 `ssh -l almiadmin 192.168.30.1` y TPV1 `ssh -l almiadmin 192.168.20.1` | Conexión rechazada | | |
 | 10 | Routers seguros | Contraseña de fábrica y WPS | No entra con la de la pegatina; WPS desactivado | | |
 | 11 | Cliente en R2 recibe IP de R1 | `ip -4 addr` y `ip route` | Red de R1, puerta = R1 | | |
 | 12 | Repetidor sin pérdidas | `ping -c 20` a R1 y a 8.8.8.8 | 0 % de pérdidas | | |

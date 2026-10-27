@@ -56,31 +56,17 @@ Archivos SQL en [`sql/`](sql/):
 
 ### 1. VM con tres discos (B04)
 
-Instalación base de Ubuntu Server igual que ALMI-ODOO (bloque 05, paso 1) con IP **192.168.10.20** y nombre `almi-bd`. Con la VM apagada: **Configuración → Almacenamiento → Controlador SATA → Añadir disco duro → Crear** → `ALMI-BD-raid1`, VDI, 10 GB. Repetir con `ALMI-BD-raid2`.
-
-### 2. RAID 1 (B05)
-
-Los pasos están también en el script [`scripts/crear-raid.sh`](scripts/crear-raid.sh), que comprueba que los discos están vacíos antes de tocar nada:
+Instalación base de Ubuntu Server igual que ALMI-ODOO (bloque 05, paso 1) con IP **192.168.10.20** y nombre `almi-bd`, **salvo el cortafuegos**: este servidor no tiene web, así que solo se abre el SSH y solo desde las VLAN 10 y 99:
 
 ```bash
-sudo apt install -y mdadm
-sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
-cat /proc/mdstat                       # esperar a [UU] y 100 %
-sudo mkfs.ext4 -L datos-bd /dev/md0
-sudo systemctl stop mariadb
-sudo mount /dev/md0 /mnt && sudo rsync -aAX /var/lib/mysql/ /mnt/ && sudo umount /mnt
-echo "UUID=$(sudo blkid -s UUID -o value /dev/md0) /var/lib/mysql ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
-sudo mount /var/lib/mysql && sudo chown mysql:mysql /var/lib/mysql
-sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
-sudo update-initramfs -u
-sudo systemctl start mariadb
+sudo ufw default deny incoming && sudo ufw default allow outgoing
+for red in 192.168.10.0/24 192.168.99.0/24; do sudo ufw allow from $red to any port 22 proto tcp; done
+sudo ufw enable
 ```
 
-`nofail` hace que, si el RAID fallara del todo, el servidor arranque igualmente y se pueda reparar por SSH.
+Con la VM apagada: **Configuración → Almacenamiento → Controlador SATA → Añadir disco duro → Crear** → `ALMI-BD-raid1`, VDI, 10 GB. Repetir con `ALMI-BD-raid2`.
 
-> En la VM exportada (.ova) el RAID se crea solo la primera vez que arranca, con el servicio `almi-crear-raid`, porque los dos discos se entregan vacíos. El registro queda en `/var/log/almi-crear-raid.log`.
-
-### 3. MariaDB segura (B06)
+### 2. MariaDB segura (B06)
 
 ```bash
 sudo apt install -y mariadb-server
@@ -91,14 +77,44 @@ Se quitan los usuarios anónimos, la base `test` y el acceso remoto de root; roo
 
 ![MariaDB sin usuarios anónimos ni base test, escuchando solo en 127.0.0.1](capturas/01-mariadb-segura.png)
 
+### 3. RAID 1 (B05)
+
+Se hace **después** de instalar MariaDB, porque lo que se pone encima del RAID es su carpeta de datos (`/var/lib/mysql`). Los pasos están también en el script [`scripts/crear-raid.sh`](scripts/crear-raid.sh), que comprueba que los discos están vacíos antes de tocar nada y que la copia es idéntica antes de vaciar la carpeta original:
+
+```bash
+sudo apt install -y mdadm
+sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+cat /proc/mdstat                       # esperar a [UU] y 100 %
+sudo mkfs.ext4 -L datos-bd /dev/md0
+sudo systemctl stop mariadb
+sudo mount /dev/md0 /mnt && sudo rsync -aAX /var/lib/mysql/ /mnt/ && sudo rm -rf /mnt/lost+found
+sudo diff -r --brief /var/lib/mysql/ /mnt/ && sudo umount /mnt   # sin salida = copia idéntica
+sudo find /var/lib/mysql -mindepth 1 -delete                       # vaciar el original
+echo "UUID=$(sudo blkid -s UUID -o value /dev/md0) /var/lib/mysql ext4 defaults,nofail 0 2" | sudo tee -a /etc/fstab
+sudo mkdir -p /etc/systemd/system/mariadb.service.d
+printf '[Unit]\nRequiresMountsFor=/var/lib/mysql\n' | sudo tee /etc/systemd/system/mariadb.service.d/raid.conf
+sudo systemctl daemon-reload
+sudo mount /var/lib/mysql && sudo chown mysql:mysql /var/lib/mysql
+sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
+sudo update-initramfs -u
+sudo systemctl start mariadb
+```
+
+- `nofail`: si el RAID fallara del todo, el servidor arranca igualmente y se puede reparar por SSH.
+- `RequiresMountsFor`: pero **MariaDB no arranca** si el RAID no está montado. Por eso se vacía la carpeta original: si quedaran los datos viejos debajo del montaje, MariaDB arrancaría con ellos sin avisar y el restaurante trabajaría sobre datos antiguos.
+
+> En la VM exportada (.ova) el RAID se crea solo la primera vez que arranca, con el servicio `almi-crear-raid`, porque los dos discos se entregan vacíos. El registro queda en `/var/log/almi-crear-raid.log`.
+
 ### 4. Esquema, datos y usuarios (B07)
 
 ```bash
 cd ~/sql
 sudo mariadb < 01-esquema.sql
 sudo mariadb < 02-datos.sql
-sudo mariadb -e "SET @p_app='…'; SET @p_consulta='…'; SET @p_copias='…'; SOURCE 03-usuarios.sql;"
+sudo ~/scripts/crear-usuarios-bd.sh 03-usuarios.sql
 ```
+
+[`scripts/crear-usuarios-bd.sh`](scripts/crear-usuarios-bd.sh) pide las tres contraseñas sin enseñarlas (mínimo 12 caracteres) y se las pasa a MariaDB por la entrada estándar, así no quedan en el historial de bash ni se ven con `ps`. [`03-usuarios.sql`](sql/03-usuarios.sql) se para antes de tocar nada si falta alguna contraseña, usa `QUOTE()` (una comilla en la contraseña no rompe nada) y `CREATE OR REPLACE USER` (sirve también para cambiarlas). El script deja la contraseña de `copias` en `/root/.my.cnf` (600) para las copias automáticas.
 
 ![Esquema y datos cargados: 13 tablas y la vista](capturas/02-esquema-cargado.png)
 
@@ -108,7 +124,7 @@ sudo mariadb -e "SET @p_app='…'; SET @p_consulta='…'; SET @p_copias='…'; S
 |---|---|---|
 | `app_almichain` | SELECT, INSERT, UPDATE, DELETE en `almichain.*` | La aplicación: trabaja con los datos, no puede cambiar la estructura |
 | `consulta` | SELECT, SHOW VIEW en `almichain.*` | Informes de gerencia: solo lectura |
-| `copias` | SELECT, SHOW VIEW, TRIGGER, LOCK TABLES, EVENT | Lo mínimo que necesita `mariadb-dump` |
+| `copias` | SELECT, SHOW VIEW, TRIGGER, LOCK TABLES, EVENT en `almichain.*` y SELECT en `mysql.proc` | Lo mínimo que necesita `mariadb-dump` (con `--routines`). No puede leer las demás bases ni `mysql.global_priv`, donde están los hashes de las contraseñas |
 
 Todos solo desde `localhost`.
 
@@ -143,7 +159,15 @@ El usuario `consulta` no puede borrar ni modificar:
 En **los dos** servidores:
 
 - Usuario `copias` sin contraseña (`passwd -l`) que solo recibe archivos en `/srv/copias-remotas/` (permisos 700).
-- Clave SSH `/root/.ssh/copias_ed25519` para enviar. En el `authorized_keys` del otro servidor la clave va limitada a la IP de origen y sin terminal: `from="192.168.10.20",restrict ssh-ed25519 …`.
+- Clave SSH `/root/.ssh/copias_ed25519` para enviar. En el `authorized_keys` del otro servidor la clave va limitada a la IP de origen, sin terminal y **solo para escribir en su carpeta** con `rrsync` (viene con rsync en Ubuntu 24.04):
+
+  ```
+  command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/bd/",from="192.168.10.20",restrict ssh-ed25519 …
+  ```
+
+  Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado con un sshd local: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan (transcripción en el informe de auditoría).
+- El que recibe las copias es quien borra las viejas: en el cron de root, `find /srv/copias-remotas -type f -mtime +30 -delete` (30 días).
+- La primera vez que un servidor envía, guarda la clave de host del otro (`StrictHostKeyChecking=accept-new`); si después cambiara, `ssh` se niega a conectar.
 - Contraseña del usuario `copias` de MariaDB en `/root/.my.cnf` (permisos 600).
 
 Script [`scripts/copia-bd.sh`](scripts/copia-bd.sh) en `/usr/local/bin/`, en el cron de root a las 02:00:
@@ -203,8 +227,10 @@ watch cat /proc/mdstat
 - MariaDB solo escucha en 127.0.0.1; root solo por socket local; sin usuarios anónimos ni base `test`.
 - Tres usuarios con el mínimo privilegio necesario; ninguno con permisos globales de escritura.
 - Contraseñas fuera del repositorio (variables al cargar `03-usuarios.sql`, `/root/.my.cnf` con permisos 600).
-- Copias con permisos 700, huella SHA-256 y enviadas con una clave SSH que solo sirve desde la IP del otro servidor y sin terminal.
-- Cortafuegos ufw: solo SSH (22) desde 192.168.0.0/16.
+- Copias con permisos 700, huella SHA-256 y enviadas con una clave SSH que solo sirve desde la IP del otro servidor, sin terminal y solo para escribir en la carpeta de copias (`rrsync -wo -no-del`).
+- MariaDB no arranca si el RAID no está montado: nunca trabaja con datos viejos por error.
+- Cortafuegos ufw: solo SSH (22) desde la VLAN 10 (gestión) y la 99 (administración).
+- Secretos propios en cada VM importada: claves de host SSH y contraseñas de los 3 usuarios de MariaDB se generan en el primer arranque (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)).
 - RAID 1: si falla un disco, la base de datos sigue funcionando.
 
 ## Pruebas

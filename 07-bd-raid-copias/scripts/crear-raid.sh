@@ -2,7 +2,8 @@
 # Almi-Chain · Crea el RAID 1 de ALMI-BD y pone los datos de MariaDB encima (guía 8.5)
 #
 # Hace lo mismo que los pasos a mano de la guía:
-#   mdadm --create  ->  mkfs.ext4  ->  copiar /var/lib/mysql  ->  fstab  ->  mdadm.conf  ->  initramfs
+#   mdadm --create  ->  mkfs.ext4  ->  copiar /var/lib/mysql  ->  vaciar el original  ->  fstab
+#   ->  MariaDB depende del montaje  ->  mdadm.conf  ->  initramfs
 # En la VM exportada se ejecuta solo una vez, en el primer arranque (servicio almi-crear-raid).
 # Si el RAID ya existe, no hace nada.
 set -euo pipefail
@@ -35,17 +36,27 @@ mkdir -p /mnt/raid
 mount /dev/md0 /mnt/raid
 rsync -aAX /var/lib/mysql/ /mnt/raid/
 rm -rf /mnt/raid/lost+found
+# Comprobar que la copia es idéntica antes de borrar nada (si no, set -e para el script aquí)
+diff -r --brief /var/lib/mysql/ /mnt/raid/
 umount /mnt/raid
 
-# 4. Montaje permanente por UUID (nofail: si falla el RAID, el sistema arranca igual)
+# 4. Vaciar la carpeta original: los datos ya están en el RAID. Si se dejaran, quedarían
+#    ocultos debajo del montaje y, si un día el RAID no se montara, MariaDB arrancaría
+#    sin avisar con esa copia vieja.
+find /var/lib/mysql -mindepth 1 -delete
+
+# 5. Montaje permanente por UUID. nofail: si falla el RAID, el sistema arranca igual y se
+#    puede reparar por SSH; pero MariaDB NO arranca sin el RAID (RequiresMountsFor)
 UUID=$(blkid -s UUID -o value /dev/md0)
 sed -i '\#/var/lib/mysql#d' /etc/fstab
 echo "UUID=$UUID /var/lib/mysql ext4 defaults,nofail 0 2" >> /etc/fstab
+mkdir -p /etc/systemd/system/mariadb.service.d
+printf '[Unit]\nRequiresMountsFor=/var/lib/mysql\n' > /etc/systemd/system/mariadb.service.d/raid.conf
 systemctl daemon-reload
 mount /var/lib/mysql
 chown mysql:mysql /var/lib/mysql
 
-# 5. Que el RAID se llame siempre md0 y arranque con el sistema
+# 6. Que el RAID se llame siempre md0 y arranque con el sistema
 sed -i '/^ARRAY /d' /etc/mdadm/mdadm.conf
 mdadm --detail --scan >> /etc/mdadm/mdadm.conf
 update-initramfs -u

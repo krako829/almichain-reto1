@@ -72,12 +72,18 @@ ip domain-name almichain.local
 username almiadmin privilege 15 secret <contraseña>
 crypto key generate rsa general-keys modulus 2048
 ip ssh version 2
+! SSH al switch solo desde gestión (VLAN 10) y administración (VLAN 99)
+access-list 10 permit 192.168.10.0 0.0.0.255
+access-list 10 permit 192.168.99.0 0.0.0.255
 line vty 0 15
+access-class 10 in
 login local
 transport input ssh
+exec-timeout 5 0
 exit
 line console 0
 login local
+exec-timeout 5 0
 exit
 end
 write memory

@@ -59,13 +59,17 @@ Una vez en cada PC que tenga máquinas del reto:
 3. En cada VM: **Configuración → Red → Adaptador 1 → Red NAT → ALMICHAIN**.
 4. Para administrar desde el PC, en **Reenvío de puertos** de la red ALMICHAIN:
 
-| Nombre | Protocolo | Puerto anfitrión | IP invitado | Puerto invitado |
-|---|---|---|---|---|
-| odoo-ssh | TCP | 2230 | 192.168.10.30 | 22 |
-| odoo-https | TCP | 8443 | 192.168.10.30 | 443 |
-| bd-ssh | TCP | 2220 | 192.168.10.20 | 22 |
+| Nombre | Protocolo | IP anfitrión | Puerto anfitrión | IP invitado | Puerto invitado |
+|---|---|---|---|---|---|
+| odoo-ssh | TCP | **127.0.0.1** | 2230 | 192.168.10.30 | 22 |
+| odoo-https | TCP | **127.0.0.1** | 8443 | 192.168.10.30 | 443 |
+| bd-ssh | TCP | **127.0.0.1** | 2220 | 192.168.10.20 | 22 |
 
-Desde el PC: `ssh -p 2230 almiadmin@localhost` y Odoo en `https://localhost:8443`.
+La **IP anfitrión 127.0.0.1** es importante: si se deja vacía, VirtualBox abre esos puertos en todas las interfaces del PC y cualquier ordenador del aula podría intentar entrar por SSH en nuestros servidores. Con 127.0.0.1 solo se llega desde el propio PC.
+
+Desde el PC: `ssh -p 2230 almiadmin@localhost` y Odoo en `https://localhost:8443` (el certificado incluye `localhost`).
+
+Lo mismo por comandos: `VBoxManage natnetwork modify --netname ALMICHAIN --port-forward-4 "odoo-ssh:tcp:[127.0.0.1]:2230:[192.168.10.30]:22"` (y igual con las otras dos).
 
 ## Contraseñas y secretos
 

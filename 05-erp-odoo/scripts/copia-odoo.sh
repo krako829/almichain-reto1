@@ -6,7 +6,9 @@ set -euo pipefail
 DEST=/var/backups/odoo
 FECHA=$(date +%F_%H%M)
 DC="docker compose --project-directory /opt/odoo"
-REMOTO=copias@192.168.10.20:/srv/copias-remotas/odoo/
+# En ALMI-BD la clave solo puede ESCRIBIR en su carpeta de copias (rrsync -wo -no-del):
+# no puede leer, borrar, salir de la carpeta ni ejecutar órdenes. Por eso el destino es "copias@IP:".
+REMOTO=copias@192.168.10.20:
 
 mkdir -p "$DEST"
 chmod 700 "$DEST"
@@ -24,6 +26,8 @@ sha256sum "$DEST/almichain-$FECHA.dump" "$DEST/filestore-$FECHA.tar.gz" > "$DEST
 find "$DEST" -type f -mtime +7 -delete
 
 # Copia fuera de esta máquina: a ALMI-BD
-rsync -a -e "ssh -i /root/.ssh/copias_ed25519" "$DEST/" "$REMOTO"
+# accept-new: la primera vez se guarda la clave de host del otro servidor (se genera en su primer arranque);
+# si luego cambia, ssh se niega a conectar.
+rsync -a -e "ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes -o StrictHostKeyChecking=accept-new" "$DEST/" "$REMOTO"
 
 echo "$(date '+%F %T') copia OK" >> /var/log/copia-odoo.log

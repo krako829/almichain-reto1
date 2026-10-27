@@ -55,17 +55,20 @@ Los archivos que se usan están en [`config/`](config/) y [`scripts/`](scripts/)
 1. VirtualBox → **Nueva** → ALMI-ODOO, ISO de Ubuntu Server 24.04, Linux / Ubuntu (64-bit), 3072 MB, 2 CPU, 25 GB. Red: **Red NAT ALMICHAIN**.
 2. Instalador: teclado español, red manual (192.168.10.30/24, puerta 192.168.10.1, DNS 1.1.1.1,9.9.9.9), disco entero, nombre `almi-odoo`, usuario `almiadmin`, **Install OpenSSH server**.
 3. Al terminar: `sudo apt update && sudo apt full-upgrade -y`.
-4. Cortafuegos: solo SSH, HTTP y HTTPS desde las redes internas:
+4. Cortafuegos con las redes del diseño ([plan de direccionamiento](../04-red/README.md)): la administración por SSH solo desde la VLAN 10 (gestión, donde están los servidores y el gerente) y la 99 (administración); la web de Odoo desde la VLAN 10 y la VLAN 20 (TPV). La VLAN 30 de clientes no llega a nada:
 
 ```bash
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-for p in 22 80 443; do sudo ufw allow from 192.168.0.0/16 to any port $p proto tcp; done
+for red in 192.168.10.0/24 192.168.99.0/24; do sudo ufw allow from $red to any port 22 proto tcp; done
+for red in 192.168.10.0/24 192.168.20.0/24; do sudo ufw allow from $red to any port 80,443 proto tcp; done
 sudo ufw enable
 sudo ufw status verbose
 ```
 
-![Cortafuegos activo con SSH, HTTP y HTTPS solo desde 192.168.0.0/16](capturas/01-cortafuegos-ufw.png)
+> En el laboratorio todas las VM están en la misma Red NAT 192.168.10.0/24, así que el TPV entra por la regla de la VLAN 10. La regla de la VLAN 20 es la del restaurante real.
+
+![Cortafuegos activo: SSH solo desde las VLAN 10 y 99, HTTP y HTTPS desde las VLAN 10 y 20](capturas/01-cortafuegos-ufw.png)
 
 ### 2. Docker y Odoo (E03)
 
@@ -80,7 +83,7 @@ sudo chmod 600 /opt/odoo/.env
 
 `almiadmin` **no** se mete en el grupo `docker` (ese grupo equivale a ser root): siempre `sudo docker`.
 
-Se copian [`config/docker-compose.yml`](config/docker-compose.yml) a `/opt/odoo/docker-compose.yml` y [`config/odoo.conf`](config/odoo.conf) a `/opt/odoo/config/odoo.conf` (con la contraseña maestra del gestor) y se arranca:
+Se copian [`config/docker-compose.yml`](config/docker-compose.yml) a `/opt/odoo/docker-compose.yml` y [`config/odoo.conf`](config/odoo.conf) a `/opt/odoo/config/odoo.conf` (con la contraseña maestra del gestor). **La primera vez se comentan con `;` las líneas `list_db` y `dbfilter`**: si no, Odoo no enseña el formulario para crear la base (apartado 4). Y se arranca:
 
 ```bash
 sudo chmod 644 /opt/odoo/config/odoo.conf
@@ -95,7 +98,9 @@ sudo docker compose --project-directory /opt/odoo up -d
 
 ### 3. HTTPS interno con nginx (E04)
 
-Certificado propio para la IP del servidor (válido 825 días) y nginx delante de Odoo. La configuración completa está en [`config/nginx-odoo.conf`](config/nginx-odoo.conf): redirige el puerto 80 al 443, solo permite TLS 1.2 y 1.3 y pasa a Odoo las cabeceras `X-Forwarded-*` (por eso `odoo.conf` lleva `proxy_mode = True`).
+Certificado propio para el servidor (válido 825 días) y nginx delante de Odoo. La configuración completa está en [`config/nginx-odoo.conf`](config/nginx-odoo.conf): redirige el puerto 80 al 443, solo permite TLS 1.2 y 1.3 y pasa a Odoo las cabeceras `X-Forwarded-*` (por eso `odoo.conf` lleva `proxy_mode = True`).
+
+El certificado es **de servidor y no de autoridad** (`CA:FALSE`, uso `serverAuth`). Es importante porque en los Windows se instala en el almacén de raíces de confianza: si fuera `CA:TRUE` (lo que hace `openssl req -x509` por defecto), quien tuviera su clave privada podría firmar certificados de **cualquier** web y los Windows del restaurante se los creerían. Con `CA:FALSE` solo sirve para este servidor.
 
 ```bash
 sudo apt install -y nginx
@@ -103,8 +108,12 @@ sudo mkdir -p /etc/ssl/almichain
 sudo openssl req -x509 -nodes -newkey rsa:2048 -days 825 \
   -keyout /etc/ssl/almichain/odoo.key -out /etc/ssl/almichain/odoo.crt \
   -subj "/C=ES/ST=Bizkaia/L=Bilbao/O=Almi-Chain/CN=192.168.10.30" \
-  -addext "subjectAltName=IP:192.168.10.30"
+  -addext "basicConstraints=critical,CA:FALSE" \
+  -addext "keyUsage=critical,digitalSignature,keyEncipherment" \
+  -addext "extendedKeyUsage=serverAuth" \
+  -addext "subjectAltName=IP:192.168.10.30,DNS:almi-odoo,DNS:localhost,IP:127.0.0.1"
 sudo chmod 600 /etc/ssl/almichain/odoo.key
+sudo openssl x509 -in /etc/ssl/almichain/odoo.crt -noout -fingerprint -sha256   # se apunta: se comprueba en los Windows
 sudo cp nginx-odoo.conf /etc/nginx/sites-available/odoo
 sudo ln -s /etc/nginx/sites-available/odoo /etc/nginx/sites-enabled/odoo
 sudo rm /etc/nginx/sites-enabled/default
@@ -115,7 +124,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ![Certificado con la IP 192.168.10.30, clave privada solo para root, 443 abierto y 8069 cerrado desde la red](capturas/05-certificado.png)
 
-En los dos Windows se instala el certificado como de confianza con [`../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1`](../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1). Así Edge muestra el candado sin avisos.
+nginx publica también la parte **pública** del certificado en `http://192.168.10.30/almichain-odoo.crt` (nunca la clave). En los dos Windows se descarga e instala como de confianza con [`../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1`](../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1), que **pide la huella SHA-256** apuntada en el servidor y no lo instala si no coincide. Así no hace falta entrar por SSH al servidor desde los TPV (la red no lo permite) y Edge muestra el candado sin avisos.
 
 ### 4. Base de datos `almichain` (E05)
 
@@ -125,7 +134,7 @@ En el navegador, `https://192.168.10.30` → formulario de creación: contraseñ
 
 ![Base creada: pantalla de acceso de Odoo](capturas/07-base-creada-primer-acceso.png)
 
-Después se oculta el gestor de bases de datos para que nadie pueda borrarlas o copiarlas desde la web. Al final de `odoo.conf`:
+Después se oculta el gestor de bases de datos para que nadie pueda borrarlas o copiarlas desde la web. Al final de `odoo.conf` se quitan los `;` de las dos líneas:
 
 ```ini
 list_db = False
@@ -250,8 +259,9 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 
 ## Seguridad aplicada
 
-- **Solo HTTPS**: nginx redirige el 80 al 443; Odoo solo escucha en 127.0.0.1. Certificado propio instalado como de confianza en los Windows.
-- **Cortafuegos** ufw: entrada denegada salvo 22, 80 y 443 desde 192.168.0.0/16.
+- **Solo HTTPS**: nginx redirige el 80 al 443 (salvo la descarga de la parte pública del certificado); Odoo solo escucha en 127.0.0.1. Certificado de servidor (`CA:FALSE`) instalado como de confianza en los Windows tras comprobar su huella.
+- **Cortafuegos** ufw: entrada denegada salvo SSH desde las VLAN 10 y 99, y HTTP/HTTPS desde las VLAN 10 y 20.
+- **Secretos propios en cada VM importada**: en el primer arranque se generan la contraseña de PostgreSQL, la contraseña maestra de Odoo, el certificado con su clave y las claves de host SSH. La OVA no los lleva.
 - **Gestor de bases de datos oculto** (`list_db = False`) y contraseña maestra larga.
 - **Mínimo privilegio** en Odoo: los camareros solo usan el TPV; el gerente no tiene Ajustes; solo el administrador configura.
 - **Secretos fuera del repositorio**: `.env`, `odoo.conf` real, clave del certificado y contraseñas en KeePassXC.

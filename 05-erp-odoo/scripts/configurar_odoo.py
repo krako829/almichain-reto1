@@ -113,6 +113,10 @@ if os.path.exists(logo):
 # Los PDF (facturas) los genera wkhtmltopdf DENTRO del contenedor: tiene que pedir los estilos
 # a Odoo directamente y no a https://192.168.10.30 (certificado propio, se queda esperando)
 upsert("ir.config_parameter", [["key", "=", "report.url"]], {"key": "report.url", "value": "http://127.0.0.1:8069"})
+# Dirección pública fija: Odoo la usa en los enlaces de los correos. Sin "freeze", el primer
+# administrador que entre por otra dirección (p. ej. https://localhost:8443) la cambiaría.
+upsert("ir.config_parameter", [["key", "=", "web.base.url"]], {"key": "web.base.url", "value": URL})
+upsert("ir.config_parameter", [["key", "=", "web.base.url.freeze"]], {"key": "web.base.url.freeze", "value": "True"})
 
 # ---------------------------------------------------------------- 6.7 Usuarios
 paso("Usuarios con mínimo privilegio")
