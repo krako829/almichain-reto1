@@ -15,9 +15,26 @@ Tareas del tablero: B01 a B12.
 | Software | MariaDB 10.11, mdadm, rsync, cron |
 | Usuario de administración | `almiadmin` (contraseña en KeePassXC) |
 
+## Arquitectura
+
+```mermaid
+flowchart LR
+  subgraph BD["ALMI-BD 192.168.10.20"]
+    SDA[("sda 15 GB<br/>sistema")]
+    SDB[("sdb 10 GB")] --> MD["md0 · RAID 1<br/>ext4"]
+    SDC[("sdc 10 GB")] --> MD
+    MD -- "/var/lib/mysql" --> MDB["MariaDB 10.11<br/>solo 127.0.0.1:3306"]
+    MDB -- "02:00 mariadb-dump<br/>(usuario copias)" --> LOC["/var/backups/mariadb<br/>7 diarias + 4 semanales"]
+    MD -. "disco roto" .-> AV["aviso-raid.sh<br/>registro y aviso"]
+    REM["/srv/copias-remotas/odoo<br/>copias que llegan de Odoo"]
+  end
+  LOC -- "02:00 rsync por SSH 22<br/>rrsync: solo escribir" --> OD["ALMI-ODOO<br/>/srv/copias-remotas/bd"]
+  OD -. "02:30 copias de Odoo<br/>rsync por SSH 22" .-> REM
+```
+
 ## Modelo de datos
 
-Modelo del equipo hecho en dbdiagram.io: [`../diagramas/modelo-er-equipo.pdf`](../diagramas/modelo-er-equipo.pdf).
+Modelo del equipo hecho en dbdiagram.io: [`../diagramas/modelo-er-equipo.pdf`](../diagramas/modelo-er-equipo.pdf). Es un **modelo relacional** (tablas, columnas y claves), no un diagrama entidad/relación conceptual con entidades y rombos.
 
 ![Modelo relacional del equipo](../diagramas/modelo-er-equipo.png)
 
@@ -156,7 +173,7 @@ El usuario `consulta` no puede borrar ni modificar:
 
 **Regla 3-2-1**: 3 copias (datos en el RAID + copia local + copia en el otro servidor), en 2 soportes distintos (dos máquinas) y 1 fuera del local (el repositorio para la configuración; para los datos, se recomienda al restaurante un disco externo semanal o un almacenamiento en la nube cifrado).
 
-### 7. Copias cruzadas automáticas (B09) {#copias-cruzadas}
+### 7. Copias cruzadas automáticas (B09)
 
 En **los dos** servidores:
 

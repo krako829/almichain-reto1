@@ -4,11 +4,11 @@ Tablero tipo Trello para el Reto 1 de ASIR1. Funciona sin instalar nada ni conex
 
 ## Cómo abrirlo
 
-Descomprime la carpeta y abre `index.html` con Chrome, Firefox o Edge.
+Abre `00-gestion/tablero/index.html` con Chrome, Firefox o Edge (sirve abrirlo directamente desde la carpeta del repositorio).
 
 ## Qué trae
 
-- Las 90 tareas del reto, **sin responsable**: os las repartís vosotros.
+- Las 91 tareas del reto. Las tareas que trae el archivo no tienen responsable: el reparto se hace en el tablero y se guarda con **Exportar** (ver abajo).
 - Cada tarea indica el **apartado de la guía** («Guía 2.4») del documento «Guías paso a paso» donde se explica cómo hacerla.
 - Arriba: progreso total, las 4 semanas (la actual marcada), los 8 bloques con su progreso y el equipo.
 - Dos vistas: **Por estado** (Por hacer → En curso → En revisión → Hecho) y **Por semanas**.
@@ -34,7 +34,7 @@ Todo se guarda en el navegador de cada ordenador, así que no se sincroniza solo
 
 ## Archivos
 
-- `Guias-paso-a-paso-Reto1-Almi-Chain.docx`: la documentación con las guías paso a paso de cada apartado (se abre con Word o LibreOffice).
+- `../Guias-paso-a-paso-Reto1-Almi-Chain.docx` (en `00-gestion/`): las guías paso a paso de cada apartado (se abre con Word o LibreOffice).
 - `index.html`: estructura de la página.
 - `css/estilos.css`: diseño. Al principio están los colores de cada bloque (`--b-…`) y de cada persona (`--p-…`).
 - `js/tareas.js`: las tareas iniciales. Se usan la primera vez o al pulsar **Restablecer**.

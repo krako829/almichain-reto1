@@ -5,7 +5,23 @@
 | Archivo | Qué es |
 |---|---|
 | [`Guias-paso-a-paso-Reto1-Almi-Chain.docx`](Guias-paso-a-paso-Reto1-Almi-Chain.docx) | Guías paso a paso de las 8 partes del reto, con las tareas G, P, A, S, R, E, W y B |
-| [`tablero/`](tablero/) | Tablero tipo Trello con las 90 tareas (abrir `tablero/index.html`). Se exporta a JSON en esta carpeta al final de cada sesión |
+| [`tablero/`](tablero/) | Tablero tipo Trello con las 91 tareas (abrir `tablero/index.html`, instrucciones en [`tablero/LEEME.md`](tablero/LEEME.md)). Se exporta a JSON en `tablero/` al final de cada sesión |
+
+> **La guía paso a paso es un documento de planificación** hecho antes de empezar. Las decisiones posteriores (sin doble arranque, Ubuntu en la recreativa en vez de Debian, dominio `almichain2`, modelo de datos de 13 tablas…) están en "Decisiones del equipo" y **mandan sobre la guía**. La guía numera las partes del 1 al 8 y las carpetas van del 00 al 07:
+>
+> | Parte de la guía | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+> |---|---|---|---|---|---|---|---|---|
+> | Carpeta | 00-gestion | 01-windows-gerente-tpv | 02-linux-recreativa | 03-arcade-stick | 04-red | 05-erp-odoo | 06-web-aws | 07-bd-raid-copias |
+
+## Estado de la gestión (27 de octubre de 2026)
+
+| Entregable | Estado |
+|---|---|
+| Anexo I (contrato de trabajo en equipo) | **Pendiente**: hay un borrador en el Drive del equipo sin terminar ni firmar. No se sube al repositorio hasta quitarle los datos personales |
+| Anexo II | **Pendiente** |
+| Reparto de tareas en el tablero | **Pendiente**: las tareas del archivo no tienen responsable y no hay ningún `.json` exportado todavía |
+| Presentación final (G15) | Pendiente (semana 4) |
+| Commits de los 5 | Pendiente: hasta ahora el historial solo tiene commits de un miembro. A partir de aquí, cada uno hace sus commits con su usuario de Git y con el formato `Bloque: qué se ha hecho` |
 
 ## Equipo y plazo
 
@@ -50,7 +66,7 @@
 | Red interna de VirtualBox | ALMICHAIN | Red NAT 192.168.10.0/24 |
 | Administrador en todas las máquinas | almiadmin | Contraseña en el gestor de contraseñas |
 
-## Red NAT ALMICHAIN {#red-nat-almichain}
+## Red NAT ALMICHAIN
 
 Una vez en cada PC que tenga máquinas del reto:
 
@@ -94,4 +110,4 @@ Ninguna contraseña, clave de AWS ni token se escribe en el repositorio ni en la
 | Pruebas | Tabla "Pruebas" de cada bloque |
 | Documentación con diagramas | Los README y [`docs/`](../docs/) |
 | Seguimiento y control de versiones | Este tablero y el historial de Git |
-| Anexo I y Anexo II | Esta carpeta |
+| Anexo I y Anexo II | Esta carpeta (**pendientes**, ver "Estado de la gestión") |

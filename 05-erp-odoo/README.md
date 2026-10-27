@@ -81,6 +81,8 @@ echo "DB_PASSWORD=$(openssl rand -base64 24)" | sudo tee /opt/odoo/.env
 sudo chmod 600 /opt/odoo/.env
 ```
 
+El formato de ese archivo está en [`config/env.example`](config/env.example) (sin la contraseña real).
+
 `almiadmin` **no** se mete en el grupo `docker` (ese grupo equivale a ser root): siempre `sudo docker`.
 
 Se copian [`config/docker-compose.yml`](config/docker-compose.yml) a `/opt/odoo/docker-compose.yml` y [`config/odoo.conf`](config/odoo.conf) a `/opt/odoo/config/odoo.conf`, **cambiando el texto entre `< >` de `admin_passwd` por la contraseña maestra** (`openssl rand -base64 24`, guardada en KeePassXC). Si se deja la plantilla tal cual, esa frase pública sería la contraseña. **La primera vez se comentan con `;` las líneas `list_db` y `dbfilter`**: si no, Odoo no enseña el formulario para crear la base (apartado 4). Y se arranca:
@@ -217,17 +219,29 @@ for order in records:
 
 Con el usuario **Camarero Barra 1** se abre la caja de **Barra 1**, se marcan una caña, un refresco y una hamburguesa, se elige la clienta **Ane Etxeberria** y se cobra en efectivo. Después, con **Camarero Barra 2**, una venta en **Barra 2** a **Jon Arrieta**.
 
-| | Barra 1 | Barra 2 |
-|---|---|---|
-| Apertura de caja | ![](capturas/25-barra1-1-apertura-caja.png) | ![](capturas/26-barra2-1-apertura-caja.png) |
-| Pedido con cliente | ![](capturas/25-barra1-2-pedido.png) | ![](capturas/26-barra2-2-pedido.png) |
-| Pago | ![](capturas/25-barra1-3-pago.png) | ![](capturas/26-barra2-3-pago.png) |
+**Barra 1** (Camarero Barra 1, clienta Ane Etxeberria):
 
-El ticket que se manda a la impresora (con la cabecera y el pie configurados):
+![Barra 1: apertura de caja](capturas/25-barra1-1-apertura-caja.png)
 
-| Ticket de Barra 1 | Ticket de Barra 2 |
-|---|---|
-| ![](capturas/25-barra1-4-ticket.png) | ![](capturas/26-barra2-4-ticket.png) |
+![Barra 1: TPV abierto](capturas/25-barra1-1b-tpv-abierto.png)
+
+![Barra 1: pedido con la clienta elegida](capturas/25-barra1-2-pedido.png)
+
+![Barra 1: pago en efectivo](capturas/25-barra1-3-pago.png)
+
+![Barra 1: ticket que se manda a la impresora, con cabecera y pie](capturas/25-barra1-4-ticket.png)
+
+**Barra 2** (Camarero Barra 2, cliente Jon Arrieta):
+
+![Barra 2: apertura de caja](capturas/26-barra2-1-apertura-caja.png)
+
+![Barra 2: TPV abierto](capturas/26-barra2-1b-tpv-abierto.png)
+
+![Barra 2: pedido con el cliente elegido](capturas/26-barra2-2-pedido.png)
+
+![Barra 2: pago](capturas/26-barra2-3-pago.png)
+
+![Barra 2: ticket que se manda a la impresora](capturas/26-barra2-4-ticket.png)
 
 Resultado visto por el **Gerente**:
 
@@ -243,7 +257,7 @@ Resultado visto por el **Gerente**:
 
 ### 7. Copia de seguridad de Odoo (E11)
 
-Script [`scripts/copia-odoo.sh`](scripts/copia-odoo.sh) en `/usr/local/bin/`, todos los días a las **02:30** con cron de root. Guarda la base de datos (`pg_dump` en formato propio), los adjuntos (`filestore`), las huellas SHA-256, borra las copias de más de 7 días y lo manda todo a **ALMI-BD** por SSH con una clave que solo sirve para eso (ver [07-bd-raid-copias](../07-bd-raid-copias/README.md#copias-cruzadas)).
+Script [`scripts/copia-odoo.sh`](scripts/copia-odoo.sh) en `/usr/local/bin/`, todos los días a las **02:30** con cron de root. Guarda la base de datos (`pg_dump` en formato propio), los adjuntos (`filestore`), las huellas SHA-256, borra las copias de más de 7 días y lo manda todo a **ALMI-BD** por SSH con una clave que solo sirve para eso (ver [07-bd-raid-copias](../07-bd-raid-copias/README.md#7-copias-cruzadas-automáticas-b09)).
 
 ![Copia hecha, guardada en local y en ALMI-BD, y programada en cron](capturas/34-copia-odoo.png)
 
@@ -253,7 +267,7 @@ Prueba de restauración en una base nueva `almichain_restaurada`: tiene el mismo
 
 ### 8. Máquina virtual exportada
 
-ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)). Se probó arrancándola desde cero: en el primer arranque carga las imágenes de Docker que lleva dentro (no necesita Internet), restaura la base `almichain` con los datos de este bloque, arranca Odoo y aplica el cortafuegos. Al terminar, Odoo responde por HTTPS con los 2 pedidos de la prueba.
+ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)). Se probó arrancándola desde cero: en el primer arranque ([`scripts/primer-arranque-odoo.sh`](scripts/primer-arranque-odoo.sh)) genera sus propios secretos, carga las imágenes de Docker que lleva dentro (no necesita Internet), restaura la base `almichain` con los datos de este bloque, arranca Odoo y aplica el cortafuegos. Al terminar, Odoo responde por HTTPS con los 2 pedidos de la prueba.
 
 ![VM importada: primer arranque terminado, contenedores en marcha, HTTPS 200, los pedidos restaurados y el cortafuegos](capturas/36-vm-ova-primer-arranque.png)
 
@@ -291,7 +305,7 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 | Los PDF de las facturas tardaban un minuto | wkhtmltopdf, dentro del contenedor, pedía los estilos a `https://192.168.10.30` | Parámetro del sistema `report.url = http://127.0.0.1:8069` |
 | No se podía compartir el efectivo entre Barra 1 y Barra 2 | Odoo exige un método de efectivo por TPV | Un diario de caja por barra: "Efectivo Barra 1" y "Efectivo Barra 2" |
 | La ACL de Packet Tracer de la guía solo dejaba el puerto 80 a los TPV | Odoo se usa por HTTPS | Se añade `eq 443` en la ACL `TPV-SOLO-ODOO` (bloque 04) |
-| El camarero puede abrir la lista de facturas si escribe la dirección a mano | El grupo "Punto de venta: Usuario" necesita leer facturas para reimprimirlas | No tiene menú de Facturación ni puede modificarlas. Se documenta como riesgo aceptado |
+| El camarero puede abrir la lista de facturas si escribe la dirección a mano | El grupo "Punto de venta: Usuario" necesita leer facturas para reimprimirlas | No tiene menú de Facturación ni puede modificarlas. Se documenta como riesgo aceptado ([captura 32](capturas/32-camarero-ve-facturas-riesgo-aceptado.png)) |
 
 ## Fuentes
 

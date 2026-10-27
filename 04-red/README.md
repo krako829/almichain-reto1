@@ -21,7 +21,7 @@ Tareas del tablero: R01 a R10.
 
 ## Línea WAN (R02)
 
-Criterios: fibra simétrica de 300 Mb/s o más, **IP fija**, soporte 24 h y respaldo móvil 4G/5G para que el TPV no se quede sin línea. La tabla con 4 operadores (Movistar Empresas, Vodafone Business, Orange Empresas, Euskaltel/Digi), precio, enlace y fecha está en [`../presupuesto/`](../presupuesto/).
+Criterios: fibra simétrica de 300 Mb/s o más, **IP fija**, soporte 24 h y respaldo móvil 4G/5G para que el TPV no se quede sin línea. La comparativa de operadores (precio, enlace y fecha) está en el [presupuesto](../presupuesto/README.md#red-r02-r04).
 
 ## Plan de direccionamiento (R03)
 
@@ -39,7 +39,9 @@ La VLAN 10 coincide con la Red NAT ALMICHAIN de VirtualBox (192.168.10.0/24): lo
 
 ## Plano y esquema lógico (R04)
 
-En draw.io: `../diagramas/red-plano.drawio` (vista del local con rack, tomas T01…, cables Cat 6 U/UTP T568B, router Wi-Fi en la sala y repetidor WDS en la terraza con su cobertura) y `../diagramas/red-esquema-logico.drawio`:
+**Plano del local: pendiente.** Se hará en draw.io (`diagramas/red-plano.drawio` y `.png`) con la vista del local, el rack, las tomas T01…, los cables Cat 6 U/UTP T568B, el router Wi-Fi en la sala y el repetidor WDS en la terraza con su cobertura. Todavía **no está** en el repositorio.
+
+**Esquema lógico** (VLAN, direcciones y reglas entre redes):
 
 ```mermaid
 flowchart TB
@@ -100,7 +102,7 @@ En SRV-ODOO se dejan activados **Services → HTTP** y **HTTPS** (simulan la web
 2. CLIENTE1 y CLIENTE2 → **Physical**: apagar, quitar el módulo de cable, poner **WPC300N**, encender.
 3. **Config → Wireless0**: mismo SSID, WPA2-PSK, la misma clave, IP por **DHCP**. Tiene que salir una IP 192.168.30.x.
 
-El archivo de Packet Tracer se guarda como `almichain.pkt` en esta carpeta.
+El archivo de Packet Tracer se guardará como `packet-tracer/almichain.pkt` (indicando la versión de Packet Tracer). **Todavía no está en el repositorio**: la red no se ha montado aún.
 
 ## Routers reales (R07-R08)
 
@@ -109,6 +111,15 @@ El archivo de Packet Tracer se guarda como `almichain.pkt` en esta carpeta.
 **R2, repetidor WDS**: reset, contraseña nueva, **IP de LAN en la red de R1 fuera de su rango DHCP** (p. ej. 192.168.0.2), **DHCP desactivado**, **mismo canal** que R1, **Habilitar puente WDS** → buscar `AlmiChain-Clientes` → WPA2-PSK con la clave de R1. En Estado tiene que poner WDS **Run/Conectado**. Si el modelo no tiene WDS, se usa el modo repetidor/extensor y se documenta.
 
 Guía detallada: [`routers/configuracion-routers.md`](routers/configuracion-routers.md).
+
+## Seguridad aplicada
+
+- **Segmentación por VLAN**: gestión, TPV, clientes y administración separadas; la VLAN nativa del troncal (999) y la de los puertos sin uso (998) no llevan tráfico.
+- **ACL en el router**: los clientes del Wi-Fi solo salen a Internet; los TPV solo llegan a Odoo por 443 y 80.
+- **Puertos del switch**: *port-security* con 1 MAC aprendida (*sticky*) y apagado si cambia; puertos sin uso apagados.
+- **Administración**: solo por SSH v2 con usuario local, solo desde las VLAN 10 y 99 (`access-class`), bloqueo tras 3 intentos fallidos, cierre por inactividad y contraseñas cifradas (`enable secret`, `service password-encryption`).
+- **Wi-Fi**: WPA2-PSK con AES y clave de 12 caracteres o más; WPS, administración remota y UPnP desactivados; aislamiento de clientes si el router lo permite.
+- Contraseñas de los equipos de red en KeePassXC, nunca en los archivos del repositorio (`<contraseña>`).
 
 ## Pruebas (R09-R10)
 
@@ -129,11 +140,13 @@ Guía detallada: [`routers/configuracion-routers.md`](routers/configuracion-rout
 | 12 | Repetidor sin pérdidas | `ping -c 20` a R1 y a 8.8.8.8 | 0 % de pérdidas | | |
 | 13 | Velocidad y cobertura | `iperf3 -c` en 4 puntos | Por R2 ~la mitad (normal en WDS); en el punto más lejano R2 da más señal | | |
 
-## Problemas encontrados y solución
+## Problemas encontrados y previstos
+
+La red todavía no se ha montado en Packet Tracer ni con los routers físicos. El primer problema se encontró al revisar la configuración de la guía; los otros dos son **previstos** (documentación de los fabricantes y de la guía), no observados.
 
 | Problema | Solución |
 |---|---|
-| La ACL de la guía dejaba a los TPV solo el puerto 80, pero Odoo va por HTTPS | Se añade `permit tcp 192.168.20.0 0.0.0.255 host 192.168.10.30 eq 443` antes del `deny` |
+| (Encontrado al revisar) La ACL de la guía dejaba a los TPV solo el puerto 80, pero Odoo va por HTTPS | Se añade `permit tcp 192.168.20.0 0.0.0.255 host 192.168.10.30 eq 443` antes del `deny` |
 | WDS no funciona con WPA3 en la mayoría de routers domésticos | WPA2-PSK con AES en los dos |
 | Con canal automático el WDS se cae | Canal fijo e igual en R1 y R2 |
 

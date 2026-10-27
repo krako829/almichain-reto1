@@ -1,6 +1,6 @@
 # Routers reales: principal seguro y repetidor WDS
 
-## 1. Routers reales: principal seguro y secundario como repetidor WDS
+## 1. Configuración
 
 Los menús cambian según la marca. Los nombres de abajo son los habituales (TP-Link entre paréntesis). Apunta modelo y versión de firmware de cada router.
 
@@ -8,7 +8,7 @@ Los menús cambian según la marca. Los nombres de abajo son los habituales (TP-
 
 1.  Reinícialo de fábrica: con él encendido, mantén pulsado el botón RESET 10 segundos.
 
-2.  Conecta el PC por cable a un puerto LAN. Mira la puerta de enlace con ip route | grep default (por ejemplo 192.168.0.1) y ábrela en el navegador. Usuario y contraseña de fábrica: en la pegatina del router.
+2.  Conecta el PC por cable a un puerto LAN. Mira la puerta de enlace con `ip route | grep default` (por ejemplo 192.168.0.1) y ábrela en el navegador. Usuario y contraseña de fábrica: en la pegatina del router.
 
 3.  Cambia la contraseña de administración (Herramientas del sistema → Contraseña). Guárdala en KeePassXC.
 
@@ -20,7 +20,7 @@ Los menús cambian según la marca. Los nombres de abajo son los habituales (TP-
 
     - Región: España.
 
-    - Canal: **fijo** (no automático). Elige el 1, el 6 o el 11, el menos usado. Para verlo desde Zorin: nmcli -f SSID,CHAN,SIGNAL dev wifi list.
+    - Canal: **fijo** (no automático). Elige el 1, el 6 o el 11, el menos usado. Para verlo desde Zorin: `nmcli -f SSID,CHAN,SIGNAL dev wifi list`.
 
     - Ancho de canal: **20 MHz** (más estable con WDS).
 
@@ -72,26 +72,34 @@ Los menús cambian según la marca. Los nombres de abajo son los habituales (TP-
 
 2.  Comprueba que la IP la da R1 (misma red y puerta de enlace = IP de R1):
 
-ip -4 addr show
-ip route | grep default
+    ```bash
+    ip -4 addr show
+    ip route | grep default
+    ```
 
 3.  Comprueba que llega a R1 y a Internet sin pérdidas (tiene que poner 0% packet loss):
 
-ping -c 20 192.168.0.1
-ping -c 20 8.8.8.8
+    ```bash
+    ping -c 20 192.168.0.1
+    ping -c 20 8.8.8.8
+    ```
 
-4.  Velocidad con iperf3: en un PC conectado **por cable a R1**, sudo apt install -y iperf3 y luego iperf3 -s. En el portátil (también con iperf3 instalado), primero conectado a R1 y después a R2:
+4.  Velocidad con iperf3: en un PC conectado **por cable a R1**, `sudo apt install -y iperf3` y luego `iperf3 -s`. En el portátil (también con iperf3 instalado), primero conectado a R1 y después a R2 (cambiando `IP_DEL_PC_SERVIDOR` por la IP de ese PC):
 
-iperf3 -c <IP del PC servidor> -t 20
+    ```bash
+    iperf3 -c IP_DEL_PC_SERVIDOR -t 20
+    ```
 
 5.  Es normal que a través de R2 salga más o menos la mitad: con WDS cada paquete viaja dos veces por el aire. Escríbelo en la documentación.
 
-6.  Cobertura: elige 4 puntos (al lado de R1, mitad del pasillo, al lado de R2, el punto más lejano). En cada uno mide la señal con nmcli -f SSID,SIGNAL,CHAN dev wifi list o con una app de móvil (WiFi Analyzer) y rellena:
+6.  Cobertura: elige 4 puntos (al lado de R1, mitad del pasillo, al lado de R2, el punto más lejano). En cada uno mide la señal con `nmcli -f SSID,SIGNAL,CHAN dev wifi list` o con una app de móvil (WiFi Analyzer) y rellena:
 
 | Punto             | Señal de R1 (%) | Señal de R2 (%) | Velocidad iperf3 (Mb/s) |
 |-------------------|-----------------|-----------------|-------------------------|
-| Junto a R1        |                 |                 |                         |
-| Mitad del pasillo |                 |                 |                         |
-| Junto a R2        |                 |                 |                         |
-| Punto más lejano  |                 |                 |                         |
+| Junto a R1        | Pendiente — en clase | | |
+| Mitad del pasillo | Pendiente — en clase | | |
+| Junto a R2        | Pendiente — en clase | | |
+| Punto más lejano  | Pendiente — en clase | | |
+
+> Estado: los routers físicos todavía no se han configurado; esta tabla y las capturas se rellenan en clase.
 

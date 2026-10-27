@@ -47,7 +47,11 @@ Terraform crea **13 recursos**: VPC, Internet Gateway, subred, tabla de rutas y 
 | [`user_data.sh.tftpl`](user_data.sh.tftpl) | Script de arranque del servidor (nginx, DuckDNS, HTTPS) |
 | [`terraform.tfvars.example`](terraform.tfvars.example) | Plantilla de datos personales (el `terraform.tfvars` real no se sube) |
 | [`web/`](web/) | La web: `index.html`, `estilos.css`, `geo.js` (geolocalización) e imágenes |
-| [`docs/`](docs/) | Arquitectura, guía de despliegue, explicación del código, pruebas y mantenimiento |
+| [`docs/01-arquitectura.md`](docs/01-arquitectura.md) | Arquitectura en AWS |
+| [`docs/02-guia-despliegue.md`](docs/02-guia-despliegue.md) | Guía de despliegue paso a paso |
+| [`docs/03-explicacion-codigo.md`](docs/03-explicacion-codigo.md) | Explicación del código de Terraform y del script de arranque |
+| [`docs/04-pruebas.md`](docs/04-pruebas.md) | Pruebas detalladas |
+| [`docs/05-mantenimiento.md`](docs/05-mantenimiento.md) | Mantenimiento: límites de Let's Encrypt, recrear el servidor, quién despliega |
 
 ## Despliegue paso a paso
 
@@ -92,6 +96,17 @@ Detalladas en [`docs/04-pruebas.md`](docs/04-pruebas.md). Las capturas se hacen 
 | 8 | Vista móvil | Menú y secciones bien en 390 px | Pendiente — en clase | |
 | 9 | Lighthouse | 90 o más en las 4 categorías | Pendiente — en clase | |
 | 10 | Destruir y volver a crear | La web vuelve igual | Pendiente — en clase | |
+
+## Problemas previstos y solución
+
+La web todavía no se ha desplegado desde este repositorio, así que estos problemas son **previstos** (documentación de AWS Academy, Let's Encrypt y Terraform):
+
+| Problema | Solución |
+|---|---|
+| Las credenciales de AWS Academy caducan a las ~4 horas | Copiar las nuevas en `~/.aws/credentials` en cada sesión del lab ([guía, paso 3](docs/02-guia-despliegue.md)) |
+| Let's Encrypt solo da 5 certificados por semana para el mismo dominio | Probar con `certbot_staging = true` y pasar a `false` solo para la versión final ([mantenimiento](docs/05-mantenimiento.md)) |
+| Al cambiar el script de arranque, la EC2 se paraba y arrancaba sin volver a ejecutarlo | `user_data_replace_on_change = true`: Terraform recrea la máquina |
+| Abrir SSH a todo Internet | `ssh_cidr` obligatoria y sin `0.0.0.0/0`: solo la IP pública de quien despliega |
 
 ## Fuentes
 

@@ -157,7 +157,7 @@ Resumen: solo `almiadmin` es administrador; Gerente, TPV1 y TPV2 son usuarios es
 
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
-| 1 | Solo almiadmin es administrador | `Get-LocalGroupMember -SID S-1-5-32-544` en las dos VM | Solo almiadmin (y el Administrador integrado, desactivado) | Pendiente — en clase | |
+| 1 | Solo almiadmin es administrador | `Get-LocalGroupMember -SID S-1-5-32-544` en las dos VM (lo hace [`scripts/4-comprobar-tpv.ps1`](scripts/4-comprobar-tpv.ps1), que además comprueba la impresora y que el 443 de Odoo responde y el 8069 no) | Solo almiadmin (y el Administrador integrado, desactivado) | Pendiente — en clase | |
 | 2 | El gerente no puede instalar programas | Como Gerente, ejecutar un instalador | Pide la contraseña de administrador | Pendiente — en clase | |
 | 3 | Contraseña corta rechazada | Como Gerente, cambiar la contraseña por 1234; como almiadmin, `New-LocalUser -Name prueba -Password (ConvertTo-SecureString "1234" -AsPlainText -Force)` | Error de requisitos en los dos casos | Pendiente — en clase | |
 | 4 | Bloqueo de cuenta | Fallar 5 veces la contraseña de Gerente | Cuenta bloqueada 15 minutos | Pendiente — en clase | |
@@ -171,7 +171,9 @@ Resumen: solo `almiadmin` es administrador; Gerente, TPV1 y TPV2 son usuarios es
 
 **Estado**: este bloque no se ha podido probar todavía: necesita las VM de Windows 10 de clase (ISO y licencia), que no estaban disponibles donde se preparó el repositorio. Los scripts se han revisado a mano, pero **no se han ejecutado** (no había PowerShell). Las pruebas y las capturas se hacen en clase y se guardan en [`capturas/`](capturas/).
 
-## Problemas encontrados y solución
+## Problemas previstos y solución
+
+Este bloque todavía no se ha montado (ver el estado en las pruebas), así que estos son problemas **previstos** (de la guía y de la experiencia de otros montajes), no encontrados. Cuando se monte en clase se apuntan aquí los que aparezcan de verdad.
 
 | Problema | Solución |
 |---|---|

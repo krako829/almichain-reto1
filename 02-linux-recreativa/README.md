@@ -86,7 +86,7 @@ mame -version
 sudo mkdir -p /usr/local/share/games/mame/roms
 ```
 
-**Juegos**: *Pong* y *Breakout* funcionan **sin ROMs** (MAME los emula a partir del esquema del circuito original). Para más juegos se descargan ROMs legales de mamedev.org (robby, gridlee, supertnk) a `/usr/local/share/games/mame/roms/` y se comprueban con `mame -verifyroms`. Las ROMs no se suben al repositorio.
+**Juegos**: *Pong* y *Breakout* funcionan **sin ROMs** (MAME los emula a partir del esquema del circuito original). Para más juegos se descargan ROMs legales de mamedev.org (robby, gridlee, supertnk) a `/usr/local/share/games/mame/roms/` y se comprueban con `mame -verifyroms` (instrucciones en [`config/LEEME-roms.txt`](config/LEEME-roms.txt), que también se deja en esa carpeta de la VM). Las ROMs no se suben al repositorio.
 
 ![MAME 0.264, Pong y Breakout sin ROMs, y X y MAME corriendo como arcade](capturas/04-mame-version-juegos.png)
 

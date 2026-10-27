@@ -88,14 +88,30 @@ Esas placas no pueden ser mando USB de serie. Opciones: (1) pedir un Pro Micro (
 
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
-| 1 | Cableado | Monitor Serie con `prueba_cableado` | Sale el nombre correcto de las 13 entradas | | |
-| 2 | Reconocido como mando/teclado | `lsusb` y `jstest` / `evtest` | Aparece el dispositivo y responde | | |
-| 3 | Las 4 direcciones | `jstest` (ejes) o editor de texto (flechas) | Cada dirección mueve su eje o flecha | | |
-| 4 | Los 9 botones | `jstest` o `evtest` | Cada botón su número o tecla | | |
-| 5 | Funciona en la VM | Filtro USB y `lsusb` dentro de ALMI-ARCADE | Aparece en la VM | | |
-| 6 | Se juega en MAME | Pong o Breakout con el stick | Moneda, Start y movimiento funcionan | | |
+| 1 | Cableado | Monitor Serie con `prueba_cableado` | Sale el nombre correcto de las 13 entradas | Pendiente — en clase | |
+| 2 | Reconocido como mando/teclado | `lsusb` y `jstest` / `evtest` | Aparece el dispositivo y responde | Pendiente — en clase | |
+| 3 | Las 4 direcciones | `jstest` (ejes) o editor de texto (flechas) | Cada dirección mueve su eje o flecha | Pendiente — en clase | |
+| 4 | Los 9 botones | `jstest` o `evtest` | Cada botón su número o tecla | Pendiente — en clase | |
+| 5 | Funciona en la VM | Filtro USB y `lsusb` dentro de ALMI-ARCADE | Aparece en la VM | Pendiente — en clase | |
+| 6 | Se juega en MAME | Pong o Breakout con el stick | Moneda, Start y movimiento funcionan | Pendiente — en clase | |
 
-Capturas y fotos del montaje en [`capturas/`](capturas/).
+**Estado**: los tres programas compilan, pero el stick **no se ha montado ni probado** todavía (falta el material y la placa). Las capturas y fotos del montaje irán en [`capturas/`](capturas/).
+
+## Seguridad aplicada
+
+- El stick solo llega a la recreativa: en VirtualBox se pasa con un **filtro USB** a ALMI-ARCADE y no a las demás VM.
+- **Modo seguro** del programa de teclado (camino B): si se conecta con *Menú* pulsado no envía ninguna tecla, para poder volver a programar la placa si un botón se queda pegado.
+- El programa de teclado solo envía las 13 teclas de la tabla (no puede escribir texto). Ojo: Botón 1 y Botón 2 son Ctrl y Alt, así que pulsados a la vez con otra tecla forman combinaciones (es la distribución por defecto de MAME). En la recreativa no hay escritorio, así que no tienen efecto fuera de MAME.
+
+## Problemas previstos y solución
+
+El stick todavía no se ha montado, así que estos problemas son **previstos**, no encontrados:
+
+| Problema | Solución |
+|---|---|
+| Al mover arriba sale "Abajo" (o izquierda/derecha cambiadas) | El joystick empuja el microinterruptor del lado contrario: se intercambian esos dos cables |
+| La placa es un Uno R3, Mega o Nano | No puede ser mando USB de serie: camino C |
+| Un botón pegado o un programa que no deja de enviar teclas impide reprogramar la placa | Conectarla con *Menú* pulsado (modo seguro) o pulsar *reset* justo cuando el IDE empieza a subir el programa (en un Pro Micro, dos veces seguidas) |
 
 ## Fuentes
 
