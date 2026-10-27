@@ -24,8 +24,8 @@ flowchart LR
   ON["Encender"] --> GRUB["GRUB<br/>mem=1024M nr_cpus=1"]
   GRUB --> SYS["Ubuntu mínimo<br/>sin swap · journald en RAM"]
   SYS --> TTY["getty tty1<br/>autologin arcade"]
-  TTY --> BP[".bash_profile<br/>startx"]
-  BP --> X[".xinitrc<br/>vmstat cada 5 s"]
+  TTY --> BP["/etc/profile.d/recreativa.sh<br/>startx"]
+  BP --> X["recreativa-sesion<br/>vmstat cada 5 s"]
   X --> MAME["MAME a pantalla completa"]
   STK[["Arcade stick USB"]] --> MAME
   MAME -- "al salir" --> TTY
@@ -85,8 +85,8 @@ sudo mkdir -p /usr/local/share/games/mame/roms
 | Archivo | Dónde | Qué hace |
 |---|---|---|
 | [`config/autologin.conf`](config/autologin.conf) | `/etc/systemd/system/getty@tty1.service.d/override.conf` | `arcade` entra solo en la consola 1 |
-| [`config/bash_profile`](config/bash_profile) | `/home/arcade/.bash_profile` (propiedad de root) | Al entrar en tty1 arranca X sin cursor |
-| [`config/xinitrc`](config/xinitrc) | `/home/arcade/.xinitrc` | Desactiva el salvapantallas, guarda `vmstat` cada 5 s y abre MAME (sin sonido si la máquina no tiene tarjeta de sonido) |
+| [`config/recreativa-profile.sh`](config/recreativa-profile.sh) | `/etc/profile.d/recreativa.sh` (de root, 644) | Cuando `arcade` entra en tty1, arranca X sin cursor con la sesión de la recreativa |
+| [`config/recreativa-sesion`](config/recreativa-sesion) | `/usr/local/bin/recreativa-sesion` (de root, 755) | Desactiva el salvapantallas, guarda `vmstat` cada 5 s y abre MAME (sin sonido si la máquina no tiene tarjeta de sonido) |
 | [`config/ui.ini`](config/ui.ini) | `/home/arcade/.mame/ui.ini` | El menú de MAME se abre con Pong seleccionado |
 
 Para administrar con MAME abierto: **Ctrl + Alt + F2** y entrar como `almiadmin`.
@@ -126,7 +126,7 @@ Resultados con MAME 0.264 limitado a **1 núcleo**, con la configuración por de
 
 *Breakout* es el juego más exigente (simula el circuito discreto componente a componente) y es el que más nota la optimización: pasa de ir justo (por debajo de 100 % en alguna pasada) a ir sobrado en todas.
 
-El `.xinitrc` guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mientras se juega. Las columnas `si` y `so` (memoria que entra y sale del swap) tienen que estar siempre a 0.
+La sesión (`recreativa-sesion`) guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mientras se juega. Las columnas `si` y `so` (memoria que entra y sale del swap) tienen que estar siempre a 0.
 
 En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y `so` siempre a 0** y 422 MB de RAM usada de 961. La CPU sale al 100 % porque esta prueba se hizo en una máquina virtual sin aceleración por hardware (todo el procesador emulado); en VirtualBox con VT-x el uso es mucho menor. Las cifras de velocidad buenas son las del benchmark de arriba.
 
@@ -135,7 +135,7 @@ En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y
 
 ## Seguridad aplicada
 
-- `arcade` sin sudo, contraseña de 12 caracteres, carpeta privada; su `.bash_profile` es de root para que no pueda cambiar lo que arranca.
+- `arcade` sin sudo, contraseña de 12 caracteres, carpeta privada. Lo que se arranca al entrar está **fuera de su carpeta** y es de root (`/etc/profile.d/recreativa.sh` y `/usr/local/bin/recreativa-sesion`): dentro de `/home/arcade` no serviría, porque el dueño de una carpeta puede borrar o renombrar cualquier archivo que haya en ella, aunque sea de root.
 - Cortafuegos con toda la entrada bloqueada y **sin servidor SSH**.
 - Las ROMs, solo lectura para `arcade` en una carpeta del sistema.
 
@@ -158,7 +158,7 @@ En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y
 | Problema | Causa | Solución |
 |---|---|---|
 | MAME se quedaba colgado al arrancar, con la CPU al 100 % y sin abrir ventana | El `mame.ini` tenía comentarios con tildes delante de la marca BOM que pone `mame -createconfig`, y el lector de MAME entra en un bucle | Comentarios del `mame.ini` solo en ASCII y sin BOM |
-| MAME se cerraba al momento con *Segmentation fault* y la sesión se reiniciaba en bucle | MAME 0.264 falla al abrir el sonido si la VM no tiene tarjeta de sonido | El `.xinitrc` comprueba `/proc/asound/cards` y, si no hay tarjeta, arranca MAME con `-sound none`. En VirtualBox conviene activar el audio (Intel HD Audio) |
+| MAME se cerraba al momento con *Segmentation fault* y la sesión se reiniciaba en bucle | MAME 0.264 falla al abrir el sonido si la VM no tiene tarjeta de sonido | La sesión comprueba `/proc/asound/cards` y, si no hay tarjeta, arranca MAME con `-sound none`. En VirtualBox conviene activar el audio (Intel HD Audio) |
 | X arrancaba solo la primera vez ("drmSetMaster failed: Permission denied") | Faltaba `libpam-systemd`: la sesión de arcade no se registraba en logind y X sin root no podía usar la pantalla | Instalar `libpam-systemd` (viene en una instalación normal de Ubuntu) |
 | X no arranca con "Failed to load module fbdev/vesa" | Sin aceleración gráfica disponible, X no tenía controlador de respaldo | Instalar `xserver-xorg-video-fbdev` y `xserver-xorg-video-vesa`; en VirtualBox usar VMSVGA |
 | No había ROMs legales descargables desde clase en el primer momento | | Pong y Breakout no necesitan ROMs; el resto se añade desde mamedev.org |

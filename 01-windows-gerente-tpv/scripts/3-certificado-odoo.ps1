@@ -1,4 +1,5 @@
-﻿# Almi-Chain · Confiar en el certificado HTTPS de Odoo (guía 6.4, paso 4)
+﻿#Requires -RunAsAdministrator
+# Almi-Chain · Confiar en el certificado HTTPS de Odoo (guía 6.4, paso 4)
 # Ejecutar con almiadmin en PowerShell como administrador, en ALMI-GERENTE y en ALMI-TPV.
 #
 # Descarga SOLO la parte pública del certificado (nginx la publica en http://192.168.10.30/almichain-odoo.crt),

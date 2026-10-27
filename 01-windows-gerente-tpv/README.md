@@ -70,20 +70,9 @@ En el restaurante real habría un PC del gerente y dos TPV físicos con una impr
 3. **Guest Additions** (Dispositivos → Insertar imagen de CD de las Guest Additions), activar Windows y **Windows Update** hasta que no haya más.
 4. Nombre del equipo en PowerShell como administrador: `Rename-Computer -NewName "ALMI-GERENTE" -Restart` (o `ALMI-TPV`).
 
-### 2. Usuarios con mínimo privilegio (P07)
+### 2. Seguridad general (P08)
 
-Scripts de esta carpeta, en PowerShell como administrador (`Set-ExecutionPolicy -Scope Process Bypass` antes):
-
-| Script | Dónde | Qué hace |
-|---|---|---|
-| [`scripts/1-usuarios-gerente.ps1`](scripts/1-usuarios-gerente.ps1) | ALMI-GERENTE | Usuario estándar **Gerente** y carpeta **C:\Gerencia** solo para Administradores, SYSTEM y Gerente |
-| [`scripts/1-usuarios-tpv.ps1`](scripts/1-usuarios-tpv.ps1) | ALMI-TPV | Usuarios estándar **TPV1** y **TPV2** (no pueden cambiar su contraseña) |
-
-Las contraseñas se piden al ejecutar el script (no están escritas en él) y se guardan en KeePassXC.
-
-### 3. Seguridad general (P08)
-
-[`scripts/2-seguridad.ps1`](scripts/2-seguridad.ps1) en las dos VM:
+[`scripts/1-seguridad.ps1`](scripts/1-seguridad.ps1) en las dos VM, en PowerShell como administrador (`Set-ExecutionPolicy -Scope Process Bypass` antes). Va **antes que los usuarios**, porque Windows comprueba la directiva de contraseñas cuando se crea o se cambia una contraseña, no después:
 
 - Invitado desactivado.
 - Contraseñas de 12 caracteres con complejidad, caducidad de 90 días y **bloqueo de 15 minutos tras 5 fallos**.
@@ -92,6 +81,21 @@ Las contraseñas se piden al ejecutar el script (no están escritas en él) y se
 - **Sin SMBv1** y **sin Escritorio remoto**.
 - Sin reproducción automática.
 - En ALMI-GERENTE, bloqueo de pantalla a los 5 minutos.
+
+Los scripts buscan los grupos por su SID (`S-1-5-32-544` Administradores, `S-1-5-32-545` Usuarios), así que funcionan igual con Windows en español o en inglés, y se paran si algo falla (`$ErrorActionPreference = "Stop"` y comprobación de `secedit`, `net accounts` e `icacls`).
+
+### 3. Usuarios con mínimo privilegio (P07)
+
+| Script | Dónde | Qué hace |
+|---|---|---|
+| [`scripts/2-usuarios-gerente.ps1`](scripts/2-usuarios-gerente.ps1) | ALMI-GERENTE | Usuario estándar **Gerente** y carpeta **`C:\Gerencia`** solo para Administradores, SYSTEM y Gerente |
+| [`scripts/2-usuarios-tpv.ps1`](scripts/2-usuarios-tpv.ps1) | ALMI-TPV | Usuarios estándar **TPV1** y **TPV2** |
+
+Las contraseñas se piden al ejecutar el script (no están escritas en él), tienen que tener 12 caracteres o más y cumplir la complejidad (si no, el script se para), y se guardan en KeePassXC.
+
+TPV1 y TPV2 son cuentas de quiosco: **no pueden cambiar su contraseña y no les caduca**, a diferencia del resto (90 días). Si caducara, la barra se quedaría bloqueada en mitad del servicio; la cambia `almiadmin` cuando toca.
+
+Prueba de que la directiva funciona: `New-LocalUser -Name prueba -Password (ConvertTo-SecureString "1234" -AsPlainText -Force)` tiene que dar error (*InvalidPasswordException*).
 
 ### 4. Impresora de tickets física (P09)
 
@@ -148,18 +152,19 @@ Resumen: solo `almiadmin` es administrador; Gerente, TPV1 y TPV2 son usuarios es
 
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
-| 1 | Solo almiadmin es administrador | `Get-LocalGroupMember -Group "Administradores"` en las dos VM | Solo almiadmin | | |
-| 2 | El gerente no puede instalar programas | Como Gerente, ejecutar un instalador | Pide la contraseña de administrador | | |
-| 3 | Contraseña corta rechazada | Como Gerente, cambiar la contraseña por 1234 | Error de requisitos | | |
-| 4 | Bloqueo de cuenta | Fallar 5 veces la contraseña de Gerente | Cuenta bloqueada 15 minutos | | |
-| 5 | Carpeta privada | `icacls C:\Gerencia` | Solo Administradores, SYSTEM y Gerente | | |
-| 6 | TPV1 y TPV2 en quiosco | Iniciar sesión con cada uno | Solo Edge a pantalla completa con su barra | | |
-| 7 | TPV sin herramientas | Como TPV1, Ctrl + Alt + Supr | Sin Administrador de tareas | | |
-| 8 | TPV sin USB | Pendrive en la sesión de TPV2 | Acceso denegado | | |
-| 9 | Impresión física | Cobrar en Barra 1 y en Barra 2 | Dos tickets por la impresora sin preguntar | | |
-| 10 | Candado de Odoo | Abrir https://192.168.10.30 en Edge | Candado sin aviso | | |
+| 1 | Solo almiadmin es administrador | `Get-LocalGroupMember -SID S-1-5-32-544` en las dos VM | Solo almiadmin (y el Administrador integrado, desactivado) | Pendiente — en clase | |
+| 2 | El gerente no puede instalar programas | Como Gerente, ejecutar un instalador | Pide la contraseña de administrador | Pendiente — en clase | |
+| 3 | Contraseña corta rechazada | Como Gerente, cambiar la contraseña por 1234; como almiadmin, `New-LocalUser -Name prueba -Password (ConvertTo-SecureString "1234" -AsPlainText -Force)` | Error de requisitos en los dos casos | Pendiente — en clase | |
+| 4 | Bloqueo de cuenta | Fallar 5 veces la contraseña de Gerente | Cuenta bloqueada 15 minutos | Pendiente — en clase | |
+| 5 | Carpeta privada | `icacls C:\Gerencia` | Solo Administradores, SYSTEM y Gerente | Pendiente — en clase | |
+| 6 | TPV1 y TPV2 en quiosco | Iniciar sesión con cada uno | Solo Edge a pantalla completa con su barra | Pendiente — en clase | |
+| 7 | TPV sin herramientas | Como TPV1, Ctrl + Alt + Supr | Sin Administrador de tareas | Pendiente — en clase | |
+| 8 | TPV sin USB | Pendrive en la sesión de TPV2 | Acceso denegado | Pendiente — en clase | |
+| 9 | Impresión física | Cobrar en Barra 1 y en Barra 2 | Dos tickets por la impresora sin preguntar | Pendiente — en clase | |
+| 10 | Candado de Odoo | Abrir https://192.168.10.30 en Edge | Candado sin aviso | Pendiente — en clase | |
+| 11 | Huella del certificado | Ejecutar `3-certificado-odoo.ps1` y escribir una huella equivocada | No instala nada | Pendiente — en clase | |
 
-Las capturas de este bloque se hacen en las VM de Windows de clase y se guardan en [`capturas/`](capturas/).
+**Estado**: este bloque no se ha podido probar todavía: necesita las VM de Windows 10 de clase (ISO y licencia), que no estaban disponibles donde se preparó el repositorio. Los scripts se han revisado a mano, pero **no se han ejecutado** (no había PowerShell). Las pruebas y las capturas se hacen en clase y se guardan en [`capturas/`](capturas/).
 
 ## Problemas encontrados y solución
 

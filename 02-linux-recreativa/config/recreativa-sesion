@@ -1,5 +1,6 @@
 #!/bin/sh
-# /home/arcade/.xinitrc - se ejecuta al arrancar X: abre MAME y guarda la monitorizacion
+# /usr/local/bin/recreativa-sesion (de root, 755) - la lanza startx desde /etc/profile.d/recreativa.sh:
+# abre MAME y guarda la monitorizacion. Esta fuera de /home/arcade para que arcade no la pueda cambiar.
 # Sin salvapantallas ni apagado de pantalla
 xset s off -dpms
 # Monitorizacion: CPU, RAM y swap cada 5 segundos mientras se juega
@@ -10,6 +11,7 @@ VMSTAT_PID=$!
 SONIDO=""
 grep -q '^ *[0-9]' /proc/asound/cards 2>/dev/null || SONIDO="-sound none"
 # La recreativa (los errores quedan en rendimiento/mame.log)
+# shellcheck disable=SC2086  # $SONIDO vacío o "-sound none": se separa a propósito
 /usr/games/mame $SONIDO >> "$HOME/rendimiento/mame.log" 2>&1
 # Al salir de MAME se para la monitorizacion (y getty vuelve a abrir la sesion: es una recreativa)
 kill "$VMSTAT_PID"
