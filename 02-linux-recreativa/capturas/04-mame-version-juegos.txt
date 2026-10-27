@@ -1,0 +1,10 @@
+$ /usr/games/mame -version
+0.264 (unknown)
+$ /usr/games/mame -listroms pong breakout
+No ROMs required for driver "breakout".
+
+No ROMs required for driver "pong".
+$ ps -o user,pid,args -u arcade | grep -E 'Xorg|mame|vmstat' | grep -v grep
+arcade       611 /usr/lib/xorg/Xorg :0 -nocursor vt1 -keeptty -auth /tmp/serverauth.ocf4TxQcQB
+arcade       691 vmstat -t 5
+arcade       694 /usr/games/mame -sound none

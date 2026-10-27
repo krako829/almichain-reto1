@@ -1,0 +1,5 @@
+$ hostname; sudo ls -l /srv/copias-remotas/bd
+almi-odoo
+total 12
+-rw-r--r-- 1 copias copias 4668 oct 27 12:49 almichain-2026-10-27_1249.sql.gz
+-rw-r--r-- 1 copias copias  120 oct 27 12:49 almichain-2026-10-27_1249.sql.gz.sha256

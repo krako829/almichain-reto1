@@ -1,0 +1,23 @@
+$ groups arcade; groups almiadmin
+arcade : arcade audio video input
+almiadmin : almiadmin adm sudo
+$ sudo -l -U arcade
+User arcade is not allowed to run sudo on almi-arcade.
+$ ls -ld /home/*
+drwx------ 3 almiadmin almiadmin 4096 oct 27 04:37 /home/almiadmin
+drwx------ 6 arcade    arcade    4096 oct 27 04:37 /home/arcade
+$ ls -l /etc/profile.d/recreativa.sh /usr/local/bin/recreativa-sesion
+-rw-r--r-- 1 root root 523 oct 27 04:20 /etc/profile.d/recreativa.sh
+-rwxr-xr-x 1 root root 960 oct 27 04:20 /usr/local/bin/recreativa-sesion
+$ grep '^minlen' /etc/security/pwquality.conf; dpkg-query -W -f='${Package} ${Status}\n' cracklib-runtime libpam-pwquality
+minlen = 12
+cracklib-runtime install ok installed
+libpam-pwquality install ok installed
+$ sudo ufw status verbose
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+$ systemctl is-enabled ssh ssh.socket
+disabled
+disabled

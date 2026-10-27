@@ -24,9 +24,13 @@ for _ in $(seq 1 120); do
   [ -n "$e" ] && break; sleep 30
 done
 echo "almi-primer-arranque: ${e:-no termina}"
-# Odoo tarda en responder la primera vez (sin aceleración): se espera a que dé 200
-$C orden 900 "for i in \$(seq 1 80); do [ \"\$(curl -s -o /dev/null -w '%{http_code}' --cacert /etc/ssl/almichain/odoo.crt https://192.168.10.30/web/login)\" = 200 ] && break; sleep 10; done" >/dev/null || true
-$C escribir "sudo -v"; $C escribir "$CLAVE_NUEVA"
+# Odoo tarda en responder la primera vez (sin aceleración): se espera a que dé 200.
+# El bucle de dentro de la VM acaba antes (60 x 10 s) que la espera de aquí (900 s): si no,
+# lo que se escribiera después le llegaría al bucle y no a la consola
+$C orden 900 "for i in \$(seq 1 60); do [ \"\$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --cacert /etc/ssl/almichain/odoo.crt https://192.168.10.30/web/login)\" = 200 ] && break; sleep 10; done" >/dev/null || true
+# sudo recuerda la contraseña 15 minutos: se renueva antes de cada grupo de órdenes
+sudo_v() { $C escribir "sudo -v"; $C escribir "$CLAVE_NUEVA"; }
+sudo_v
 
 $C transcribir "$CAP/36-vm-primer-arranque.txt" 300 \
   "sudo grep -E '^== ' /var/log/almi-primer-arranque.log" \
@@ -34,6 +38,7 @@ $C transcribir "$CAP/36-vm-primer-arranque.txt" 300 \
   "curl -s -o /dev/null -w 'HTTPS %{http_code}\n' --cacert /etc/ssl/almichain/odoo.crt https://192.168.10.30/web/login" \
   "$DC exec -T db psql -U odoo -d almichain -c 'SELECT name, state, amount_total FROM pos_order ORDER BY id'" \
   "$DC exec -T db psql -U odoo -d almichain -c \"SELECT key, value FROM ir_config_parameter WHERE key IN ('web.base.url','web.base.url.freeze','report.url') ORDER BY key\"" | limpia
+sudo_v
 $C transcribir "$CAP/37-vm-certificado-servidor.txt" 120 \
   "openssl x509 -in /etc/ssl/almichain/odoo.crt -noout -subject -ext basicConstraints,keyUsage,extendedKeyUsage,subjectAltName" \
   "openssl x509 -in /etc/ssl/almichain/odoo.crt -noout -fingerprint -sha256" \
@@ -41,6 +46,7 @@ $C transcribir "$CAP/37-vm-certificado-servidor.txt" 120 \
   "curl -s -o /dev/null -w 'odoo.key por HTTP: %{http_code} (redirige, no se publica)\n' http://192.168.10.30/odoo.key" \
   "curl -sI http://192.168.10.30/web | head -3" \
   "sudo ls -l /etc/ssl/almichain/" "cat /etc/issue.d/almichain-odoo.issue" | limpia
+sudo_v
 $C transcribir "$CAP/38-vm-secretos-cortafuegos.txt" 120 \
   "sudo ufw status" "ss -ltn | grep -E ':(22|80|443|8069) '" \
   "sudo stat -c '%a %U %n' /opt/odoo/.env /root/credenciales-primer-arranque.txt" \

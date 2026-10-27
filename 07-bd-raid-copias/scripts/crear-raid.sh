@@ -31,7 +31,9 @@ mdadm --create /dev/md0 --level=1 --raid-devices=2 --metadata=1.2 --run "$DISCO1
 mkfs.ext4 -q -L datos-bd /dev/md0
 
 # 3. Copiar los datos de MariaDB al RAID (con el servicio parado)
-systemctl stop mariadb 2>/dev/null || true
+# Solo si está en marcha: en el primer arranque de la OVA todavía no ha arrancado y un "stop"
+# cancelaría su arranque pendiente (y el de los servicios que dependen de él)
+if systemctl is-active --quiet mariadb; then systemctl stop mariadb; fi
 mkdir -p /mnt/raid
 mount /dev/md0 /mnt/raid
 rsync -aAX /var/lib/mysql/ /mnt/raid/
@@ -59,6 +61,10 @@ chown mysql:mysql /var/lib/mysql
 # 6. Que el RAID se llame siempre md0 y arranque con el sistema
 sed -i '/^ARRAY /d' /etc/mdadm/mdadm.conf
 mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+# El RAID no es el disco del sistema: no se monta en el initramfs, sino en el arranque normal,
+# que sabe arrancarlo con un solo disco si falta el otro (probado: así sale como md0 y degradado)
+sed -i '/^INITRDSTART=/d' /etc/default/mdadm 2>/dev/null || true
+echo "INITRDSTART='none'" >> /etc/default/mdadm
 
 # 7. Aviso si un disco falla: mdadm --monitor (servicio mdmonitor) llama a este programa,
 #    que lo deja en /var/log/aviso-raid.log, en el journal y en la pantalla de quien esté conectado
@@ -68,11 +74,59 @@ cat > /usr/local/sbin/aviso-raid.sh <<'EOF2'
 MSG="$(date '+%F %T') RAID $2: $1 ${3:-}"
 echo "$MSG" >> /var/log/aviso-raid.log
 logger -t aviso-raid -p daemon.crit "$MSG"
-wall "AVISO Almi-Chain: $MSG" 2>/dev/null || true
+# En la pantalla solo lo importante (el progreso de una reconstrucción se queda en el registro)
+case "$1" in
+  Fail*|Degraded*|DeviceDisappeared|SparesMissing|ArrancadoConUnSoloDisco) wall "AVISO Almi-Chain: $MSG" 2>/dev/null || true ;;
+esac
 EOF2
 chmod 755 /usr/local/sbin/aviso-raid.sh
 sed -i '/^PROGRAM /d' /etc/mdadm/mdadm.conf
 echo "PROGRAM /usr/local/sbin/aviso-raid.sh" >> /etc/mdadm/mdadm.conf
+# 8. Si al arrancar falta un disco, el RAID se queda "inactive" y no se monta (Ubuntu no lo
+#    arranca solo con un disco). Este servicio espera 20 s a que aparezcan los dos y, si sigue
+#    inactivo, lo arranca con el que haya (degradado) y lo avisa. Así el restaurante sigue
+#    trabajando con un disco, que es para lo que está el RAID 1.
+cat > /usr/local/sbin/almi-raid-degradado.sh <<'EOF2'
+#!/bin/sh
+# Espera hasta 20 s: si el RAID ya está activo (con los dos discos o arrancado por el sistema),
+# no hace nada; si sigue "inactive", lo arranca con el disco que haya
+for _ in $(seq 1 20); do
+  inactivos=$(grep -l '^inactive' /sys/block/md*/md/array_state 2>/dev/null)
+  activos=$(grep -L '^inactive' /sys/block/md*/md/array_state 2>/dev/null)
+  [ -n "$activos" ] && [ -z "$inactivos" ] && exit 0
+  sleep 1
+done
+for f in $inactivos; do
+  md=$(basename "$(dirname "$(dirname "$f")")")
+  if mdadm --run "/dev/$md"; then
+    /usr/local/sbin/aviso-raid.sh "ArrancadoConUnSoloDisco" "/dev/$md"
+  fi
+done
+# Montar los datos y arrancar MariaDB (--no-block: este servicio va ordenado antes que ellos)
+udevadm settle
+systemctl start --no-block var-lib-mysql.mount mariadb.service
+EOF2
+chmod 755 /usr/local/sbin/almi-raid-degradado.sh
+cat > /etc/systemd/system/almi-raid-degradado.service <<'EOF2'
+[Unit]
+Description=Almi-Chain: arrancar el RAID 1 aunque falte un disco
+DefaultDependencies=no
+Wants=systemd-udev-settle.service
+After=systemd-udev-settle.service local-fs-pre.target
+Before=var-lib-mysql.mount mariadb.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/almi-raid-degradado.sh
+
+[Install]
+WantedBy=local-fs.target
+EOF2
+systemctl enable almi-raid-degradado.service
+
+# El vigilante (mdmonitor) lee mdadm.conf al arrancar: se reinicia para que use el aviso.
+# Revisa el RAID cada 60 segundos, así que el aviso llega como mucho en un minuto.
+systemctl restart mdmonitor 2>/dev/null || true
 update-initramfs -u
 
 # --no-block: este script corre como servicio ordenado ANTES de mariadb; un start normal

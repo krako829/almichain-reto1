@@ -1,0 +1,26 @@
+$ sudo tail -4 /var/log/almi-crear-raid.log
+unused devices: <none>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/md0        9,8G  114M  9,2G   2% /var/lib/mysql
+== RAID 1 creado. La sincronización inicial sigue en segundo plano (cat /proc/mdstat) ==
+$ cat /proc/mdstat
+Personalities : [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid1 sdc[1] sdb[0]
+      10476544 blocks super 1.2 [2/2] [UU]
+
+unused devices: <none>
+$ findmnt /var/lib/mysql
+TARGET         SOURCE   FSTYPE OPTIONS
+/var/lib/mysql /dev/md0 ext4   rw,relatime
+$ systemctl show mariadb -p RequiresMountsFor; systemctl is-active mariadb
+RequiresMountsFor=/var/lib/mysql
+active
+$ sudo mount --bind / /mnt && sudo ls -A /mnt/var/lib/mysql | wc -l; sudo umount /mnt
+0
+$ grep -E '^(ARRAY|PROGRAM)' /etc/mdadm/mdadm.conf; grep INITRDSTART /etc/default/mdadm
+ARRAY /dev/md0 metadata=1.2 UUID=166a2992:35fe2e76:370b5c2a:60732ed7
+PROGRAM /usr/local/sbin/aviso-raid.sh
+INITRDSTART='none'
+$ systemctl is-enabled almi-raid-degradado; systemctl is-active mdmonitor
+enabled
+active

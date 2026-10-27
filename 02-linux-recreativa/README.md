@@ -60,7 +60,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet mem=1024M nr_cpus=1"
 
 `sudo update-grub` y reiniciar.
 
-![1 núcleo, 961 MB de memoria total, swap 0 y los parámetros del núcleo](capturas/02-nucleo-memoria-swap.png)
+![1 núcleo, 961 MB de memoria total, swap 0, sin /swap.img y los parámetros del núcleo (console=ttyS0 lo añade la prueba en QEMU, no está en la VM)](capturas/02-nucleo-memoria-swap.png)
 
 ### 3. Usuarios y seguridad (A04)
 
@@ -75,7 +75,7 @@ sudo ufw default deny incoming && sudo ufw default allow outgoing && sudo ufw en
 
 `arcade` no está en el grupo `sudo`: no puede administrar nada.
 
-![arcade sin sudo, carpetas privadas y cortafuegos](capturas/03-usuarios-seguridad.png)
+![arcade sin sudo, carpetas privadas, arranque en archivos de root fuera de /home/arcade, contraseñas de 12 caracteres con diccionario, cortafuegos y sin SSH](capturas/03-usuarios-seguridad.png)
 
 ### 4. Servidor gráfico mínimo y MAME (A05)
 
@@ -114,9 +114,7 @@ sudo systemctl daemon-reload && sudo reboot
 
 Para administrar con MAME abierto: **Ctrl + Alt + F2** y entrar como `almiadmin`.
 
-![arcade entra solo, sin contraseña](capturas/01a-autologin-arcade.png)
-
-![Y se abre MAME a pantalla completa con Pong seleccionado](capturas/01-arranque-mame.png)
+![Al encender (arrancando con GRUB, como en VirtualBox) arcade entra solo y se abre MAME a pantalla completa con Pong seleccionado](capturas/01-arranque-mame.png)
 
 ### 6. Optimización (A08)
 
@@ -164,9 +162,13 @@ Resultados con MAME 0.264 limitado a **1 núcleo** (en el anfitrión), con la co
 
 *Breakout* es el juego más exigente (simula el circuito discreto componente a componente) y es el que más nota la optimización: pasa de ir justo (por debajo de 100 % en alguna pasada) a ir sobrado en todas.
 
+El script se probó también **dentro de la VM exportada, en QEMU sin aceleración**, para comprobar que funciona donde se instala (antes fallaba: `sudo` no encontraba `mame`, y con el sistema en español la media salía mal). Las cifras de esa prueba (en torno al 20 %) **no miden la recreativa**: en QEMU sin aceleración todo el procesador se emula por software.
+
+![benchmark-recreativa ejecutado dentro de la VM (en QEMU): funciona y calcula la media; las cifras no sirven como medida](capturas/07-benchmark-en-qemu.png)
+
 La sesión (`recreativa-sesion`) guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mientras se juega. Las columnas `si` y `so` (memoria que entra y sale del swap) tienen que estar siempre a 0.
 
-En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y `so` siempre a 0** y 422 MB de RAM usada de 961. La CPU sale al 100 % porque esta prueba se hizo arrancando el disco de la VM en **QEMU sin aceleración por hardware** (todo el procesador emulado), no en VirtualBox; con VT-x el uso tiene que ser mucho menor (pendiente de medir en clase). Las cifras de velocidad buenas son las del benchmark de arriba.
+En la prueba, con MAME abierto unos 6 minutos (67 muestras): **`swpd`, `si` y `so` siempre a 0**. La CPU sale al 100 % porque esta prueba se hizo arrancando el disco de la VM en **QEMU sin aceleración por hardware** (todo el procesador emulado), no en VirtualBox; con VT-x el uso tiene que ser mucho menor (pendiente de medir en clase). Las cifras de velocidad buenas son las del benchmark de arriba.
 
 ![Registro de vmstat con MAME abierto: swap siempre a 0](capturas/06-vmstat.png)
 
@@ -184,8 +186,8 @@ En la prueba, con MAME abierto durante 7 minutos (84 muestras): **`swpd`, `si` y
 | 1 | 1 núcleo | `nproc` | 1 | 1 | [02](capturas/02-nucleo-memoria-swap.png) |
 | 2 | 1 GB de RAM | `free -m` | Total menor de 1024 MB | 961 MB | [02](capturas/02-nucleo-memoria-swap.png) |
 | 3 | Sin swap | `swapon --show` | Sin salida | Sin salida; Swap 0 | [02](capturas/02-nucleo-memoria-swap.png) |
-| 4 | No se usa swap al jugar | Registro de vmstat | `si` y `so` siempre 0 | 0 y 0 en 84 muestras | [06](capturas/06-vmstat.png) |
-| 5 | Arranque directo a MAME | Encender | MAME sin pedir contraseña | Autologin de arcade y MAME abierto | [01a](capturas/01a-autologin-arcade.png) [01](capturas/01-arranque-mame.png) |
+| 4 | No se usa swap al jugar | Registro de vmstat | `si` y `so` siempre 0 | `swpd`, `si` y `so` a 0 en las 67 muestras | [06](capturas/06-vmstat.png) |
+| 5 | Arranque directo a MAME | Encender | MAME sin pedir contraseña | Autologin de arcade y MAME abierto | [01](capturas/01-arranque-mame.png) [04](capturas/04-mame-version-juegos.png) |
 | 6 | arcade sin privilegios | `groups arcade`; `sudo -l` como arcade | Sin sudo | No está en sudo | [03](capturas/03-usuarios-seguridad.png) |
 | 7 | Juegos disponibles | `mame -listroms pong breakout` | No necesitan ROMs | "No ROMs required" | [04](capturas/04-mame-version-juegos.png) |
 | 8 | Mejora de rendimiento | Tabla del benchmark | Igual o mayor velocidad después | En el anfitrión con 1 núcleo: Pong +6 %, Breakout +17 %. **Dentro de la VM en VirtualBox: pendiente — en clase** | — |

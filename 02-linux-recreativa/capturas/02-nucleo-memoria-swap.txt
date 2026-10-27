@@ -1,0 +1,11 @@
+$ nproc
+1
+$ free -m
+               total        used        free      shared  buff/cache   available
+Mem:             961         375         385           7         336         585
+Swap:              0           0           0
+$ swapon --show
+$ ls -l /swap.img
+ls: cannot access '/swap.img': No such file or directory
+$ cat /proc/cmdline
+root=UUID=829e79e5-b665-4cca-940e-7e5c471ca991 ro quiet mem=1024M nr_cpus=1 console=tty0 console=ttyS0,115200

@@ -1,0 +1,14 @@
+$ sudo cat /home/copias/.ssh/authorized_keys | cut -c1-95
+command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/bd/",from="192.168.10.20",restrict ssh
+$ sudo ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes copias@192.168.10.20 'ls /'; echo "código $?"
+/usr/bin/rrsync error: SSH_ORIGINAL_COMMAND does not run rsync
+código 1
+$ sudo rsync -a --delete -e 'sudo ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes' /var/backups/odoo/ copias@192.168.10.20: 2>&1 | head -2
+/usr/bin/rrsync error: option --delete has been disabled on this server.
+rsync: connection unexpectedly closed (0 bytes received so far) [sender]
+$ sudo rsync -a -e 'sudo ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes' copias@192.168.10.20:. /tmp/leer-copias 2>&1 | head -2
+/usr/bin/rrsync error: reading from write-only server is not allowed
+rsync: connection unexpectedly closed (0 bytes received so far) [Receiver]
+$ sudo rsync -a -e 'sudo ssh -i /root/.ssh/copias_ed25519 -o BatchMode=yes' /etc/hostname copias@192.168.10.20:../ 2>&1 | head -2
+/usr/bin/rrsync error: do not use .. in arg (anchor the path at the root of your restricted dir)
+rsync: connection unexpectedly closed (0 bytes received so far) [sender]

@@ -1,0 +1,20 @@
+$ sudo mdadm /dev/md0 --remove /dev/sdc && sudo mdadm /dev/md0 --add /dev/sdc
+mdadm: hot removed /dev/sdc from /dev/md0
+mdadm: added /dev/sdc
+$ sleep 5; cat /proc/mdstat | sed -n 2,4p
+md0 : active raid1 sdc[2] sdb[0]
+      10476544 blocks super 1.2 [2/1] [U_]
+      [==>..................]  recovery = 10.9% (1145856/10476544) finish=0.6min speed=229171K/sec
+$ sudo mdadm --wait /dev/md0; cat /proc/mdstat | sed -n 2,3p
+md0 : active raid1 sdc[2] sdb[0]
+      10476544 blocks super 1.2 [2/2] [UU]
+$ sudo mdadm --detail /dev/md0 | grep -E 'State :|Failed Devices|Active Devices'
+             State : clean
+    Active Devices : 2
+    Failed Devices : 0
+$ sudo mariadb -e "SELECT nombre, apellidos FROM almichain.cliente WHERE apellidos='RAID'"
++--------+-----------+
+| nombre | apellidos |
++--------+-----------+
+| Prueba | RAID      |
++--------+-----------+

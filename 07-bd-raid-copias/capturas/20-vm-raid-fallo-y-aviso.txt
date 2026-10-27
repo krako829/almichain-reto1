@@ -1,0 +1,20 @@
+$ sudo mdadm /dev/md0 --fail /dev/sdc 2>&1
+mdadm: set /dev/sdc faulty in /dev/md0
+$ cat /proc/mdstat | sed -n 2,3p
+md0 : active raid1 sdc[1](F) sdb[0]
+      10476544 blocks super 1.2 [2/1] [U_]
+$ sudo mariadb -e "INSERT INTO almichain.cliente (nombre, apellidos, telefono) VALUES ('Prueba', 'RAID', '699999999'); SELECT COUNT(*) AS clientes FROM almichain.cliente"
++----------+
+| clientes |
++----------+
+|        7 |
++----------+
+$ sleep 70; sudo tail -3 /var/log/aviso-raid.log
+
+Broadcast message from root@almi-bd (somewhere) (Tue Oct 27 06:04:09 2026):    
+
+AVISO Almi-Chain: 2026-10-27 06:04:09 RAID /dev/md0: Fail /dev/sdc
+
+2026-10-27 05:59:07 RAID /dev/md0: RebuildStarted
+2026-10-27 06:00:08 RAID /dev/md0: RebuildFinished
+2026-10-27 06:04:09 RAID /dev/md0: Fail /dev/sdc

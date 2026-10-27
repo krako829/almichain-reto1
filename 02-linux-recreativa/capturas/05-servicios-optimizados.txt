@@ -1,0 +1,23 @@
+$ systemctl list-units --type=service --state=running --no-legend --plain | awk '{print $1}'
+cron.service
+dbus.service
+getty@tty1.service
+serial-getty@ttyS0.service
+systemd-journald.service
+systemd-logind.service
+systemd-networkd.service
+systemd-resolved.service
+systemd-udevd.service
+user@1000.service
+user@1001.service
+$ systemctl list-timers --no-legend | awk '{print $NF, $(NF-1)}'
+systemd-tmpfiles-clean.service systemd-tmpfiles-clean.timer
+dpkg-db-backup.service dpkg-db-backup.timer
+$ cat /etc/systemd/journald.conf.d/arcade.conf
+[Journal]
+Storage=volatile
+RuntimeMaxUse=20M
+$ systemctl is-enabled apt-daily.timer unattended-upgrades motd-news.timer 2>&1
+disabled
+disabled
+disabled

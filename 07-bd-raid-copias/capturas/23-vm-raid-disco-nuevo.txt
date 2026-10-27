@@ -1,0 +1,21 @@
+$ lsblk -d -o NAME,SIZE
+NAME
+    SIZE
+sda  15G
+sdb  10G
+sdc  10G
+$ cat /proc/mdstat | sed -n 2,3p
+md0 : active raid1 sdb[0]
+      10476544 blocks super 1.2 [2/1] [U_]
+$ sudo mdadm /dev/md0 --add /dev/sdc
+mdadm: added /dev/sdc
+$ sudo mdadm --wait /dev/md0; cat /proc/mdstat | sed -n 2,3p
+md0 : active raid1 sdc[2] sdb[0]
+      10476544 blocks super 1.2 [2/2] [UU]
+$ sudo mariadb -e "SELECT nombre, apellidos FROM almichain.cliente WHERE nombre='Prueba'"
++--------+-----------+
+| nombre | apellidos |
++--------+-----------+
+| Prueba | RAID      |
+| Prueba | Un disco  |
++--------+-----------+

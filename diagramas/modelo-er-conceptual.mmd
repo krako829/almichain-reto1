@@ -1,0 +1,53 @@
+%% Almi-Chain · Modelo entidad/relación (conceptual) de la base de datos almichain
+%% Hecho a partir de 07-bd-raid-copias/sql/01-esquema.sql. Notación de pata de gallo:
+%% |o = 0..1   || = 1   }o = 0..N   }| = 1..N
+erDiagram
+  CATEGORIA ||--o{ PLATO : "agrupa"
+  COMANDA }o--o{ PLATO : "contiene (cantidad, precio_unitario)"
+  PLATO }o--o{ INGREDIENTE : "lleva (cantidad_necesaria) = receta"
+  PROVEEDOR }o--o{ INGREDIENTE : "suministra (precio_compra)"
+  MESA ||--o{ COMANDA : "se sirve en"
+  EMPLEADO ||--o{ COMANDA : "atiende"
+  CLIENTE |o--o{ COMANDA : "pide (opcional)"
+  COMANDA ||--o| FACTURA : "se cobra con"
+  CLIENTE ||--o{ RESERVA : "hace"
+  MESA ||--o{ RESERVA : "se reserva en"
+  CLIENTE { int id_cliente PK
+    string nombre
+    string apellidos
+    string telefono
+    string email UK }
+  MESA { int id_mesa PK
+    int numero UK
+    int capacidad
+    string zona }
+  EMPLEADO { int id_empleado PK
+    string nombre
+    string apellidos
+    string puesto
+    date fecha_contratacion }
+  RESERVA { int id_reserva PK
+    date fecha
+    time hora
+    int num_personas }
+  COMANDA { int id_comanda PK
+    datetime fecha_hora
+    string estado }
+  PLATO { int id_plato PK
+    string nombre UK
+    string descripcion
+    decimal precio }
+  CATEGORIA { int id_categoria PK
+    string nombre UK }
+  INGREDIENTE { int id_ingrediente PK
+    string nombre UK
+    decimal stock
+    string unidad_medida }
+  PROVEEDOR { int id_proveedor PK
+    string nombre
+    string telefono
+    string email }
+  FACTURA { int id_factura PK
+    datetime fecha
+    decimal total
+    string metodo_pago }

@@ -68,7 +68,7 @@ sudo ufw status verbose
 
 > En el laboratorio todas las VM están en la misma Red NAT 192.168.10.0/24, así que el TPV entra por la regla de la VLAN 10. La regla de la VLAN 20 es la del restaurante real.
 
-![Cortafuegos activo: SSH solo desde las VLAN 10 y 99, HTTP y HTTPS desde las VLAN 10 y 20](capturas/01-cortafuegos-ufw.png)
+![Cortafuegos en el servidor de pruebas con la regla anterior (192.168.0.0/16); la regla actual, por VLAN, está en la captura 38](capturas/01-cortafuegos-ufw.png)
 
 ### 2. Docker y Odoo (E03)
 
@@ -124,7 +124,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ![nginx correcto, HTTPS respondiendo y HTTP redirigiendo a HTTPS](capturas/04-nginx-https.png)
 
-![Certificado con la IP 192.168.10.30, clave privada solo para root, 443 abierto y 8069 cerrado desde la red](capturas/05-certificado.png)
+![Certificado en el servidor de pruebas (era CA:TRUE, antes de corregirlo; el actual está en la captura 37), clave solo para root, 443 abierto y 8069 cerrado](capturas/05-certificado.png)
 
 nginx publica también la parte **pública** del certificado en `http://192.168.10.30/almichain-odoo.crt` (nunca la clave). En los dos Windows se descarga e instala como de confianza con [`../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1`](../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1), que **pide la huella SHA-256** apuntada en el servidor y no lo instala si no coincide. Así no hace falta entrar por SSH al servidor desde los TPV (la red no lo permite) y Edge muestra el candado sin avisos.
 
@@ -259,7 +259,7 @@ Resultado visto por el **Gerente**:
 
 Script [`scripts/copia-odoo.sh`](scripts/copia-odoo.sh) en `/usr/local/bin/`, todos los días a las **02:30** con cron de root. Guarda la base de datos (`pg_dump` en formato propio), los adjuntos (`filestore`), las huellas SHA-256, borra las copias de más de 7 días y lo manda todo a **ALMI-BD** por SSH con una clave que solo sirve para eso (ver [07-bd-raid-copias](../07-bd-raid-copias/README.md#7-copias-cruzadas-automáticas-b09)).
 
-![Copia hecha, guardada en local y en ALMI-BD, y programada en cron](capturas/34-copia-odoo.png)
+![Copia hecha y programada en cron (servidor de pruebas: la «copia en ALMI-BD» iba al mismo servidor y el `ls` remoto que se ve ahora lo rechaza la clave restringida; la prueba entre dos máquinas está en el apartado 8)](capturas/34-copia-odoo.png)
 
 Prueba de restauración en una base nueva `almichain_restaurada`: tiene el mismo número de pedidos que la original.
 
@@ -267,9 +267,21 @@ Prueba de restauración en una base nueva `almichain_restaurada`: tiene el mismo
 
 ### 8. Máquina virtual exportada
 
-ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)). Se probó arrancándola desde cero: en el primer arranque ([`scripts/primer-arranque-odoo.sh`](scripts/primer-arranque-odoo.sh)) genera sus propios secretos, carga las imágenes de Docker que lleva dentro (no necesita Internet), restaura la base `almichain` con los datos de este bloque, arranca Odoo y aplica el cortafuegos. Al terminar, Odoo responde por HTTPS con los 2 pedidos de la prueba.
+ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)) y se construye con [`herramientas/construir-vm`](../herramientas/README.md). Se probó **arrancando su disco en QEMU** (no en VirtualBox) con [`herramientas/probar-vm/pruebas-odoo.sh`](../herramientas/probar-vm/pruebas-odoo.sh). En el primer arranque ([`scripts/primer-arranque-odoo.sh`](scripts/primer-arranque-odoo.sh)) genera sus propios secretos, carga las imágenes de Docker que lleva dentro (no necesita Internet), restaura la base `almichain` con los datos de este bloque, arranca Odoo y nginx y aplica el cortafuegos. Cada captura tiene al lado su transcripción `.txt`.
 
-![VM importada: primer arranque terminado, contenedores en marcha, HTTPS 200, los pedidos restaurados y el cortafuegos](capturas/36-vm-ova-primer-arranque.png)
+![Primer arranque terminado: contenedores en marcha, HTTPS 200, los 2 pedidos restaurados y la dirección pública fija](capturas/36-vm-primer-arranque.png)
+
+![Certificado de servidor (CA:FALSE, serverAuth, SAN con la IP, almi-odoo y localhost), la misma huella publicada por HTTP, la clave no se publica y la huella en la consola](capturas/37-vm-certificado-servidor.png)
+
+![Cortafuegos con las redes del diseño, Odoo solo en 127.0.0.1:8069, secretos solo para root, la contraseña maestra ya no es la de la plantilla, claves SSH propias y contraseña de almiadmin cambiada](capturas/38-vm-secretos-cortafuegos.png)
+
+**Copias cruzadas entre las dos VM** (ALMI-ODOO y ALMI-BD encendidas a la vez en la misma red): la copia de Odoo llega a ALMI-BD, la de la base de datos llega aquí, y la clave de copias **no puede** ejecutar órdenes, borrar, leer ni salir de su carpeta.
+
+![copia-odoo.sh: copia local, envío a ALMI-BD y cron](capturas/39-vm-copia-a-almi-bd.png)
+
+![En ALMI-ODOO llegan las copias de la base de datos](capturas/40-vm-copias-recibidas-de-bd.png)
+
+![La clave de copias solo puede escribir: ls, --delete, leer y ../ rechazados por rrsync](capturas/41-vm-clave-copias-restringida.png)
 
 ## Seguridad aplicada
 
@@ -287,13 +299,18 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
 | 1 | Odoo solo por HTTPS | `curl -I http://192.168.10.30/` | 301 a https y candado | 301 Moved Permanently → https | [04](capturas/04-nginx-https.png) |
-| 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused | [05](capturas/05-certificado.png) |
+| 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused (en el servidor de pruebas, desde la misma máquina); en la VM, 8069 solo escucha en 127.0.0.1 ([38](capturas/38-vm-secretos-cortafuegos.png)). Desde un Windows: pendiente | [05](capturas/05-certificado.png) |
 | 3 | Gestor de bases de datos oculto | Abrir `/web/database/manager` | No se abre | "The database manager has been disabled" | [08](capturas/08-gestor-bd-oculto.png) |
 | 4 | Camareros sin facturación | Entrar como Camarero Barra 1 | Sin menús de Facturación, Inventario ni CRM | Solo Punto de venta (y apps comunes: Conversaciones, Calendario, Contactos, Empleados) | [31](capturas/31-camarero-solo-tpv.png) |
 | 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Factura, publicación y stock: correcto. **Correo: solo comprobado que queda en la cola con el PDF**; el envío real está pendiente de poner la contraseña de aplicación de Gmail | [27](capturas/27-pedidos-tpv.png) [28](capturas/28-facturas-publicadas.png) [30](capturas/30-stock-despues-de-vender.png) [33](capturas/33-cola-de-correos.png) |
 | 6 | Ticket impreso | Cobrar en cada barra | Ticket con cabecera y pie | Ticket generado en pantalla con cabecera y pie. **Impresión en la impresora física: pendiente — en clase** (bloque 01) | [ticket 1](capturas/25-barra1-4-ticket.png) [ticket 2](capturas/26-barra2-4-ticket.png) |
 | 7 | Copia y restauración | Restaurar en `almichain_restaurada` | Mismo número de pedidos | 2 y 2 | [35](capturas/35-restauracion-odoo.png) |
-| 8 | VM exportada | Arrancar `ALMI-ODOO.ova` desde cero | Odoo por HTTPS con los datos del reto | HTTPS 200 y 2 pedidos | [36](capturas/36-vm-ova-primer-arranque.png) |
+| 8 | VM exportada | Arrancar el disco de `ALMI-ODOO.ova` desde cero (en QEMU) | Odoo por HTTPS con los datos del reto | HTTPS 200 y 2 pedidos | [36](capturas/36-vm-primer-arranque.png) |
+| 9 | Certificado de servidor | `openssl x509 -ext basicConstraints…` en la VM | `CA:FALSE`, `serverAuth`, SAN correcto; misma huella por HTTP | Correcto | [37](capturas/37-vm-certificado-servidor.png) |
+| 10 | Secretos propios y cortafuegos | `ufw status`, `ss -ltn`, permisos | Redes del diseño; 8069 solo en local; secretos 600 | Correcto | [38](capturas/38-vm-secretos-cortafuegos.png) |
+| 11 | Copias cruzadas y clave restringida | `copia-odoo.sh`, `copia-bd.sh` y órdenes prohibidas con la clave | Las copias llegan; lo demás se rechaza | Correcto | [39](capturas/39-vm-copia-a-almi-bd.png) [40](capturas/40-vm-copias-recibidas-de-bd.png) [41](capturas/41-vm-clave-copias-restringida.png) |
+
+Las pruebas 1 a 7 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal) y las 8 a 11 con la VM exportada en QEMU. En VirtualBox, y con los Windows de verdad, quedan por repetir en clase.
 
 ## Problemas encontrados y solución
 

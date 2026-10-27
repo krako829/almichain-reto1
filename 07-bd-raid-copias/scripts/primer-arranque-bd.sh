@@ -13,7 +13,8 @@ umask 077
 exec > >(tee -a "$LOG") 2>&1
 echo "== $(date '+%F %T') Primer arranque de ALMI-BD =="
 
-for _ in $(seq 1 60); do mariadb -e 'SELECT 1' >/dev/null 2>&1 && break; sleep 2; done
+for _ in $(seq 1 150); do mariadb -e 'SELECT 1' >/dev/null 2>&1 && break; sleep 2; done
+mariadb -e 'SELECT 1' >/dev/null || { echo "ERROR: MariaDB no responde"; exit 1; }
 
 # 1. Contraseñas nuevas (128 bits en hexadecimal: no hace falta escaparlas)
 nueva() { openssl rand -hex 16; }

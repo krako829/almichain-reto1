@@ -19,6 +19,8 @@
 # - detect-zeroes=unmap: lo que la VM escribe a ceros (p. ej. la sincronización inicial del RAID
 #   con discos vacíos) no ocupa sitio en la capa qcow2.
 # - Sin KVM (TCG): todo el procesador se emula; es lento y no sirve para medir rendimiento.
+#   tb-size=256: limita la caché de código traducido de QEMU (por defecto ~1 GB por VM), que
+#   con dos VM a la vez agotaba la memoria del anfitrión.
 set -euo pipefail
 TRABAJO=${TRABAJO:-/var/tmp/almi-qemu}
 accion=${1:?Uso: qemu-vm.sh arrancar|parar|pantalla ...}; nombre=${2:?Falta el nombre}
@@ -56,7 +58,7 @@ case "$accion" in
       umount "$M"; rmdir "$M"; losetup -d "$L"
       arranque=(-kernel "$D/vmlinuz" -initrd "$D/initrd" -append "$opciones console=tty0 console=ttyS0,115200")
     fi
-    qemu-system-x86_64 -name "$nombre" -machine q35 -m "$mem" -smp "$cpus" \
+    qemu-system-x86_64 -name "$nombre" -machine q35 -accel tcg,tb-size=256 -m "$mem" -smp "$cpus" \
       "${discos[@]}" "${arranque[@]}" \
       -netdev socket,id=red,mcast=230.0.0.10:12310 -device "e1000,netdev=red,mac=52:54:00:00:10:$(printf '%02x' $((RANDOM % 200 + 16)))" \
       -serial "unix:$D/serie.sock,server,nowait" -monitor "unix:$D/monitor.sock,server,nowait" \

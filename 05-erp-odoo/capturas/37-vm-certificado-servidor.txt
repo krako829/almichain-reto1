@@ -1,0 +1,27 @@
+$ openssl x509 -in /etc/ssl/almichain/odoo.crt -noout -subject -ext basicConstraints,keyUsage,extendedKeyUsage,subjectAltName
+subject=C = ES, ST = Bizkaia, L = Bilbao, O = Almi-Chain, CN = 192.168.10.30
+X509v3 Basic Constraints: critical
+    CA:FALSE
+X509v3 Key Usage: critical
+    Digital Signature, Key Encipherment
+X509v3 Extended Key Usage:
+    TLS Web Server Authentication
+X509v3 Subject Alternative Name:
+    IP Address:192.168.10.30, DNS:almi-odoo, DNS:localhost, IP Address:127.0.0.1
+$ openssl x509 -in /etc/ssl/almichain/odoo.crt -noout -fingerprint -sha256
+sha256 Fingerprint=CC:9B:03:B3:6E:28:B4:16:7C:F6:76:FF:3C:31:F8:09:5A:58:0C:43:5A:EE:24:62:44:E2:9A:05:86:D9:27:11
+$ curl -s http://192.168.10.30/almichain-odoo.crt | openssl x509 -noout -fingerprint -sha256
+sha256 Fingerprint=CC:9B:03:B3:6E:28:B4:16:7C:F6:76:FF:3C:31:F8:09:5A:58:0C:43:5A:EE:24:62:44:E2:9A:05:86:D9:27:11
+$ curl -s -o /dev/null -w 'odoo.key por HTTP: %{http_code} (redirige, no se publica)\n' http://192.168.10.30/odoo.key
+odoo.key por HTTP: 301 (redirige, no se publica)
+$ curl -sI http://192.168.10.30/web | head -3
+HTTP/1.1 301 Moved Permanently
+Server: nginx/1.24.0 (Ubuntu)
+Date: Tue, 27 Oct 2026 11:48:10 GMT
+$ sudo ls -l /etc/ssl/almichain/
+total 8
+-rw-r--r-- 1 root root 1419 oct 27 11:55 odoo.crt
+-rw------- 1 root root 1704 oct 27 11:55 odoo.key
+$ cat /etc/issue.d/almichain-odoo.issue
+Certificado HTTPS de Odoo (SHA-256):
+CC:9B:03:B3:6E:28:B4:16:7C:F6:76:FF:3C:31:F8:09:5A:58:0C:43:5A:EE:24:62:44:E2:9A:05:86:D9:27:11

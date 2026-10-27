@@ -1,0 +1,15 @@
+$ sudo benchmark-recreativa pong
+== Sistema ==
+Núcleos: 1
+               total        used        free      shared  buff/cache   available
+Mem:             961         318         463           3         312         643
+Swap:              0           0           0
+Swap activa: 0 dispositivos
+Startup finished in 9.563s (kernel) + 1min 2.686s (userspace) = 1min 12.249s 
+Servicios en ejecución: 11
+
+== MAME 0.264 (unknown) ==
+pong · pasada 1: 21.27 %
+pong · pasada 2: 20.67 %
+pong · pasada 3: 20.11 %
+pong · media: 20.68 % (3 pasadas)

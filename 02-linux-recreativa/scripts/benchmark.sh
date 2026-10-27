@@ -21,7 +21,8 @@ for j in $JUEGOS; do
     echo "$j · pasada $i: ${v:-error} %"
     valores="$valores ${v:-}"
   done
-  # Media de las pasadas que han funcionado (awk: no hace falta instalar bc)
-  echo "$valores" | awk -v j="$j" '{ for (k = 1; k <= NF; k++) s += $k }
+  # Media de las pasadas que han funcionado (awk: no hace falta instalar bc). LC_ALL=C: con el
+  # sistema en español, awk leería "11.36" como 11 (espera coma decimal) y la media saldría mal
+  echo "$valores" | LC_ALL=C awk -v j="$j" '{ for (k = 1; k <= NF; k++) s += $k }
     NF { printf "%s · media: %.2f %% (%d pasadas)\n", j, s / NF, NF; next } { print j " · media: sin datos" }'
 done

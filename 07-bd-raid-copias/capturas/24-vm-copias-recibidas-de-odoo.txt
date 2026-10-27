@@ -1,0 +1,6 @@
+$ hostname; sudo ls -l /srv/copias-remotas/odoo
+almi-bd
+total 11268
+-rw-r--r-- 1 copias copias 6716882 oct 27 12:48 almichain-2026-10-27_1248.dump
+-rw-r--r-- 1 copias copias 4815318 oct 27 12:48 filestore-2026-10-27_1248.tar.gz
+-rw-r--r-- 1 copias copias     232 oct 27 12:48 huellas-2026-10-27_1248.sha256

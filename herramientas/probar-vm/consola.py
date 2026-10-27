@@ -33,8 +33,9 @@ class Consola:
         while time.time() < fin:
             try:
                 d = self.s.recv(65536)
-                if d:
-                    self.buf += self.dec.decode(d)
+                if not d:  # QEMU ha cerrado la consola (VM apagada o caída)
+                    raise SystemExit('La consola serie se ha cerrado: la VM ya no está en marcha')
+                self.buf += self.dec.decode(d)
             except socket.timeout:
                 pass
         return self.buf

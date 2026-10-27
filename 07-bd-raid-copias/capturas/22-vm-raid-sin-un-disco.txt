@@ -1,0 +1,22 @@
+$ lsblk -d -o NAME,SIZE
+NAME
+    SIZE
+sda  15G
+sdb  10G
+$ cat /proc/mdstat | sed -n 2,3p
+md0 : active raid1 sdb[0]
+      10476544 blocks super 1.2 [2/1] [U_]
+$ findmnt -n /var/lib/mysql; systemctl is-active mariadb
+/var/lib/mysql /dev/md0 ext4   rw,relatime
+active
+$ sudo mariadb -e "SELECT COUNT(*) AS clientes FROM almichain.cliente; INSERT INTO almichain.cliente (nombre, apellidos, telefono) VALUES ('Prueba', 'Un disco', '677777777')"
++----------+
+| clientes |
++----------+
+|        7 |
++----------+
+$ sudo tail -4 /var/log/aviso-raid.log
+2026-10-27 06:07:16 RAID /dev/md0: ArrancadoConUnSoloDisco
+2026-10-27 06:07:18 RAID /dev/md/md0: DeviceDisappeared
+2026-10-27 06:07:19 RAID /dev/md0: NewArray
+2026-10-27 06:07:19 RAID /dev/md0: DegradedArray
