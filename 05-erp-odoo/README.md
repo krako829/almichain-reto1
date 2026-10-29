@@ -288,6 +288,7 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 - **Solo HTTPS**: nginx redirige el 80 al 443 (salvo la descarga de la parte pública del certificado); Odoo solo escucha en 127.0.0.1. Certificado de servidor (`CA:FALSE`) instalado como de confianza en los Windows tras comprobar su huella.
 - **Cortafuegos** ufw: entrada denegada salvo SSH desde las VLAN 10 y 99, y HTTP/HTTPS desde las VLAN 10 y 20.
 - **Secretos propios en cada VM importada**: en el primer arranque se generan la contraseña de PostgreSQL, la contraseña maestra de Odoo, contraseñas nuevas para los 4 usuarios de Odoo, el secreto con el que Odoo firma las sesiones (`database.secret`), el certificado con su clave y las claves de host SSH. La OVA no los lleva.
+- **No apagar la VM durante el primer arranque** (unos 15 minutos en QEMU; menos en VirtualBox). Si se interrumpe, al repetirlo se genera otra contraseña de PostgreSQL que no coincide con la de la base ya creada y Odoo no conecta: la solución es **volver a importar la OVA**. Está anotado como mejora pendiente.
 - **Cortafuegos desde el primer segundo**: en la VM exportada lo pone el servicio `almi-cortafuegos` ([`scripts/cortafuegos-odoo.sh`](scripts/cortafuegos-odoo.sh)) antes de que haya red.
 - **Gestor de bases de datos oculto** (`list_db = False`) y contraseña maestra larga.
 - **Mínimo privilegio** en Odoo: los camareros solo usan el TPV; el gerente no tiene Ajustes; solo el administrador configura.

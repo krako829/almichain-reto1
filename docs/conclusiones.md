@@ -21,7 +21,7 @@ Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Es
 
 **Lo que está preparado pero falta probar.** Los puestos Windows, la red (Packet Tracer y routers físicos), el arcade stick y la web en AWS tienen su procedimiento, sus scripts y sus configuraciones revisados, pero no se han ejecutado todavía: dependen de material, licencias o cuentas que se usan en clase. Sus tablas de pruebas están marcadas como «Pendiente — en clase».
 
-**Lo que se aprendió de la revisión.** La auditoría interna (carpeta [`auditoria/`](../auditoria/)) encontró y se corrigieron, entre otros: un certificado HTTPS que podía firmar certificados para cualquier web, una clave de copias que permitía borrar las copias del otro servidor, un orden de pasos en la base de datos que dejaba los datos ocultos bajo el RAID, una directiva de contraseñas que se aplicaba después de crear los usuarios y documentación que daba por hechas cosas que faltaban. La lección principal: **cada afirmación tiene que tener su prueba**, y lo que no se ha probado se dice.
+**Lo que se aprendió de la revisión.** Una revisión interna del proyecto (hecha con ayuda de IA) encontró y se corrigieron, entre otros: un certificado HTTPS que podía firmar certificados para cualquier web, una clave de copias que permitía borrar las copias del otro servidor, un orden de pasos en la base de datos que dejaba los datos ocultos bajo el RAID, una directiva de contraseñas que se aplicaba después de crear los usuarios y documentación que daba por hechas cosas que faltaban. La lección principal: **cada afirmación tiene que tener su prueba**, y lo que no se ha probado se dice.
 
 **Valoración del equipo**: *por escribir por el equipo al terminar el reto (qué ha ido bien, qué cambiaríamos y qué ha aprendido cada uno).*
 
@@ -67,5 +67,4 @@ Documentación oficial consultada (cada capítulo tiene además sus propias fuen
 | C y D | Web: guía de despliegue y explicación del código | [`06-web-aws/docs/`](../06-web-aws/docs/) |
 | E | Herramientas: cómo se hicieron las VM, las pruebas y las capturas | [`herramientas/README.md`](../herramientas/README.md) |
 | — | Guías paso a paso del equipo (planificación previa) | [`00-gestion/Guias-paso-a-paso-Reto1-Almi-Chain.docx`](../00-gestion/Guias-paso-a-paso-Reto1-Almi-Chain.docx) |
-| — | Informe de la auditoría interna | [`auditoria/`](../auditoria/) |
 | — | Anexo I y Anexo II del reto | Pendientes (ver [00-gestion](../00-gestion/README.md)) |
