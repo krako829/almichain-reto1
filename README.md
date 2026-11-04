@@ -24,6 +24,7 @@ Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Prob
 | 05 ERP Odoo | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 8 de 11 completas, 3 a medias | Envío real del correo (contraseña de aplicación de Gmail) e impresión en la impresora física |
 | 06 Web en AWS | **Preparado, sin desplegar** | 0 de 10 (Lighthouse solo en local) | Despliegue en AWS Academy, capturas, SSL Labs y Lighthouse |
 | 07 Base de datos | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 15 de 15 | Repetir en VirtualBox las pruebas del RAID (hechas en QEMU) |
+| 08 Copias de los SO | **Hecho y probado** (VirtualBox en clase y AWS Academy, 4 nov) | RAID con fallo de disco, copia Win10 y Debian, cron, réplica en AWS y restauración desde AWS | Capturas de la restauración en Debian y Windows |
 | Presupuesto | **Incompleto** | — | Filas *por completar* |
 
 ## Origen de las evidencias
@@ -55,6 +56,7 @@ Parte del contenido de este repositorio (scripts, configuraciones, documentació
 | [`05-erp-odoo`](05-erp-odoo/) | ERP Odoo + TPV | Docker, HTTPS, configuración de Odoo, los 2 TPV, factura automática, copias |
 | [`06-web-aws`](06-web-aws/) | Web en AWS | La web y su despliegue con Terraform, DuckDNS y HTTPS |
 | [`07-bd-raid-copias`](07-bd-raid-copias/) | Base de datos | Esquema MariaDB, usuarios, consultas, RAID 1, copias y restauración |
+| [`08-copias-so`](08-copias-so/) | Copias de los sistemas operativos | Servidor de copias con RAID 1 que copia por SSH Windows 10 y Debian 13 de ALMI-GERENTE, réplica en AWS con Terraform, cron y restauración |
 | [`diagramas`](diagramas/) | — | Modelo entidad/relación del equipo (los diagramas de arquitectura están en cada README) |
 | [`docs`](docs/) | — | Memoria del reto (Word y PDF), anexo de las máquinas virtuales y conclusiones |
 | [`herramientas`](herramientas/) | — | Cómo se construyeron y probaron las VM exportadas y cómo se genera la memoria |
@@ -70,6 +72,8 @@ Parte del contenido de este repositorio (scripts, configuraciones, documentació
 | **ALMI-GERENTE** | Windows 10 Pro | DHCP | Equipo del despacho (usuario Gerente) |
 | **ALMI-TPV** | Windows 10 Pro | DHCP | Los dos TPV de barra (usuarios TPV1 y TPV2) en modo quiosco |
 | **almichain-web** | Ubuntu 24.04 en AWS | IP elástica | Web https://almichain2.duckdns.org |
+| **Servidor de copias** (`almichaincopia`) | Ubuntu Server | 192.168.0.52 (adaptador puente) | Copias de los SO de ALMI-GERENTE en RAID 1 ([bloque 08](08-copias-so/README.md)) |
+| **almichain-backup-remoto** | Ubuntu 24.04 en AWS | IP elástica | Copia remota de las copias de los SO (Terraform) |
 
 Todas las VM van en la **Red NAT `ALMICHAIN`** de VirtualBox (192.168.10.0/24, puerta de enlace 192.168.10.1). Cómo crearla: [00-gestion](00-gestion/README.md#red-nat-almichain).
 

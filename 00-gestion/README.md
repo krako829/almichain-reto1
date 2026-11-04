@@ -117,6 +117,7 @@ Ninguna contraseña, clave de AWS ni token se escribe en el repositorio ni en la
 | Mínimo privilegio y seguridad por defecto | Apartado "Seguridad aplicada" de cada bloque |
 | Web: diseño, HTTPS, AWS, dominio, despliegue reproducible, geolocalización, formulario y slideshow | [06-web-aws](../06-web-aws/README.md) |
 | ERP + TPV con un caso real automatizado | [05-erp-odoo](../05-erp-odoo/README.md) |
+| Copias de seguridad de los sistemas operativos: plan, disco redundante, local y remoto, automatizadas y restauración | [08-copias-so](../08-copias-so/README.md) |
 | Impresora | [01](../01-windows-gerente-tpv/README.md) y [05](../05-erp-odoo/README.md) |
 | Modelo E/R, tablas, base de datos y consultas | [07-bd-raid-copias](../07-bd-raid-copias/README.md) |
 | Disco redundante, plan de copias y restauración | [07-bd-raid-copias](../07-bd-raid-copias/README.md), [05](../05-erp-odoo/README.md) |

@@ -1,0 +1,25 @@
+# ~/.ssh/config del usuario "copia" en el servidor de copias (almichaincopia)
+# Permisos: chmod 600 ~/.ssh/config
+#
+# win10 y debian13 son la MISMA máquina (arranque dual) con la misma IP.
+# HostKeyAlias guarda la huella de cada sistema con un nombre distinto:
+# así SSH no mezcla las dos huellas y, si responde el sistema que no es,
+# se niega a conectar en vez de copiar el equivocado.
+
+Host win10
+    HostName 192.168.0.63
+    User Gerente
+    IdentityFile ~/.ssh/id_ed25519_windows
+    HostKeyAlias gerente-win10
+
+Host debian13
+    HostName 192.168.0.63
+    User almiadmin
+    IdentityFile ~/.ssh/id_ed25519_debian
+    HostKeyAlias gerente-debian13
+
+# Lo genera Terraform: terraform output -raw ssh_config
+Host remoto
+    HostName IP_ELASTICA_DE_AWS
+    User ubuntu
+    IdentityFile ~/.ssh/id_ed25519_remoto

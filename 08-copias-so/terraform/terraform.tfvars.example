@@ -1,0 +1,5 @@
+region        = "us-east-1"
+clave_publica = "ssh-ed25519 AAAA...PEGA-AQUI-TU-CLAVE... copia@almichaincopia"
+
+# Opcional: si lo dejas vacío, se usa la IP pública desde la que ejecutas Terraform
+# ip_permitida = "1.2.3.4/32"

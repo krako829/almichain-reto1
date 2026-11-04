@@ -1,0 +1,6 @@
+# crontab del usuario "copia" (crontab -e) en el servidor de copias
+# Zona horaria del servidor: Europe/Madrid (sudo timedatectl set-timezone Europe/Madrid)
+#
+# m  h  dom mon dow  orden
+# Copia semanal de ALMI-GERENTE: viernes a las 12:00 (en horario de clase, con las VM encendidas)
+0 12 * * 5 /usr/local/bin/backup_gerente.sh
