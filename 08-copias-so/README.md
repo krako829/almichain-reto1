@@ -342,4 +342,4 @@ ssh win10 "certutil -hashfile Documents\pedidos.txt SHA256"   # mismo valor, en 
 
 - [ ] Captura de la restauración en Debian (`capturas/26-restauracion-debian.png`).
 - [ ] Restauración en Windows (`capturas/27-restauracion-windows.png`), opcional.
-- [ ] Encajar este bloque con las decisiones del equipo: aquí ALMI-GERENTE tiene **arranque dual** Windows 10 + Debian 13 y va en **adaptador puente** (192.168.0.0/24), mientras que [00-gestion](../00-gestion/README.md) dice que no hay doble arranque y que todas las VM van en la Red NAT ALMICHAIN (192.168.10.0/24).
+- [ ] Red: aquí ALMI-GERENTE y el servidor de copias van en **adaptador puente** (192.168.0.0/24). El paso del resto de VM del reto a adaptador puente está pendiente (ver [00-gestion](../00-gestion/README.md)).

@@ -2,7 +2,7 @@
 
 ## Resumen de las pruebas
 
-Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Este es el resumen a fecha de 27 de octubre de 2026; el origen de cada evidencia (servidor de pruebas, QEMU o VirtualBox) está en la [Introducción](../README.md#origen-de-las-evidencias).
+Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Este es el resumen a fecha de 4 de noviembre de 2026; el origen de cada evidencia (servidor de pruebas, QEMU o VirtualBox) está en la [Introducción](../README.md#origen-de-las-evidencias).
 
 | Bloque | Pruebas hechas | Pendientes | Dónde se hicieron |
 |---|---|---|---|
@@ -11,7 +11,8 @@ Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Es
 | 03 Arcade stick | 0 de 6 (los programas compilan) | Todas | — (necesita la placa y el material) |
 | 04 Red | 0 de 14 | Todas | — (necesita Packet Tracer y los routers) |
 | 05 ERP Odoo | 8 de 11 completas, 3 a medias | Envío real del correo y ticket en la impresora física | Servidor de pruebas y QEMU (VM exportada) |
-| 06 Web en AWS | 0 de 10 (Lighthouse hecho solo en local) | Todas | — (necesita AWS Academy) |
+| 06 Web en AWS | 0 de 10 documentadas (Lighthouse hecho solo en local); la web ya está desplegada | Capturas y pruebas | AWS Academy |
+| 08 Copias de los SO | Fallo de disco del RAID, copia de Windows y Debian, incremental, cron, réplica en AWS y restauración desde AWS | Capturas de la restauración en Debian y Windows | VirtualBox en clase y AWS Academy |
 | 07 Base de datos | 15 de 15 | Repetir en VirtualBox las del RAID | Servidor de pruebas (1-8) y QEMU, VM exportada (9-15) |
 | VM exportadas | Primer arranque de las tres en QEMU, copias cruzadas entre ALMI-ODOO y ALMI-BD | Importación en VirtualBox | QEMU |
 

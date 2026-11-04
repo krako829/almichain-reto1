@@ -10,7 +10,7 @@ Tareas del tablero: P01 a P12.
 
 | Dato | ALMI-GERENTE | ALMI-TPV |
 |---|---|---|
-| Sistema | Windows 10 Pro (o Education) con licencia | Windows 10 Pro (o Education) con licencia |
+| Sistema | **Arranque dual**: Windows 10 Pro (o Education) con licencia + Debian 13 | Windows 10 Pro (o Education) con licencia |
 | Memoria / CPU | 3072 MB / 2 | 3072 MB / 2 |
 | Disco | 40 GB VDI dinámico | 40 GB VDI dinámico |
 | Pantalla | 128 MB, VBoxSVGA | 128 MB, VBoxSVGA |
@@ -18,7 +18,9 @@ Tareas del tablero: P01 a P12.
 | USB | Habilitado | Habilitado (impresora) |
 | Usuarios | almiadmin (administrador), Gerente | almiadmin (administrador), TPV1, TPV2 |
 
-> Decisión del equipo: al final no se hace doble arranque. La recreativa es una VM aparte, ALMI-ARCADE (bloque 02), y el equipo del gerente solo lleva Windows.
+> Decisión del equipo: ALMI-GERENTE lleva **arranque dual**, Windows 10 Pro y Debian 13 (usuario `almiadmin`), como pide la rúbrica. La recreativa es una VM aparte, ALMI-ARCADE (bloque 02). Las copias de seguridad de los dos sistemas del gerente están en el [bloque 08](../08-copias-so/README.md).
+>
+> **Pendiente de documentar:** el orden de instalación (primero Windows y después Debian), el reparto del disco entre los dos sistemas y el menú de GRUB, con sus capturas.
 
 ### Necesidades y equipos reales (P01-P03)
 

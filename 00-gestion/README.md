@@ -7,7 +7,7 @@
 | [`Guias-paso-a-paso-Reto1-Almi-Chain.docx`](Guias-paso-a-paso-Reto1-Almi-Chain.docx) | Guías paso a paso de las 8 partes del reto, con las tareas G, P, A, S, R, E, W y B |
 | [`tablero/`](tablero/) | Tablero tipo Trello con las 91 tareas (abrir `tablero/index.html`, instrucciones en [`tablero/LEEME.md`](tablero/LEEME.md)). Se exporta a JSON en `tablero/` al final de cada sesión |
 
-> **La guía paso a paso es un documento de planificación** hecho antes de empezar. Las decisiones posteriores (sin doble arranque, Ubuntu en la recreativa en vez de Debian, dominio `almichain2`, modelo de datos de 13 tablas…) están en "Decisiones del equipo" y **mandan sobre la guía**. La guía numera las partes del 1 al 8 y las carpetas van del 00 al 07:
+> **La guía paso a paso es un documento de planificación** hecho antes de empezar. Las decisiones posteriores (doble arranque en ALMI-GERENTE y recreativa en una VM aparte, Ubuntu en la recreativa en vez de Debian, dominio `almichain2`, modelo de datos de 13 tablas…) están en "Decisiones del equipo" y **mandan sobre la guía**. La guía numera las partes del 1 al 8 y las carpetas van del 00 al 07:
 >
 > | Parte de la guía | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 > |---|---|---|---|---|---|---|---|---|
@@ -51,8 +51,9 @@ Se distingue lo que **indicó el profesor** (de palabra, en clase) de lo que **d
 | Recreativa | 1 núcleo y 1 GB, sin swap, MAME | Profesor |
 | Seguridad | Mínimo privilegio: cada usuario solo accede a lo suyo | Profesor |
 | Licencias | Windows 10 Pro/Education con licencia; todo lo demás gratis | Profesor |
-| Gerente | **Sin doble arranque**: Windows 10 Pro en la VM ALMI-GERENTE y la recreativa en una VM aparte (ALMI-ARCADE). **El enunciado pide doble arranque: falta escribir aquí el motivo y conseguir la conformidad del profesor** | Equipo |
+| Gerente | **Doble arranque** en la VM ALMI-GERENTE: Windows 10 Pro y Debian 13 (lo pide la rúbrica: «Instalación de S.O. arranque dual»). La recreativa va en una **VM aparte** (ALMI-ARCADE) para poder limitarla a 1 núcleo y 1 GB sin afectar al equipo del gerente | Equipo |
 | TPV | Una sola VM, ALMI-TPV, con los usuarios TPV1 y TPV2, que simulan los dos equipos de barra. **Falta el motivo y la conformidad del profesor** | Equipo |
+| Red del laboratorio | **Todas las VM en adaptador puente** (red del aula 192.168.0.0/24), como ya están ALMI-GERENTE y el servidor de copias ([bloque 08](../08-copias-so/README.md)). **Pendiente:** pasar ALMI-ODOO y ALMI-BD, que aún usan la Red NAT ALMICHAIN (192.168.10.0/24) en sus scripts y en las VM exportadas, y elegir sus IP fijas en la red del aula | Equipo |
 | Impresora | La comparten los dos TPV en el laboratorio (solo hay una física) | Equipo |
 | ERP | Que haga algo funcional de verdad (factura automática al cobrar), sin usar todas las aplicaciones | Equipo |
 | Recreativa | Ubuntu 24.04 mínimo en lugar de Debian (justificado en el bloque 02) | Equipo |

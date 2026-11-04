@@ -283,6 +283,10 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 
 ![La clave de copias solo puede escribir: ls, --delete, leer y ../ rechazados por rrsync](capturas/41-vm-clave-copias-restringida.png)
 
+### 9. Disco redundante del servidor (documento del equipo)
+
+El procedimiento para añadir un RAID 1 al servidor de Odoo (dos discos de 25 GB, `mdadm`, ext4 y montaje automático) está en [`Configurar disco redundante.odt`](Configurar%20disco%20redundante.odt). **Pendiente:** el documento ha perdido las capturas de cada fase; hay que volver a ponerlas o pasarlo a este README con sus imágenes en `capturas/`.
+
 ## Seguridad aplicada
 
 - **Solo HTTPS**: nginx redirige el 80 al 443 (salvo la descarga de la parte pública del certificado); Odoo solo escucha en 127.0.0.1. Certificado de servidor (`CA:FALSE`) instalado como de confianza en los Windows tras comprobar su huella.

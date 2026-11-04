@@ -15,7 +15,7 @@ Tareas del tablero: A01 a A10.
 | Software | Servidor X mínimo (`xserver-xorg-core`, `xinit`), MAME 0.264, `alsa-utils` |
 | Usuarios | `almiadmin` (administrador) y `arcade` (sin sudo, entra solo y abre MAME) |
 
-> **Decisiones del equipo.** No se hace doble arranque con el equipo del gerente: la recreativa es una VM aparte con exactamente 1 núcleo y 1 GB. Se usa **Ubuntu 24.04 mínimo** en lugar de Debian: el resultado es el mismo (sistema sin escritorio, solo X y MAME) y comparte paquetes y comandos con los servidores del reto. Como la VM tiene ya 1 núcleo y 1 GB, en GRUB se deja además `mem=1024M nr_cpus=1` para que el límite no dependa de la configuración de VirtualBox.
+> **Decisiones del equipo.** La recreativa no comparte máquina con el equipo del gerente (que tiene su propio arranque dual Windows 10 + Debian 13, ver bloque 01): es una VM aparte con exactamente 1 núcleo y 1 GB. Se usa **Ubuntu 24.04 mínimo** en lugar de Debian: el resultado es el mismo (sistema sin escritorio, solo X y MAME) y comparte paquetes y comandos con los servidores del reto. Como la VM tiene ya 1 núcleo y 1 GB, en GRUB se deja además `mem=1024M nr_cpus=1` para que el límite no dependa de la configuración de VirtualBox.
 
 ## Arquitectura
 
