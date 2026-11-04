@@ -5,7 +5,7 @@
 | Archivo | Qué es |
 |---|---|
 | [`Guias-paso-a-paso-Reto1-Almi-Chain.docx`](Guias-paso-a-paso-Reto1-Almi-Chain.docx) | Guías paso a paso de las 8 partes del reto, con las tareas G, P, A, S, R, E, W y B |
-| [`tablero/`](tablero/) | Tablero tipo Trello con las 91 tareas (abrir `tablero/index.html`, instrucciones en [`tablero/LEEME.md`](tablero/LEEME.md)). Se exporta a JSON en `tablero/` al final de cada sesión |
+| [`tablero/`](tablero/) | Tablero tipo Trello con las 97 tareas (abrir `tablero/index.html`, instrucciones en [`tablero/LEEME.md`](tablero/LEEME.md)). Se exporta a JSON en `tablero/` al final de cada sesión |
 
 > **La guía paso a paso es un documento de planificación** hecho antes de empezar. Las decisiones posteriores (doble arranque en ALMI-GERENTE y recreativa en una VM aparte, Ubuntu en la recreativa en vez de Debian, dominio `almichain2`, modelo de datos de 13 tablas…) están en "Decisiones del equipo" y **mandan sobre la guía**. La guía numera las partes del 1 al 8 y las carpetas van del 00 al 07:
 >
@@ -19,7 +19,7 @@
 |---|---|
 | Anexo I (contrato de trabajo en equipo) | **Pendiente**: hay un borrador en el Drive del equipo sin terminar ni firmar. No se sube al repositorio hasta quitarle los datos personales |
 | Anexo II | **Pendiente** |
-| Reparto de tareas en el tablero | **Pendiente**: las tareas del archivo no tienen responsable y no hay ningún `.json` exportado todavía |
+| Reparto de tareas en el tablero | **A medias**: Alberto lleva el ERP Odoo + TPV (E01-E13) y las copias de los SO (C01-C06). Falta el resto del reparto y exportar el `.json` |
 | Presentación final (G15) | Pendiente (semana 4) |
 | Commits de los 5 | Pendiente: hasta ahora el historial solo tiene commits de un miembro. A partir de aquí, cada uno hace sus commits con su usuario de Git y con el formato `Bloque: qué se ha hecho` |
 
@@ -49,6 +49,7 @@ Se distingue lo que **indicó el profesor** (de palabra, en clase) de lo que **d
 | Web | Geolocalización, HTTPS y dominio de DuckDNS, desplegada con Terraform en AWS Academy | Profesor |
 | Base de datos | Con RAID y con pruebas | Profesor |
 | Recreativa | 1 núcleo y 1 GB, sin swap, MAME | Profesor |
+| Doble arranque | Pide hacer doble arranque (lo indicó con la recreativa MAME y el equipo del gerente/TPV); la rúbrica lo evalúa en «Instalación de S.O. arranque dual» | Profesor |
 | Seguridad | Mínimo privilegio: cada usuario solo accede a lo suyo | Profesor |
 | Licencias | Windows 10 Pro/Education con licencia; todo lo demás gratis | Profesor |
 | Gerente | **Doble arranque** en la VM ALMI-GERENTE: Windows 10 Pro y Debian 13 (lo pide la rúbrica: «Instalación de S.O. arranque dual»). La recreativa va en una **VM aparte** (ALMI-ARCADE) para poder limitarla a 1 núcleo y 1 GB sin afectar al equipo del gerente | Equipo |

@@ -6,7 +6,7 @@ La web informativa del restaurante **Almi Bites** (carta, galería, mapa con **g
 
 > **Estado**: el código está completo y revisado (el HCL se ha comprobado con un analizador, el script de arranque con `bash -n` y shellcheck, y la configuración de nginx con `nginx -t`), pero **en este repositorio no hay todavía pruebas del despliegue**: ni salida de `terraform apply`, ni capturas, ni el informe de Lighthouse. Donde se preparó el repositorio no había Terraform ni acceso a AWS Academy. El despliegue y la tabla de pruebas se completan en clase (tareas W05-W09).
 
-Tareas del tablero: W01 a W09. El código también está en su propio repositorio, [krako829/almichain-web-terraform](https://github.com/krako829/almichain-web-terraform); esta carpeta es una copia para tener todo el reto junto.
+Tareas del tablero: W01 a W09. Esta carpeta es el proyecto de Terraform completo: se despliega desde aquí (ver la [guía de despliegue](docs/02-guia-despliegue.md)).
 
 ## Requisitos
 

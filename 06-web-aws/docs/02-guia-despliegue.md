@@ -4,7 +4,7 @@
 
 Esta guía parte de cero, en un PC con **Zorin OS** (o Ubuntu). Todos los comandos se escriben en la **terminal**.
 
-> 💡 **¿Dónde estoy?** En la terminal, lo que aparece entre los `:` y el `$` es la carpeta en la que estás. Por ejemplo, `alberto@pc:~/reto1/almichain-web-terraform$` significa que estás en `~/reto1/almichain-web-terraform`. Todos los comandos de Terraform se ejecutan **dentro de la carpeta del proyecto**.
+> 💡 **¿Dónde estoy?** En la terminal, lo que aparece entre los `:` y el `$` es la carpeta en la que estás. Por ejemplo, `alberto@pc:~/reto1/almichain-reto1/06-web-aws$` significa que estás en `~/reto1/almichain-reto1/06-web-aws`. Todos los comandos de Terraform se ejecutan **dentro de la carpeta del proyecto**.
 
 ---
 
@@ -43,12 +43,12 @@ Clónalo en una carpeta fija (no en Descargas, para no borrarlo sin querer):
 ```bash
 mkdir -p ~/reto1
 cd ~/reto1
-git clone https://github.com/krako829/almichain-web-terraform.git
-cd almichain-web-terraform
+git clone https://github.com/krako829/almichain-reto1.git
+cd almichain-reto1/06-web-aws
 ls
 ```
 
-Tienen que aparecer `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`, `user_data.sh.tftpl`, `terraform.tfvars.example`, `README.md` y las carpetas `web` y `docs`.
+Tienen que aparecer `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`, `user_data.sh.tftpl`, `terraform.tfvars.example`, `README.md` y las carpetas `web` y `docs`. El proyecto de Terraform de la web es la carpeta `06-web-aws` del repositorio del reto.
 
 > Si el repositorio es privado, GitHub pedirá usuario y un *token* personal en lugar de la contraseña. También puedes descargarlo como ZIP desde GitHub: **Code → Download ZIP**.
 

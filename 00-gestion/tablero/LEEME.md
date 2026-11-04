@@ -8,7 +8,7 @@ Abre `00-gestion/tablero/index.html` con Chrome, Firefox o Edge (sirve abrirlo d
 
 ## Qué trae
 
-- Las 91 tareas del reto. Las tareas que trae el archivo no tienen responsable: el reparto se hace en el tablero y se guarda con **Exportar** (ver abajo).
+- Las 97 tareas del reto (las 6 de copias de los SO, C01-C06, añadidas el 4 de noviembre). De momento solo traen responsable las de Alberto (E01-E13 y C01-C06): el resto del reparto se hace en el tablero y se guarda con **Exportar** (ver abajo).
 - Cada tarea indica el **apartado de la guía** («Guía 2.4») del documento «Guías paso a paso» donde se explica cómo hacerla.
 - Arriba: progreso total, las 4 semanas (la actual marcada), los 8 bloques con su progreso y el equipo.
 - Dos vistas: **Por estado** (Por hacer → En curso → En revisión → Hecho) y **Por semanas**.
