@@ -309,7 +309,7 @@ window.TAREAS_INICIALES = {
    "bloque": "PUE",
    "titulo": "Crear las VM ALMI-GERENTE y ALMI-TPV",
    "guia": "2.2",
-   "descripcion": "ALMI-GERENTE 40 GB con arranque dual Windows 10 + Debian 13 (la recreativa es la VM aparte ALMI-ARCADE) y ALMI-TPV 40 GB (los 2 TPV).",
+   "descripcion": "ALMI-GERENTE 60 GB (40 Windows + 20 Debian) con arranque dual Windows 10 + Debian 13 (la recreativa es la VM aparte ALMI-ARCADE) y ALMI-TPV 40 GB (los 2 TPV).",
    "responsable": "",
    "colaboradores": [],
    "inicio": "2026-10-26",
