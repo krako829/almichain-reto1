@@ -202,6 +202,10 @@ Cada paso deja una línea `OK`, `ERROR` o `AVISO` en `/backups/backup.log`.
 
 ![Copia incremental: 32K la primera y 8K la segunda](capturas/16-copia-incremental.png)
 
+**Retención:** en `win10` solo quedan las 4 copias más recientes (11:38, 11:40, 11:42 y 11:44). La primera, la de las 10:31, la borró el script automáticamente al hacerse la quinta.
+
+![Retención: solo quedan las 4 últimas copias de Windows](capturas/28-retencion.png)
+
 ### Problemas encontrados y cómo se resolvieron
 
 | Problema | Causa | Solución |
