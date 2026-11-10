@@ -26,7 +26,7 @@ Con el Learner Lab iniciado, se copia el bloque de **AWS Details → AWS CLI** e
 
 ## Paso 3. Descomprimir el proyecto
 
-El proyecto se descomprime en `~/reto1`. Se ven todos los ficheros: el código de Terraform (`main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`), el script de arranque del servidor (`user_data.sh.tftpl`), la plantilla de variables y la carpeta `web/` con la página, los estilos, la geolocalización (`geo.js`) y las imágenes.
+El proyecto se descarga como [`.zip`](../descargas/almibites-terraform.zip) y se descomprime en `~/reto1`. Se ven todos los ficheros: el código de Terraform (`main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`), el script de arranque del servidor (`user_data.sh.tftpl`), la plantilla de variables y la carpeta `web/` con la página, los estilos, la geolocalización (`geo.js`) y las imágenes.
 
 ```bash
 mkdir -p ~/reto1 && cd ~/reto1

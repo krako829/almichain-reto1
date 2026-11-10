@@ -5,6 +5,7 @@
 *.jpg  binary
 *.webp binary
 *.ico  binary
+*.zip  binary
 # Scripts de Windows con fin de línea de Windows; los de Linux, con el de Linux
 *.ps1  text eol=crlf
 *.bat  text eol=crlf

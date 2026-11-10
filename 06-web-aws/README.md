@@ -55,6 +55,7 @@ Terraform crea **13 recursos**: VPC, Internet Gateway, subred, tabla de rutas y 
 | [`docs/05-mantenimiento.md`](docs/05-mantenimiento.md) | Mantenimiento: límites de Let's Encrypt, recrear el servidor, quién despliega |
 | [`docs/06-evidencias-despliegue.md`](docs/06-evidencias-despliegue.md) | Evidencias: el despliegue real paso a paso, con capturas |
 | [`capturas/`](capturas/) | Capturas del despliegue (claves de AWS ocultas) |
+| [`descargas/almibites-terraform.zip`](descargas/almibites-terraform.zip) | El proyecto de Terraform en un `.zip`, tal cual se usó en el despliegue del 10-nov-2026 (sin `terraform.tfvars` ni claves) |
 
 ## Despliegue paso a paso
 
