@@ -347,7 +347,7 @@ UUID=<uuid de /dev/md0> /srv/raid1 ext4 defaults,nofail 0 2
 
 ![Línea del RAID en /etc/fstab](capturas/51-raid-fstab.png)
 
-![/proc/mdstat: md0 activo, raid1, [UU]](capturas/52-raid-mdstat.png)
+![/proc/mdstat: md0 activo, raid1, con los dos discos activos (UU)](capturas/52-raid-mdstat.png)
 
 **Fase 7. Guardar la configuración de mdadm**, para que el array se llame siempre `md0` al arrancar:
 

@@ -14,7 +14,9 @@ Apartado de la rúbrica: **2. SO: copias de seguridad**. Las copias de la base d
 | Copias en un disco redundante | RAID 1 por software (`mdadm`) con dos discos de 25 GB, montado en `/backups` y probado con fallo de disco | [Disco redundante](#disco-redundante-raid-1) | ✅ Probado |
 | Copias en local y en remoto, con el plan documentado | Local: RAID 1 del servidor de copias. Remoto: EC2 en AWS con rsync por SSH | [Copia local](#copia-local) y [copia remota](#copia-remota-en-aws) | ✅ Probado |
 | Copias automatizadas | Script + cron semanal, con log | [Automatización](#automatización) | ✅ Probado |
-| Prueba de restauración documentada | Archivo borrado y recuperado, comprobado con SHA-256 | [Pruebas de restauración](#pruebas-de-restauración) | ✅ Desde AWS · ⏳ Debian y Windows (falta la captura) |
+| Prueba de restauración documentada | Archivo borrado y recuperado, comprobado con SHA-256 | [Pruebas de restauración](#pruebas-de-restauración) | ✅ Probado (desde AWS) |
+
+> ✅ **Apartado validado por el profesor en clase el 10 de noviembre de 2026**, con la ejecución automática real del cron de ese día ([Automatización](#automatización)).
 
 ## Arquitectura
 
@@ -41,7 +43,7 @@ flowchart LR
 |---|---|---|---|
 | PC de clase | Zorin OS | 192.168.0.100 | Administración por SSH y Terraform |
 | Servidor de copias (`almichaincopia`, VM `copia_seguridad_gerente`) | Ubuntu Server | 192.168.0.52 | Recoge las copias, las guarda en el RAID 1 y las replica |
-| ALMI-GERENTE | Windows 10 + Debian 13 en arranque dual | 192.168.0.63 | Origen de los datos. Solo hay un sistema encendido a la vez |
+| ALMI-GERENTE | Windows 10 + Debian 13 en arranque dual | 192.168.0.63 (fija en los dos sistemas) | Origen de los datos. Solo hay un sistema encendido a la vez |
 | `almichain-backup-remoto` | Ubuntu Server 24.04 en EC2 | IP elástica | Copia fuera del local |
 
 Las VM de este bloque van en **adaptador puente** (red del aula 192.168.0.0/24), no en la Red NAT ALMICHAIN del resto del reto: ver [Pendiente](#pendiente).
@@ -53,7 +55,7 @@ Las VM de este bloque van en **adaptador puente** (red del aula 192.168.0.0/24),
 | **Qué se copia** | `C:\Users\Gerente\Documents` y `Desktop` | `/home/almiadmin` |
 | **Qué se excluye** | Los accesos de compatibilidad `Mi música`, `Mis imágenes` y `Mis vídeos` (no son carpetas reales) | — |
 | **Tipo de copia** | Completa (`tar` por SSH; Windows no trae rsync) | Incremental con `rsync --link-dest`: cada carpeta parece completa, pero los archivos sin cambios son enlaces duros a la copia anterior y no ocupan espacio otra vez |
-| **Frecuencia** | Semanal, viernes a las 12:00 | Semanal, viernes a las 12:00 |
+| **Frecuencia** | Semanal, martes a las 11:50 | Semanal, martes a las 11:50 |
 | **Retención** | Últimas 4 copias (un mes) | Últimas 4 copias (un mes) |
 | **Destino local** | `/backups/gerente/win10/AAAA-MM-DD_HHMM/` (RAID 1) | `/backups/gerente/debian13/AAAA-MM-DD_HHMM/` (RAID 1) |
 | **Destino remoto** | `/backups_remoto/gerente/` en AWS (espejo de todo `/backups/gerente`) | Igual |
@@ -77,7 +79,9 @@ Las VM de este bloque van en **adaptador puente** (red del aula 192.168.0.0/24),
 
 **Arranque dual:** como solo hay un sistema encendido cada vez, el script prueba primero Windows y, si no responde, Debian. Cada ejecución copia el sistema que esté arrancado. Si el Gerente está apagado, lo anota en el log y aun así replica a AWS lo que ya hay.
 
-**Hora:** las 12:00 del viernes es horario de clase, cuando las VM están encendidas. A las 3:00 de la madrugada estarían apagadas.
+**Hora:** el martes a las 11:50 es horario de clase, cuando las VM están encendidas. A las 3:00 de la madrugada estarían apagadas. Al principio se puso el viernes a las 12:00, pero el viernes 6 de noviembre el servidor de copias estaba apagado y no se hizo ninguna copia (el log no tiene ninguna línea de ese día), así que se cambió a una franja en la que seguro hay clase.
+
+**IP fija:** ALMI-GERENTE tiene la `192.168.0.63` fija en Windows y en Debian (cada sistema del arranque dual tiene su propia configuración de red). Con DHCP, el 10 de noviembre cogió la `.57` y el servidor de copias dejó de encontrarlo (`No route to host`).
 
 ## Disco redundante (RAID 1)
 
@@ -127,7 +131,7 @@ sudo mdadm /dev/md0 --add /dev/sdc      # reconstrucción (recovery)
 
 ![Disco sdc fallido, RAID degradado y datos accesibles](capturas/06-raid-fallo-disco.png)
 
-![RAID reconstruido, de nuevo [UU]](capturas/07-raid-reconstruido.png)
+![RAID reconstruido, de nuevo con los dos discos activos (UU)](capturas/07-raid-reconstruido.png)
 
 Tras reiniciar el servidor, el RAID arranca solo en `[UU]` y está montado en `/backups`:
 
@@ -268,16 +272,47 @@ crontab -e        # como usuario copia, no root: las claves están en su home
 ```
 
 ```
-0 12 * * 5 /usr/local/bin/backup_gerente.sh
+50 11 * * 2 /usr/local/bin/backup_gerente.sh
 ```
 
-([`config/crontab.txt`](config/crontab.txt)). Para comprobarlo sin esperar al viernes, se puso un rato `*/2 * * * *`: el log muestra ejecuciones a las 11:38, 11:40, 11:42 y 11:44 que **lanzó cron solo**. Después se volvió a dejar la línea semanal.
+([`config/crontab.txt`](config/crontab.txt)). Primero, para comprobarlo sin esperar una semana, se puso un rato `*/2 * * * *`: el log muestra ejecuciones a las 11:38, 11:40, 11:42 y 11:44 del 4 de noviembre que **lanzó cron solo**.
 
 ![Cron cada 2 minutos durante la prueba](capturas/19-cron-cada-2-minutos.png)
 
 ![Zona horaria, cron semanal definitivo y log completo](capturas/20-automatizacion-log.png)
 
 El log cuenta toda la historia: los `ERROR local win10` del primer script, la primera copia buena (10:31), las ejecuciones de cron, las copias de Debian y la primera réplica `OK remoto` (12:41).
+
+### Ejecución semanal real (10 de noviembre)
+
+Con el Gerente arrancado en Windows y ya con la IP fija, se comprueba que el servidor de copias entra sin contraseña:
+
+![ALMI-GERENTE responde por SSH con la IP fija 192.168.0.63](capturas/30-ip-fija-windows.png)
+
+Se programa la copia semanal para los **martes a las 11:50**:
+
+![Línea del cron: martes a las 11:50](capturas/29-cron-nueva-hora.png)
+
+> El comentario de encima de la línea se quedó con el texto antiguo ("viernes a las 12:00"); lo que manda es la línea `50 11 * * 2`.
+
+Antes de las 11:50, el log no tiene ninguna ejecución de ese momento. La última es la de las 10:20, de una prueba anterior del cron con el Gerente todavía sin IP fija: `AVISO ALMI-GERENTE apagado`.
+
+![Log antes de la hora programada](capturas/32-antes-del-cron.png)
+
+A las 11:51, sin lanzar nada a mano:
+
+```bash
+journalctl -u cron --since "11:45" | grep backup_gerente
+tail -3 /backups/backup.log
+ls /backups/gerente/win10
+```
+
+![Cron ejecutado solo a las 11:50](capturas/33-cron-ejecutado.png)
+
+- El registro del sistema muestra que **cron** lanzó el script como usuario `copia` a las **11:50:01**: `CRON[1738]: (copia) CMD (/usr/local/bin/backup_gerente.sh)`.
+- El log tiene `OK local win10` a las 11:50:02 y aparece la carpeta `2026-11-10_1150`.
+- **Retención:** la copia de las 11:38 del 4 de noviembre ha desaparecido; quedan solo las 4 últimas.
+- `ERROR remoto`: ese día el Learner Lab no tenía crédito y la EC2 estaba apagada. El script registra el fallo y la copia local se hace igualmente: es la limitación prevista (ver [Limitaciones](#limitaciones-y-mejoras)).
 
 ## Pruebas de restauración
 
@@ -295,33 +330,24 @@ Las dos huellas SHA-256 son **idénticas** (`a8dbc8c1…a1ef8`):
 
 ![Restauración desde AWS con huellas iguales](capturas/25-restauracion-desde-aws.png)
 
-### En Debian (pendiente de captura)
+### En el propio Gerente (prueba adicional)
 
-Se hizo el 4 de noviembre, pero falta la captura. Se repite con el Gerente arrancado en Debian:
+La restauración validada es la de AWS: la más exigente, porque recupera los datos aunque se haya perdido el servidor de copias. Para restaurar directamente en el Gerente desde el RAID, el procedimiento es este:
 
+**Debian:**
 ```bash
-ssh debian13 "cat ~/pedidos.txt"
-ssh debian13 "rm ~/pedidos.txt"; ssh debian13 "ls ~/pedidos.txt"   # No such file
 ULTIMA=$(ls -1d /backups/gerente/debian13/20* | tail -n1)
 rsync -a "$ULTIMA/pedidos.txt" debian13:/home/almiadmin/
 ssh debian13 "sha256sum ~/pedidos.txt"; sha256sum "$ULTIMA/pedidos.txt"
 ```
 
-<!-- 📸 capturas/26-restauracion-debian.png -->
-
-### En Windows (pendiente)
-
+**Windows:**
 ```bash
-ssh win10 "echo Pedidos semana 45 > Documents\pedidos.txt"
-/usr/local/bin/backup_gerente.sh
 ULTIMA=$(ls -1d /backups/gerente/win10/20* | tail -n1)
-ssh win10 "del Documents\pedidos.txt"; ssh win10 "dir Documents"
 scp "$ULTIMA/Documents/pedidos.txt" win10:Documents/pedidos.txt
 sha256sum "$ULTIMA/Documents/pedidos.txt"
-ssh win10 "certutil -hashfile Documents\pedidos.txt SHA256"   # mismo valor, en mayúsculas
+ssh win10 "certutil -hashfile Documents\pedidos.txt SHA256"   # mismo valor
 ```
-
-<!-- 📸 capturas/27-restauracion-windows.png -->
 
 ## Seguridad aplicada
 
@@ -336,14 +362,13 @@ ssh win10 "certutil -hashfile Documents\pedidos.txt SHA256"   # mismo valor, en 
 | Limitación | Consecuencia | Mejora |
 |---|---|---|
 | Arranque dual | Cada ejecución solo copia el sistema encendido | Lanzar el cron a diario: el log dice qué se copió cada día |
-| El Learner Lab apaga la EC2 al acabar la sesión (~4 h) | Si el viernes a las 12:00 el lab está apagado, el log anota `ERROR remoto` | La réplica es un espejo: la siguiente ejecución con el lab encendido se pone al día. En producción, una cuenta de AWS normal |
+| El Learner Lab apaga la EC2 al acabar la sesión (~4 h) | Si a la hora del cron el lab está apagado o sin crédito, el log anota `ERROR remoto` (pasó el 10 de noviembre) | La réplica es un espejo: la siguiente ejecución con el lab encendido se pone al día. En producción, una cuenta de AWS normal |
 | Windows sin rsync | Copias completas, no incrementales | Instalar rsync (cwRsync o WSL) o usar Restic |
 | Copias sin cifrar | En AWS los datos quedan en claro en el disco EBS | `encrypted = true` en el `root_block_device` de Terraform, o cifrar con Restic/GPG |
 | Sin avisos | Un error solo se ve mirando el log | Correo o notificación cuando el log tenga `ERROR`, y `mdadm --monitor` para el RAID |
+| IP fija sin reserva en el router | La `.63` está puesta a mano; si el router del aula se la diera a otro equipo, habría conflicto | Reserva DHCP en el router por la MAC del Gerente |
 | El RAID 1 no es una copia | Un borrado se replica al instante en los dos discos | Por eso existen las copias con fecha y la de AWS |
 
 ## Pendiente
 
-- [ ] Captura de la restauración en Debian (`capturas/26-restauracion-debian.png`).
-- [ ] Restauración en Windows (`capturas/27-restauracion-windows.png`), opcional.
 - [ ] Red: aquí ALMI-GERENTE y el servidor de copias van en **adaptador puente** (192.168.0.0/24). El paso del resto de VM del reto a adaptador puente está pendiente (ver [00-gestion](../00-gestion/README.md)).

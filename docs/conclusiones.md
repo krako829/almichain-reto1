@@ -12,7 +12,7 @@ Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Es
 | 04 Red | 0 de 14 | Todas | — (necesita Packet Tracer y los routers) |
 | 05 ERP Odoo | 9 de 12 completas, 3 a medias | Envío real del correo, ticket en la impresora física y fallo del RAID del servidor | Servidor de pruebas, QEMU (VM exportada) y VirtualBox (RAID 1, 30 oct) |
 | 06 Web en AWS | 0 de 10 documentadas (Lighthouse hecho solo en local); la web ya está desplegada | Capturas y pruebas | AWS Academy |
-| 08 Copias de los SO | Fallo de disco del RAID, copia de Windows y Debian, incremental, cron, réplica en AWS y restauración desde AWS | Capturas de la restauración en Debian y Windows | VirtualBox en clase y AWS Academy |
+| 08 Copias de los SO | Fallo de disco del RAID, copia de Windows y Debian, incremental, retención, cron semanal real (10 nov), réplica en AWS y restauración desde AWS. **Validado por el profesor** | — | VirtualBox en clase y AWS Academy |
 | 07 Base de datos | 15 de 15 | Repetir en VirtualBox las del RAID | Servidor de pruebas (1-8) y QEMU, VM exportada (9-15) |
 | VM exportadas | Primer arranque de las tres en QEMU, copias cruzadas entre ALMI-ODOO y ALMI-BD | Importación en VirtualBox | QEMU |
 

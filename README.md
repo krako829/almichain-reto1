@@ -17,7 +17,7 @@ Tareas del **Anexo VI (rúbrica de competencias técnicas)**, en su orden, con l
 | # | Módulo | Tarea de la rúbrica | Dónde | Estado y qué falta |
 |---|---|---|---|---|
 | 1 | Implantación de SO | Instalación de S.O. arranque dual · Configurar una impresora | [01](01-windows-gerente-tpv/README.md) | **Arranque dual hecho en VirtualBox** con 77 capturas (VM, RAM, disco, Guest Additions, GRUB). **Falta la impresora de tickets** |
-| 2 | Implantación de SO | Plan de copias de seguridad · Configurar disco redundante | [08](08-copias-so/README.md) | **Hecho y probado**. Faltan las capturas de restauración en Debian y Windows |
+| 2 | Implantación de SO | Plan de copias de seguridad · Configurar disco redundante | [08](08-copias-so/README.md) | **Hecho, probado y validado por el profesor** (10 nov): RAID con fallo de disco, cron semanal ejecutado solo, réplica en AWS y restauración |
 | 3 | Implantación de SO | Optimizar y monitorizar máquina recreativa · Restricción de cuentas de usuarios y equipos | [02](02-linux-recreativa/README.md) y [01](01-windows-gerente-tpv/README.md) | Recreativa hecha y probada en QEMU; falta el benchmark en VirtualBox. Restricción de cuentas de Windows sin probar |
 | 4 | Redes | Elección de conectividad WAN · Diseño y esquema de conectividad · Ampliación de cobertura Wi-Fi | [04](04-red/README.md) | Preparado. Falta el `.pkt`, el plano y las pruebas con los routers (WDS) |
 | 5 | Lenguajes de marcas | Diseño de la página web | [06](06-web-aws/docs/00-diseno-web.md) | Justificación del diseño hecha (secciones, colores, responsive, accesibilidad). **Falta** el boceto o maqueta con una herramienta (móvil, tablet y escritorio) |
@@ -43,7 +43,7 @@ Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Prob
 | 05 ERP Odoo | **Hecho y probado** (servidor de pruebas, VM en QEMU y RAID 1 en VirtualBox) | 9 de 12 completas, 3 a medias | Envío real del correo (contraseña de aplicación de Gmail), impresión en la impresora física y prueba de fallo del RAID |
 | 06 Web en AWS | **Desplegada** en AWS Academy (instancia `almibites-web` en ejecución) | 0 de 10 documentadas (Lighthouse solo en local) | Capturas y pruebas del despliegue, SSL Labs y Lighthouse |
 | 07 Base de datos | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 15 de 15 | Repetir en VirtualBox las pruebas del RAID (hechas en QEMU) |
-| 08 Copias de los SO | **Hecho y probado** (VirtualBox en clase y AWS Academy, 4 nov) | RAID con fallo de disco, copia Win10 y Debian, cron, réplica en AWS y restauración desde AWS | Capturas de la restauración en Debian y Windows |
+| 08 Copias de los SO | **Hecho, probado y validado por el profesor** (10 nov) | RAID con fallo de disco, copia Win10 y Debian, incremental, retención, cron semanal real, réplica en AWS y restauración desde AWS | — |
 | Presupuesto | **Incompleto** | — | Filas *por completar* |
 
 ## Origen de las evidencias
@@ -57,7 +57,7 @@ Para que se pueda valorar cada captura sabiendo de dónde sale:
 | Benchmark de MAME (bloque 02) | En el ordenador anfitrión limitado a 1 núcleo, **no dentro de la VM** |
 | `01-windows-gerente-tpv/capturas/*` (77) | En **VirtualBox**, en clase, por el equipo (documento de Oier, 4 de noviembre) |
 | `05-erp-odoo/capturas/42`–`54` | RAID 1 en la VM de Odoo de clase, en **VirtualBox** (documento de Richar, 30 de octubre) |
-| `08-copias-so/capturas/*` | En **VirtualBox** en clase y en AWS Academy (4 de noviembre) |
+| `08-copias-so/capturas/*` | En **VirtualBox** en clase y en AWS Academy (4 y 10 de noviembre) |
 | Bloques 03, 04 y 06 | **Sin capturas todavía** |
 
 Cómo se construyeron y probaron las VM, y con qué herramientas se hicieron las capturas: [`herramientas/`](herramientas/README.md).
