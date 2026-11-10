@@ -4,7 +4,7 @@
 
 La web informativa del restaurante **Almi Bites** (carta, galería, mapa con **geolocalización** y formulario de contacto), preparada para publicarse en **AWS Academy** con **Terraform**, dominio gratuito de **DuckDNS** y **HTTPS** de Let's Encrypt en **https://almichain2.duckdns.org**. Con `terraform destroy` y `terraform apply` se rehace todo igual (despliegue reproducible).
 
-> **Estado**: el código está completo y revisado (el HCL se ha comprobado con un analizador, el script de arranque con `bash -n` y shellcheck, y la configuración de nginx con `nginx -t`), pero **en este repositorio no hay todavía pruebas del despliegue**: ni salida de `terraform apply`, ni capturas, ni el informe de Lighthouse. Donde se preparó el repositorio no había Terraform ni acceso a AWS Academy. El despliegue y la tabla de pruebas se completan en clase (tareas W05-W09).
+> **Estado**: **desplegada** en AWS Academy (región `us-east-1`) el 10 de noviembre de 2026 y publicada en **https://almichain2.duckdns.org**. El despliegue paso a paso, con capturas, está en [`docs/06-evidencias-despliegue.md`](docs/06-evidencias-despliegue.md). Quedan por documentar las pruebas 3 a 10 de la tabla de pruebas.
 
 Tareas del tablero: W01 a W09. Esta carpeta es el proyecto de Terraform completo: se despliega desde aquí (ver la [guía de despliegue](docs/02-guia-despliegue.md)).
 
@@ -53,6 +53,8 @@ Terraform crea **13 recursos**: VPC, Internet Gateway, subred, tabla de rutas y 
 | [`docs/03-explicacion-codigo.md`](docs/03-explicacion-codigo.md) | Explicación del código de Terraform y del script de arranque |
 | [`docs/04-pruebas.md`](docs/04-pruebas.md) | Pruebas detalladas |
 | [`docs/05-mantenimiento.md`](docs/05-mantenimiento.md) | Mantenimiento: límites de Let's Encrypt, recrear el servidor, quién despliega |
+| [`docs/06-evidencias-despliegue.md`](docs/06-evidencias-despliegue.md) | Evidencias: el despliegue real paso a paso, con capturas |
+| [`capturas/`](capturas/) | Capturas del despliegue (claves de AWS ocultas) |
 
 ## Despliegue paso a paso
 
@@ -87,8 +89,8 @@ Detalladas en [`docs/04-pruebas.md`](docs/04-pruebas.md). Las capturas se hacen 
 
 | Nº | Qué se prueba | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|
-| 1 | `terraform plan` | 13 to add | Pendiente — en clase | |
-| 2 | `terraform apply` | Apply complete, url = https://almichain2.duckdns.org | Pendiente — en clase | |
+| 1 | `terraform plan` | 13 to add | **OK**: `Plan: 13 to add, 0 to change, 0 to destroy` (10-nov-2026) | [paso 5](capturas/paso-05-plan-y-apply.png) |
+| 2 | `terraform apply` | Apply complete, url = https://almichain2.duckdns.org | **OK**: la web queda publicada en https://almichain2.duckdns.org (10-nov-2026) | [paso 5](capturas/paso-05-plan-y-apply.png), [paso 6](capturas/paso-06-web-inicio.png) |
 | 3 | HTTPS con candado | Certificado de Let's Encrypt válido | Pendiente — en clase | |
 | 4 | HTTP redirige a HTTPS | 301 a https | Pendiente — en clase | |
 | 5 | DNS | `nslookup almichain2.duckdns.org` = IP elástica | Pendiente — en clase | |

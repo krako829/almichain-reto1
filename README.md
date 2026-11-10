@@ -21,7 +21,7 @@ Tareas del **Anexo VI (rúbrica de competencias técnicas)**, en su orden, con l
 | 3 | Implantación de SO | Optimizar y monitorizar máquina recreativa · Restricción de cuentas de usuarios y equipos | [02](02-linux-recreativa/README.md) y [01](01-windows-gerente-tpv/README.md) | Recreativa hecha y probada en QEMU; falta el benchmark en VirtualBox. Restricción de cuentas de Windows sin probar |
 | 4 | Redes | Elección de conectividad WAN · Diseño y esquema de conectividad · Ampliación de cobertura Wi-Fi | [04](04-red/README.md) | Preparado. Falta el `.pkt`, el plano y las pruebas con los routers (WDS) |
 | 5 | Lenguajes de marcas | Diseño de la página web | [06](06-web-aws/docs/00-diseno-web.md) | Justificación del diseño hecha (secciones, colores, responsive, accesibilidad). **Falta** el boceto o maqueta con una herramienta (móvil, tablet y escritorio) |
-| 6 | Lenguajes de marcas | Implementación de la página web | [06](06-web-aws/README.md) | Desplegada con Terraform, HTTPS y DuckDNS. Faltan las capturas y medir el rendimiento en la web publicada |
+| 6 | Lenguajes de marcas | Implementación de la página web | [06](06-web-aws/README.md) | Desplegada con Terraform, HTTPS y DuckDNS, con [evidencias del despliegue](06-web-aws/docs/06-evidencias-despliegue.md). Falta medir el rendimiento en la web publicada |
 | 7 | Lenguajes de marcas | Implementación de un ERP | [05](05-erp-odoo/README.md) | **Hecho y probado**: caso real automatizado (factura al cobrar en el TPV) |
 | 8 | Bases de datos | Diseña el modelo lógico | [diagramas](diagramas/) y [07](07-bd-raid-copias/README.md) | Hecho |
 | 9 | Bases de datos | Paso a tablas e implementación | [07](07-bd-raid-copias/README.md) | Hecho con scripts DDL y datos de prueba. Para el 5: falta una solución para integrar la base propia con la de Odoo |
@@ -41,7 +41,7 @@ Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Prob
 | 03 Arcade stick | **Preparado, sin probar** (los cuatro programas compilan) | 0 de 8 | Montaje físico, cableado y pruebas con la placa real |
 | 04 Red | **Preparado, sin probar** | 0 de 14 | Archivo `.pkt`, plano del local y configuración de los routers físicos |
 | 05 ERP Odoo | **Hecho y probado** (servidor de pruebas, VM en QEMU y RAID 1 en VirtualBox) | 9 de 12 completas, 3 a medias | Envío real del correo (contraseña de aplicación de Gmail), impresión en la impresora física y prueba de fallo del RAID |
-| 06 Web en AWS | **Desplegada** en AWS Academy (instancia `almibites-web` en ejecución) | 0 de 10 documentadas (Lighthouse solo en local) | Capturas y pruebas del despliegue, SSL Labs y Lighthouse |
+| 06 Web en AWS | **Desplegada** en AWS Academy (instancia `almibites-web` en ejecución) | 2 de 10 documentadas, con [capturas del despliegue](06-web-aws/docs/06-evidencias-despliegue.md) (Lighthouse solo en local) | Pruebas 3 a 10: HTTPS, redirección, DNS, SSL Labs, geolocalización, móvil, Lighthouse y destroy/apply |
 | 07 Base de datos | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 15 de 15 | Repetir en VirtualBox las pruebas del RAID (hechas en QEMU) |
 | 08 Copias de los SO | **Hecho, probado y validado por el profesor** (10 nov) | RAID con fallo de disco, copia Win10 y Debian, incremental, retención, cron semanal real, réplica en AWS y restauración desde AWS | — |
 | Presupuesto | **Incompleto** | — | Filas *por completar* |
