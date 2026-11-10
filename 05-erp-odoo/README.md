@@ -283,9 +283,87 @@ ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md]
 
 ![La clave de copias solo puede escribir: ls, --delete, leer y ../ rechazados por rrsync](capturas/41-vm-clave-copias-restringida.png)
 
-### 9. Disco redundante del servidor (documento del equipo)
+### 9. Disco redundante del servidor (RAID 1 en VirtualBox)
 
-El procedimiento para añadir un RAID 1 al servidor de Odoo (dos discos de 25 GB, `mdadm`, ext4 y montaje automático) está en [`Configurar disco redundante.odt`](Configurar%20disco%20redundante.odt). **Pendiente:** el documento ha perdido las capturas de cada fase; hay que volver a ponerlas o pasarlo a este README con sus imágenes en `capturas/`.
+Hecho por Richar el 30 de octubre en la VM de Odoo de clase (`odooserver`, **VirtualBox**), a partir de su documento *Configurar disco redundante* (Drive del equipo). Con la VM apagada se añaden **dos discos de 25 GB** al controlador SATA y se monta con ellos un **RAID 1** con `mdadm` en `/srv/raid1`.
+
+![Dos discos nuevos de 25 GB en el controlador SATA de la VM](capturas/42-raid-virtualbox-discos.png)
+
+**Fase 1. Identificar los discos.** `sda` es el disco del sistema (donde está Odoo); `sdb` y `sdc` son los dos nuevos.
+
+```bash
+lsblk -e 7 -o NAME,PATH,SIZE,MODEL,SERIAL,TYPE,FSTYPE,MOUNTPOINTS
+```
+
+![lsblk: sda con el sistema, sdb y sdc vacíos de 25 GB](capturas/43-raid-lsblk-discos.png)
+
+**Fase 2. Instalar mdadm** (crea, administra y vigila el RAID): `sudo apt install mdadm -y`.
+
+![mdadm ya instalado](capturas/44-raid-instalar-mdadm.png)
+
+**Fase 3. Particionar** los dos discos igual: tabla GPT, una partición de todo el disco marcada como RAID, y que el sistema vuelva a leer las particiones.
+
+```bash
+sudo parted /dev/sdb --script mklabel gpt
+sudo parted /dev/sdb --script mkpart primary 1MiB 100%
+sudo parted /dev/sdb --script set 1 raid on
+# lo mismo con /dev/sdc
+sudo partprobe /dev/sdb; sudo partprobe /dev/sdc
+```
+
+![parted en sdb y sdc](capturas/45-raid-particionar-gpt.png)
+
+![sdb1 y sdc1 creadas](capturas/46-raid-partprobe.png)
+
+**Fase 4. Crear el RAID 1** con las dos particiones:
+
+```bash
+sudo mdadm --create /dev/md0 --verbose --level=1 --raid-devices=2 \
+  --metadata=1.2 --name=odoo_raid --bitmap=internal /dev/sdb1 /dev/sdc1
+```
+
+![mdadm --create: array /dev/md0 started](capturas/47-raid-crear-raid1.png)
+
+![mdadm --detail: raid1, 2 discos activos y sincronizados, estado clean](capturas/48-raid-detalle-raid.png)
+
+**Fase 5. Formatear y montar**: ext4 con etiqueta `ODOO_RAID`, montado en `/srv/raid1`.
+
+```bash
+sudo mkfs.ext4 -L ODOO_RAID /dev/md0
+sudo mkdir -p /srv/raid1
+sudo mount /dev/md0 /srv/raid1
+df -hT /srv/raid1
+```
+
+![mkfs.ext4 en /dev/md0](capturas/49-raid-formatear-ext4.png)
+
+![/dev/md0 montado en /srv/raid1 con 24 GB libres](capturas/50-raid-montar.png)
+
+**Fase 6. Montaje automático**: línea en `/etc/fstab` por **UUID** del sistema de archivos y con `nofail`, para que el servidor arranque aunque el RAID falle.
+
+```
+UUID=<uuid de /dev/md0> /srv/raid1 ext4 defaults,nofail 0 2
+```
+
+![Línea del RAID en /etc/fstab](capturas/51-raid-fstab.png)
+
+![/proc/mdstat: md0 activo, raid1, [UU]](capturas/52-raid-mdstat.png)
+
+**Fase 7. Guardar la configuración de mdadm**, para que el array se llame siempre `md0` al arrancar:
+
+```bash
+sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
+```
+
+![ARRAY /dev/md0 añadido a mdadm.conf](capturas/53-raid-mdadm-conf.png)
+
+![Detalle final: los dos discos active sync, estado clean](capturas/54-raid-detalle-final.png)
+
+**Qué queda por hacer para que sirva de verdad** (revisión del procedimiento):
+
+- `sudo update-initramfs -u` después de la fase 7: sin él, en algunos arranques el array aparece como `md127` y el `fstab` no lo encuentra (por eso conviene montarlo por UUID, como se hizo).
+- **Usarlo**: ahora es un disco vacío. Lo útil es que las copias de Odoo ([`copia-odoo.sh`](scripts/copia-odoo.sh), apartado 7) se guarden en `/srv/raid1` o mover ahí los volúmenes de Docker, con Odoo parado.
+- **Probar un fallo**: `sudo mdadm /dev/md0 --fail /dev/sdc1`, comprobar que los datos siguen, y `--remove` / `--add` para reconstruirlo, con su captura (como en las pruebas del RAID de [ALMI-BD](../07-bd-raid-copias/README.md)).
 
 ## Seguridad aplicada
 
@@ -315,8 +393,9 @@ El procedimiento para añadir un RAID 1 al servidor de Odoo (dos discos de 25 GB
 | 9 | Certificado de servidor | `openssl x509 -ext basicConstraints…` en la VM | `CA:FALSE`, `serverAuth`, SAN correcto; misma huella por HTTP | Correcto | [37](capturas/37-vm-certificado-servidor.png) |
 | 10 | Secretos propios y cortafuegos | `ufw status`, `ss -ltn`, permisos | Redes del diseño; 8069 solo en local; secretos 600 | Correcto | [38](capturas/38-vm-secretos-cortafuegos.png) |
 | 11 | Copias cruzadas y clave restringida | `copia-odoo.sh`, `copia-bd.sh` y órdenes prohibidas con la clave | Las copias llegan; lo demás se rechaza | Correcto | [39](capturas/39-vm-copia-a-almi-bd.png) [40](capturas/40-vm-copias-recibidas-de-bd.png) [41](capturas/41-vm-clave-copias-restringida.png) |
+| 12 | RAID 1 del servidor | `cat /proc/mdstat` y `mdadm --detail /dev/md0` en la VM de clase | raid1 con 2 discos `active sync`, montado en `/srv/raid1` | Correcto (creación). **Fallo y reconstrucción: pendiente** | [52](capturas/52-raid-mdstat.png), [54](capturas/54-raid-detalle-final.png) |
 
-Las pruebas 1 a 7 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal) y las 8 a 11 con la VM exportada en QEMU. En VirtualBox, y con los Windows de verdad, quedan por repetir en clase.
+Las pruebas 1 a 7 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal) y las 8 a 11 con la VM exportada en QEMU. La 12 se hizo en **VirtualBox**, en la VM de Odoo de clase. En VirtualBox, y con los Windows de verdad, quedan por repetir en clase.
 
 ## Problemas encontrados y solución
 
