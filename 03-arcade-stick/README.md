@@ -67,7 +67,22 @@ El joystick empuja el microinterruptor del lado contrario: si al mover arriba sa
 | [`sketches/arcade_stick_mando/arcade_stick_mando.ino`](sketches/arcade_stick_mando/arcade_stick_mando.ino) | **Camino A**: mando USB con ejes X/Y y 9 botones. Solo envía cuando algo cambia |
 | [`sketches/arcade_stick_teclado/arcade_stick_teclado.ino`](sketches/arcade_stick_teclado/arcade_stick_teclado.ino) | **Camino B**: teclado USB con las teclas por defecto de MAME. **Modo seguro**: si se conecta con Menú pulsado no envía teclas, para poder reprogramar la placa |
 
-Los tres programas compilan sin errores para Arduino Leonardo (ATmega32U4) con la librería ArduinoJoystickLibrary (camino A) y la librería Keyboard (camino B).
+| [`sketches/arcade_stick_configurable/arcade_stick_configurable.ino`](sketches/arcade_stick_configurable/arcade_stick_configurable.ino) | **Camino A configurable** (programa de Julen, Drive del equipo, 10 de noviembre): mando USB con **antirrebote** (5 ms), direcciones opuestas que se anulan, palanca como ejes o como cruceta (`DIRECTIONS_AS_HAT`) y **remapeo de botones sin reprogramar** por el puerto serie, guardado en la EEPROM |
+
+Los cuatro programas compilan sin errores para Arduino Leonardo (ATmega32U4) con la librería ArduinoJoystickLibrary (camino A) y la librería Keyboard (camino B). Comprobado con `arduino-builder` el 10 de noviembre: el configurable ocupa 11 338 bytes (39 % de la memoria de programa).
+
+### Remapeo sin reprogramar (programa configurable)
+
+Es lo que pide el nivel 4 de la rúbrica del stick (*input personalizable y antirrebote*). Con la placa conectada, en el Monitor Serie a **115200** baudios:
+
+| Orden | Qué hace |
+|---|---|
+| `SHOW` | Muestra qué botón del sistema genera cada botón físico |
+| `MAP 1 3` | El botón físico 1 pasa a ser el botón 3 |
+| `SAVE` | Lo guarda en la EEPROM: se mantiene al desconectar |
+| `RESET` | Vuelve al mapeo de fábrica (después `SAVE` para fijarlo) |
+
+**Diferencia con el cableado de la tabla**: este programa lee **4 botones** (pines 6-9), no 9. Para los 9 del diseño (con Moneda, Start y Menú) hay que subir `NUM_BTN` a 9 y añadir `10, A0, A1, A2, A3` al final de `IN_PINS`, como dice su comentario. Si la EEPROM tiene un mapeo de 4 botones guardado, al cambiar `NUM_BTN` conviene hacer `RESET` y `SAVE`.
 
 ## Instalación paso a paso
 
@@ -94,8 +109,10 @@ Esas placas no pueden ser mando USB de serie. Opciones: (1) pedir un Pro Micro (
 | 4 | Los 9 botones | `jstest` o `evtest` | Cada botón su número o tecla | Pendiente — en clase | |
 | 5 | Funciona en la VM | Filtro USB y `lsusb` dentro de ALMI-ARCADE | Aparece en la VM | Pendiente — en clase | |
 | 6 | Se juega en MAME | Pong o Breakout con el stick | Moneda, Start y movimiento funcionan | Pendiente — en clase | |
+| 7 | Remapeo sin reprogramar | `MAP 1 2`, `SAVE`, desconectar y volver a conectar; `SHOW` y `jstest` | El botón físico 1 sale como botón 2 y se mantiene | Pendiente — en clase | |
+| 8 | Antirrebote | Pulsar rápido un botón mirando `jstest` | Una pulsación = un cambio | Pendiente — en clase | |
 
-**Estado**: los tres programas compilan, pero el stick **no se ha montado ni probado** todavía (falta el material y la placa). Las capturas y fotos del montaje irán en [`capturas/`](capturas/).
+**Estado**: los cuatro programas compilan, pero el stick **no se ha montado ni probado** todavía (falta el material y la placa). Las capturas y fotos del montaje irán en [`capturas/`](capturas/).
 
 ## Seguridad aplicada
 
@@ -119,3 +136,4 @@ El stick todavía no se ha montado, así que estos problemas son **previstos**, 
 - Arduino Keyboard library — https://docs.arduino.cc/language-reference/en/functions/usb/Keyboard/
 - MAME, configuración de controles — https://docs.mamedev.org/usingmame/defaultkeys.html
 - Guías paso a paso del equipo, parte 4.
+- *codigo stick arcade* (Julen, Drive del equipo, 10 de noviembre de 2026).

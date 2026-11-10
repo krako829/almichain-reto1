@@ -27,6 +27,7 @@ CAPITULOS = [
     ('05-erp-odoo/README.md', None),
     ('06-web-aws/README.md', None),
     ('07-bd-raid-copias/README.md', None),
+    ('08-copias-so/README.md', None),
     ('presupuesto/README.md', None),
     ('docs/conclusiones.md', None),
 ]
@@ -36,6 +37,7 @@ ANEXOS = [
     ('06-web-aws/docs/02-guia-despliegue.md', 'Anexo C. Web: guía de despliegue'),
     ('06-web-aws/docs/03-explicacion-codigo.md', 'Anexo D. Web: explicación del código'),
     ('herramientas/README.md', 'Anexo E. Herramientas: cómo se hicieron las VM, las pruebas y las capturas'),
+    ('06-web-aws/docs/00-diseno-web.md', 'Anexo F. Web: diseño'),
 ]
 figura = 0
 

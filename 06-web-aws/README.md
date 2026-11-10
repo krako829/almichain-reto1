@@ -47,6 +47,7 @@ Terraform crea **13 recursos**: VPC, Internet Gateway, subred, tabla de rutas y 
 | [`user_data.sh.tftpl`](user_data.sh.tftpl) | Script de arranque del servidor (nginx, DuckDNS, HTTPS) |
 | [`terraform.tfvars.example`](terraform.tfvars.example) | Plantilla de datos personales (el `terraform.tfvars` real no se sube) |
 | [`web/`](web/) | La web: `index.html`, `estilos.css`, `geo.js` (geolocalización) e imágenes |
+| [`docs/00-diseno-web.md`](docs/00-diseno-web.md) | Diseño de la web: secciones, colores, responsive y accesibilidad (documento de Julen) |
 | [`docs/01-arquitectura.md`](docs/01-arquitectura.md) | Arquitectura en AWS |
 | [`docs/02-guia-despliegue.md`](docs/02-guia-despliegue.md) | Guía de despliegue paso a paso |
 | [`docs/03-explicacion-codigo.md`](docs/03-explicacion-codigo.md) | Explicación del código de Terraform y del script de arranque |
