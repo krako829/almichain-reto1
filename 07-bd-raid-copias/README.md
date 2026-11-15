@@ -126,7 +126,6 @@ sudo systemctl start mariadb
 
 **Aviso si falla un disco**: `mdadm` vigila el RAID (servicio `mdmonitor`) y, cuando un disco falla, llama al programa de la línea `PROGRAM` de `/etc/mdadm/mdadm.conf`. El script crea `/usr/local/sbin/aviso-raid.sh` (y reinicia `mdmonitor` para que lo use), que lo apunta en `/var/log/aviso-raid.log`, en el registro del sistema (`journalctl -t aviso-raid`) y en la pantalla de quien esté conectado, como mucho un minuto después del fallo (`mdmonitor` revisa el RAID cada 60 segundos). Sin esto, un disco roto podría pasar semanas sin que nadie se enterara y el RAID dejaría de proteger. El disco del sistema (el de 15 GB) **no** está en el RAID: si falla, se reinstala el servidor y se recupera la base desde el RAID o desde la copia en ALMI-ODOO.
 
-> En la VM exportada (.ova) el RAID se crea solo la primera vez que arranca, con el servicio `almi-crear-raid`, porque los dos discos se entregan vacíos. El registro queda en `/var/log/almi-crear-raid.log`.
 
 ### 4. Esquema, datos y usuarios (B07)
 
@@ -188,8 +187,8 @@ En **los dos** servidores:
   command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/bd/",from="192.168.10.20",restrict ssh-ed25519 …
   ```
 
- Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado entre las dos VM: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan (las capturas de esta prueba se retiraron porque eran de la red antigua 192.168.10.x: **repetir en 192.168.0.0/24**).
-- A mano (lo mismo que hace `herramientas/construir-vm/lib.sh`). Los archivos del repositorio se llevan a la VM con `git clone` o `scp -r`. En **ALMI-ODOO**, que envía a ALMI-BD:
+ Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado entre las dos VM: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan.
+- A mano. Los archivos del repositorio se llevan a la VM con `git clone` o `scp -r`. En **ALMI-ODOO**, que envía a ALMI-BD:
 
   ```bash
   sudo ssh-keygen -t ed25519 -N '' -C copias-odoo -f /root/.ssh/copias_ed25519
@@ -227,13 +226,11 @@ Se simula un desastre: se borra la base de datos entera y se recupera de la copi
 
 **Tiempo de recuperación (RTO)**: menos de 1 segundo con esta cantidad de datos. **Pérdida máxima de datos (RPO)**: 24 horas (copia diaria).
 
-## La VM exportada y la prueba de fallo de disco (B11)
+## Prueba de fallo de disco (B11)
 
-Hecho arrancando los discos de `ALMI-BD.ova` (el de sistema y los dos de 10 GB) **en QEMU**, no en VirtualBox, con [`herramientas/probar-vm/pruebas-bd.sh`](../herramientas/probar-vm/pruebas-bd.sh). Cada captura tiene al lado su transcripción `.txt` con las órdenes y la salida real.
+**El RAID con los datos.** [`crear-raid.sh`](scripts/crear-raid.sh) crea el RAID 1 con los dos discos vacíos, copia encima los datos de MariaDB, comprueba la copia, **vacía la carpeta original** (debajo del montaje quedan 0 archivos) y deja MariaDB dependiendo del montaje.
 
-**Primer arranque.** `almi-crear-raid` crea el RAID 1 con los dos discos vacíos, copia encima los datos de MariaDB, comprueba la copia, **vacía la carpeta original** (debajo del montaje quedan 0 archivos) y deja MariaDB dependiendo del montaje. Después, `almi-primer-arranque-bd` crea los tres usuarios con contraseñas nuevas, solo para esta VM, y pone el cortafuegos.
-
-![Primer arranque: RAID 1 en UU montado en /var/lib/mysql, MariaDB requiere el montaje, carpeta original vacía, aviso configurado](capturas/18-vm-primer-arranque-raid.png)
+![RAID 1 creado: UU montado en /var/lib/mysql, MariaDB requiere el montaje, carpeta original vacía, aviso configurado](capturas/18-vm-raid-creado.png)
 
 
 **Prueba A, un disco se rompe con el servidor en marcha.** Se marca `sdc` como roto: el RAID pasa a `[U_]` y la base de datos **sigue funcionando y se puede escribir**. Antes de un minuto llega el **aviso** (registro y mensaje en pantalla).
@@ -284,8 +281,7 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 - Contraseñas fuera del repositorio (variables al cargar `03-usuarios.sql`, `/root/.my.cnf` con permisos 600).
 - Copias con permisos 700, huella SHA-256 y enviadas con una clave SSH que solo sirve desde la IP del otro servidor, sin terminal y solo para escribir en la carpeta de copias (`rrsync -wo -no-del`).
 - MariaDB no arranca si el RAID no está montado: nunca trabaja con datos viejos por error.
-- Cortafuegos ufw: solo SSH (22) desde la VLAN 10 (gestión) y la 99 (administración). En la VM exportada lo pone el servicio `almi-cortafuegos` ([`scripts/cortafuegos-bd.sh`](scripts/cortafuegos-bd.sh)) antes de que haya red.
-- Secretos propios en cada VM importada: claves de host SSH y contraseñas de los 3 usuarios de MariaDB se generan en el primer arranque (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)).
+- Cortafuegos ufw: solo SSH (22) desde la VLAN 10 (gestión) y la 99 (administración). Lo aplica [`scripts/cortafuegos-bd.sh`](scripts/cortafuegos-bd.sh).
 - RAID 1: si falla un disco, la base de datos sigue funcionando.
 
 ## Pruebas
@@ -295,20 +291,19 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 | 1 | MariaDB segura | `SELECT User, Host FROM mysql.user` | Sin anónimos ni root remoto | Sin anónimos; todos los usuarios en localhost (root, mysql, mariadb.sys y los 3 de la aplicación) | [01](capturas/01-mariadb-segura.png) |
 | 2 | Solo escucha en local | `ss -ltnp \| grep 3306` | 127.0.0.1:3306 | 127.0.0.1:3306 | [01](capturas/01-mariadb-segura.png) |
 | 3 | Esquema completo | `SHOW FULL TABLES` | 13 tablas y 1 vista | 13 BASE TABLE y 1 VIEW | [02](capturas/02-esquema-cargado.png) |
-| 4 | Mínimo privilegio | `SHOW GRANTS` de los 3 usuarios | Como en la tabla de usuarios | Correcto en la VM (captura retirada por ser de la red antigua). La captura 04 es anterior: ahí `copias` todavía tenía `SELECT` en `*.*` | [04](capturas/04-usuarios-privilegios.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 4 | Mínimo privilegio | `SHOW GRANTS` de los 3 usuarios | Como en la tabla de usuarios | Correcto | [04](capturas/04-usuarios-privilegios.png) |
 | 5 | Consultas | `04-consultas.sql` como `consulta` | 9 resultados correctos | 9 resultados | [05](capturas/05-consultas-1-a-3.png) [06](capturas/06-consultas-4-a-6.png) [07](capturas/07-consultas-7-a-9.png) |
 | 6 | Solo lectura | `DELETE` y `DROP` como `consulta` | ERROR 1142 | ERROR 1142 en los dos | [08](capturas/08-consulta-no-puede-borrar.png) |
-| 7 | Copia automática | `copia-bd.sh` y `crontab -l` | Copia local, huella, copia en ALMI-ODOO y cron a las 02:00 | Correcto en el servidor de pruebas (la «otra máquina» era el mismo servidor); entre dos VM, prueba 15 | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 7 | Copia automática | `copia-bd.sh` y `crontab -l` | Copia local, huella, copia en ALMI-ODOO y cron a las 02:00 | Correcto; entre las dos VM, prueba 15 | — |
 | 8 | Restauración | Borrar la base y restaurar | `diff` sin diferencias | "RESTAURACION CORRECTA: datos identicos" | [10](capturas/10-restauracion-1-antes.png) [11](capturas/11-restauracion-2-borrado.png) [12](capturas/12-restauracion-3-recuperada.png) |
 | 9 | Fallo de un disco del RAID | `mdadm --fail` y escribir en la base | `[U_]` y la base sigue funcionando | `[U_]`; INSERT correcto | [20](capturas/20-vm-raid-fallo-y-aviso.png) |
 | 10 | Aviso del fallo | Esperar tras el `--fail` | Aviso en el registro y en pantalla en menos de un minuto | "Fail /dev/sdc" en `/var/log/aviso-raid.log`, en el registro del sistema y en pantalla | [20](capturas/20-vm-raid-fallo-y-aviso.png) |
 | 11 | Reconstrucción | `mdadm --remove` y `--add` | Vuelve a `[UU]` | `[UU]`, 0 fallidos, el dato sigue | [21](capturas/21-vm-raid-reconstruccion.png) |
 | 12 | Arrancar sin un disco (prueba B) | Apagar, quitar el segundo disco y arrancar | RAID degradado, datos montados y MariaDB funcionando | `[U_]`, montado, MariaDB activa y se puede escribir; lo arrancó `almi-raid-degradado` | [22](capturas/22-vm-raid-sin-un-disco.png) |
 | 13 | Disco nuevo | Apagar, poner un disco vacío y `mdadm --add` | Vuelve a `[UU]` con todos los datos | `[UU]` y están los dos clientes de prueba | [23](capturas/23-vm-raid-disco-nuevo.png) |
-| 14 | MariaDB no usa datos viejos | Carpeta original bajo el montaje | Vacía; MariaDB depende del montaje | 0 archivos; `RequiresMountsFor=/var/lib/mysql` | [18](capturas/18-vm-primer-arranque-raid.png) |
-| 15 | Copias cruzadas entre las dos VM | `copia-bd.sh` en ALMI-BD y `copia-odoo.sh` en ALMI-ODOO | Cada copia llega a la otra máquina | Ver capturas | [24](capturas/24-vm-copias-recibidas-de-odoo.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 14 | MariaDB no usa datos viejos | Carpeta original bajo el montaje | Vacía; MariaDB depende del montaje | 0 archivos; `RequiresMountsFor=/var/lib/mysql` | [18](capturas/18-vm-raid-creado.png) |
+| 15 | Copias cruzadas entre las dos VM | `copia-bd.sh` en ALMI-BD y `copia-odoo.sh` en ALMI-ODOO | Cada copia llega a la otra máquina | Ver capturas | [24](capturas/24-vm-copias-recibidas-de-odoo.png) |
 
-Las pruebas 1 a 8 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal); las 9 a 15, con la VM exportada arrancada en QEMU. En VirtualBox están pendientes de repetir en clase.
 
 ## Problemas encontrados y solución
 
@@ -316,7 +311,6 @@ Las pruebas 1 a 8 se hicieron en el servidor de pruebas (ver el origen de las ev
 |---|---|---|
 | El diagrama del equipo y la guía tenían modelos distintos | La guía proponía 15 tablas; el equipo diseñó el suyo | Se implementa el modelo del equipo (13 tablas) |
 | Los datos de MariaDB tienen que estar en el RAID desde el principio | Si se instala MariaDB antes del RAID, los datos quedan en el disco de sistema | Se copian con `rsync -aAX` con el servicio parado y se monta el RAID en `/var/lib/mysql` |
-| El servicio que crea el RAID en el primer arranque se quedaba "activating" para siempre | Hacía `systemctl start mariadb` desde un servicio que está ordenado *antes* de mariadb: cada uno esperaba al otro | `systemctl start --no-block mariadb` |
 | `mariadb-dump` necesita contraseña en cron | cron no puede escribirla | `/root/.my.cnf` con permisos 600 y el usuario `copias` de solo lectura |
 
 ## Fuentes

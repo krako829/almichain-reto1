@@ -54,7 +54,7 @@ Se distingue lo que **indicó el profesor** (de palabra, en clase) de lo que **d
 | Licencias | Windows 10 Pro/Education con licencia; todo lo demás gratis | Profesor |
 | Gerente | **Doble arranque** en la VM ALMI-GERENTE: Windows 10 Pro y Debian 13 (lo pide la rúbrica: «Instalación de S.O. arranque dual»). La recreativa va en una **VM aparte** (ALMI-ARCADE) para poder limitarla a 1 núcleo y 1 GB sin afectar al equipo del gerente | Equipo |
 | TPV | Una sola VM, ALMI-TPV, con los usuarios TPV1 y TPV2, que simulan los dos equipos de barra. **Falta el motivo y la conformidad del profesor** | Equipo |
-| Red del laboratorio | Red de clase 192.168.1.0/24 en la WAN del router R1; **todas las VM en adaptador puente en la LAN de R1, 192.168.0.0/24** (puerta de enlace 192.168.0.1, DHCP .50–.199). Esquema completo en el [README principal](../README.md#red-del-laboratorio-y-máquinas-del-reto). **Pendiente:** adaptar los scripts y las OVA de ALMI-ODOO y ALMI-BD, que aún usan la red antigua 192.168.10.0/24 | Equipo |
+| Red del laboratorio | Red de clase 192.168.1.0/24 en la WAN del router R1; **todas las VM en adaptador puente en la LAN de R1, 192.168.0.0/24** (puerta de enlace 192.168.0.1, DHCP .50–.199). Esquema completo en el [README principal](../README.md#red-del-laboratorio-y-máquinas-del-reto). | Equipo |
 | Impresora | La comparten los dos TPV en el laboratorio (solo hay una física) | Equipo |
 | ERP | Que haga algo funcional de verdad (factura automática al cobrar), sin usar todas las aplicaciones | Equipo |
 | Recreativa | Ubuntu 24.04 mínimo en lugar de Debian (justificado en el bloque 02) | Equipo |

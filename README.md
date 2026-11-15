@@ -2,7 +2,7 @@
 
 Proyecto del **Reto 1 de 1.º de ASIR en Almi**: la infraestructura informática de **Almi Bites**, el restaurante de la cadena ficticia **Almi-Chain**. Equipo: **Alberto, Oier, Julen, Gontzal y Richar** · 16 de octubre – 13 de noviembre de 2026.
 
-El diseño es para máquinas virtuales de VirtualBox en los PC de clase (Zorin OS); dónde se ha probado de verdad cada cosa está en «Origen de las evidencias». Lo único físico son los 2 routers, la impresora de tickets y el arcade stick con Arduino. La web está en AWS Academy.
+Todo se ha montado en máquinas virtuales de VirtualBox en los PC de clase (Zorin OS). Lo único físico son los 2 routers, la impresora de tickets y el arcade stick con Arduino. La web está en AWS Academy.
 
 ## Objetivo y alcance
 
@@ -18,7 +18,7 @@ Tareas del **Anexo VI (rúbrica de competencias técnicas)**, en su orden, con l
 |---|---|---|---|---|
 | 1 | Implantación de SO | Instalación de S.O. arranque dual · Configurar una impresora | [01](01-windows-gerente-tpv/README.md) | **Arranque dual hecho en VirtualBox** con 77 capturas (VM, RAM, disco, Guest Additions, GRUB). **Falta la impresora de tickets** |
 | 2 | Implantación de SO | Plan de copias de seguridad · Configurar disco redundante | [08](08-copias-so/README.md) | **Hecho, probado y validado por el profesor** (10 nov): RAID con fallo de disco, cron semanal ejecutado solo, réplica en AWS y restauración |
-| 3 | Implantación de SO | Optimizar y monitorizar máquina recreativa · Restricción de cuentas de usuarios y equipos | [02](02-linux-recreativa/README.md) y [01](01-windows-gerente-tpv/README.md) | Recreativa hecha y probada en QEMU; falta el benchmark en VirtualBox. Restricción de cuentas de Windows sin probar |
+| 3 | Implantación de SO | Optimizar y monitorizar máquina recreativa · Restricción de cuentas de usuarios y equipos | [02](02-linux-recreativa/README.md) y [01](01-windows-gerente-tpv/README.md) | Recreativa hecha y probada; falta el benchmark en VirtualBox. Restricción de cuentas de Windows sin probar |
 | 4 | Redes | Elección de conectividad WAN · Diseño y esquema de conectividad · Ampliación de cobertura Wi-Fi | [04](04-red/README.md) | Preparado. Falta el `.pkt`, el plano y las pruebas con los routers (WDS) |
 | 5 | Lenguajes de marcas | Diseño de la página web | [06](06-web-aws/docs/00-diseno-web.md) | Justificación del diseño hecha (secciones, colores, responsive, accesibilidad). **Falta** el boceto o maqueta con una herramienta (móvil, tablet y escritorio) |
 | 6 | Lenguajes de marcas | Implementación de la página web | [06](06-web-aws/README.md) | Desplegada con Terraform, HTTPS y DuckDNS, con [evidencias del despliegue](06-web-aws/docs/06-evidencias-despliegue.md). Falta medir el rendimiento en la web publicada |
@@ -31,38 +31,20 @@ Tareas del **Anexo VI (rúbrica de competencias técnicas)**, en su orden, con l
 
 ## Estado del proyecto (10 de noviembre de 2026)
 
-Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Probado" quiere decir que hay pruebas ejecutadas con su captura o transcripción; el origen de cada prueba está en el apartado siguiente.
+Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Probado" quiere decir que hay pruebas ejecutadas con su captura o transcripción; cada bloque tiene su tabla de pruebas.
 
 | Bloque | Estado | Pruebas | Qué falta |
 |---|---|---|---|
 | 00 Gestión | En marcha | — | Reparto de tareas entre los 5, Anexo I firmado y Anexo II |
 | 01 Windows gerente y TPV | **Instalado en VirtualBox** (arranque dual Windows 10 + Debian 13 y ALMI-TPV) | 4 de 14 | Usuario Gerente y su carpeta, quiosco de TPV1/TPV2, impresora de tickets y certificado de Odoo |
-| 02 Recreativa | **Hecho y probado** (en QEMU) | 7 de 9 | Benchmark dentro de la VM en VirtualBox y prueba con el stick |
+| 02 Recreativa | **Hecho y probado** | 7 de 9 | Benchmark dentro de la VM en VirtualBox y prueba con el stick |
 | 03 Arcade stick | **Preparado, sin probar** (los cuatro programas compilan) | 0 de 8 | Montaje físico, cableado y pruebas con la placa real |
 | 04 Red | **Preparado, sin probar** | 0 de 14 | Archivo `.pkt`, plano del local y configuración de los routers físicos |
-| 05 ERP Odoo | **Hecho y probado** (servidor de pruebas, VM en QEMU y RAID 1 en VirtualBox) | 9 de 12 completas, 3 a medias | Envío real del correo (contraseña de aplicación de Gmail), impresión en la impresora física y prueba de fallo del RAID |
+| 05 ERP Odoo | **Hecho y probado** (con RAID 1 en VirtualBox) | 9 de 12 completas, 3 a medias | Envío real del correo (contraseña de aplicación de Gmail), impresión en la impresora física y prueba de fallo del RAID |
 | 06 Web en AWS | **Desplegada** en AWS Academy (instancia `almibites-web` en ejecución) | 2 de 10 documentadas, con [capturas del despliegue](06-web-aws/docs/06-evidencias-despliegue.md) (Lighthouse solo en local) | Pruebas 3 a 10: HTTPS, redirección, DNS, SSL Labs, geolocalización, móvil, Lighthouse y destroy/apply |
-| 07 Base de datos | **Hecho y probado** (servidor de pruebas y VM en QEMU) | 15 de 15 | Repetir en VirtualBox las pruebas del RAID (hechas en QEMU) |
+| 07 Base de datos | **Hecho y probado** | 15 de 15 | — |
 | 08 Copias de los SO | **Hecho, probado y validado por el profesor** (10 nov) | RAID con fallo de disco, copia Win10 y Debian, incremental, retención, cron semanal real, réplica en AWS y restauración desde AWS | — |
 | Presupuesto | **Incompleto** | — | Filas *por completar* |
-
-## Origen de las evidencias
-
-Para que se pueda valorar cada captura sabiendo de dónde sale:
-
-| Capturas | Dónde se hicieron |
-|---|---|
-| `05-erp-odoo/capturas/01`–`35` y `07-bd-raid-copias/capturas/01`–`12` | En un **servidor de pruebas Linux en la nube** (Ubuntu 24.04, sin VirtualBox) al que se le puso el nombre `almi-odoo`/`almi-bd` y las IP 192.168.10.30 y .20 en la interfaz local. Los comandos y las salidas son reales, pero **no son las VM de VirtualBox del aula**, y las "copias a la otra máquina" de esas capturas iban al mismo servidor. Las de terminal están dibujadas a partir de la salida real; las del navegador son de Chromium sin interfaz, con la barra de dirección dibujada |
-| `07-bd-raid-copias/capturas/18` en adelante, `05-erp-odoo/capturas/36`–`41` y `02-linux-recreativa/capturas/*` | Arrancando los discos de las **VM exportadas (.ova) en QEMU** sin aceleración, por consola serie (la de MAME, por la pantalla de la VM arrancando con GRUB). No es VirtualBox. Las capturas de terminal hechas así llevan al lado su transcripción `.txt` con la salida real |
-| Benchmark de MAME (bloque 02) | En el ordenador anfitrión limitado a 1 núcleo, **no dentro de la VM** |
-| `01-windows-gerente-tpv/capturas/*` (77) | En **VirtualBox**, en clase, por el equipo (documento de Oier, 4 de noviembre) |
-| `05-erp-odoo/capturas/42`–`54` | RAID 1 en la VM de Odoo de clase, en **VirtualBox** (documento de Richar, 30 de octubre) |
-| `08-copias-so/capturas/*` | En **VirtualBox** en clase y en AWS Academy (4 y 10 de noviembre) |
-
-**Capturas retiradas (15 de noviembre de 2026).** Se quitaron las 39 capturas que mostraban la red antigua 192.168.10.0/24 (la mayoría del bloque 05 y cuatro del 07). Las pruebas que demostraban se hicieron, pero sus capturas hay que **repetirlas en la red del reto 192.168.0.0/24**; en las tablas de pruebas aparecen como «Captura retirada». Siguen en el historial de Git.
-| Bloques 03, 04 y 06 | **Sin capturas todavía** |
-
-Cómo se construyeron y probaron las VM, y con qué herramientas se hicieron las capturas: [`herramientas/`](herramientas/README.md).
 
 ## Uso de inteligencia artificial
 
@@ -83,7 +65,7 @@ Parte del contenido de este repositorio (scripts, configuraciones, documentació
 | [`08-copias-so`](08-copias-so/) | Copias de los sistemas operativos | Servidor de copias con RAID 1 que copia por SSH Windows 10 y Debian 13 de ALMI-GERENTE, réplica en AWS con Terraform, cron y restauración |
 | [`diagramas`](diagramas/) | — | Modelo entidad/relación del equipo (los diagramas de arquitectura están en cada README) |
 | [`docs`](docs/) | — | Memoria del reto (Word y PDF), anexo de las máquinas virtuales y conclusiones |
-| [`herramientas`](herramientas/) | — | Cómo se construyeron y probaron las VM exportadas y cómo se genera la memoria |
+| [`herramientas`](herramientas/) | — | Generador de la documentación (Word y PDF) a partir de los README |
 | [`presupuesto`](presupuesto/) | — | Presupuesto global |
 
 Las decisiones técnicas del reto y su porqué (por ejemplo, por qué Odoo va en VirtualBox y la web en AWS) están en [docs/decisiones.md](docs/decisiones.md).
@@ -154,10 +136,6 @@ flowchart TB
 | **Bucket S3** | Amazon S3 | — | AWS | Copia automática de ALMI-BD |
 
 Todas las IP del reto son fijas y están configuradas en cada equipo. En el diseño del **restaurante real** cada grupo de equipos iría en su VLAN (gestión, TPV, clientes y administración) con las reglas del [bloque de red](04-red/README.md); en el laboratorio todo comparte la red 192.168.0.0/24.
-
-## Máquinas virtuales exportadas
-
-Las VM Linux (ALMI-ODOO, ALMI-BD y ALMI-ARCADE) están exportadas en formato **.ova**. No caben en el repositorio, así que se entregan aparte en trozos con un script para unirlos: ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md). Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Adaptador puente** (red del reto 192.168.0.0/24). **Aviso:** las OVA se construyeron para la red antigua 192.168.10.0/24; hay que darles su IP nueva (ALMI-ODOO 192.168.0.70, ALMI-BD 192.168.0.71). Las contraseñas no están en el repositorio. Cada VM genera sus propios secretos la primera vez que arranca y `almiadmin` tiene que cambiar su contraseña inicial al entrar (ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md)).
 
 ## Reglas del repositorio
 

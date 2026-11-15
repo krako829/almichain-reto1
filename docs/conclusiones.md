@@ -2,19 +2,18 @@
 
 ## Resumen de las pruebas
 
-Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Este es el resumen a fecha de 10 de noviembre de 2026; el origen de cada evidencia (servidor de pruebas, QEMU o VirtualBox) está en la [Introducción](../README.md#origen-de-las-evidencias).
+Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Este es el resumen a fecha de 10 de noviembre de 2026.
 
 | Bloque | Pruebas hechas | Pendientes | Dónde se hicieron |
 |---|---|---|---|
 | 01 Windows gerente y TPV | 4 de 14 (arranque dual, administradores de ALMI-TPV, directiva de contraseñas, Defender y cortafuegos) | Usuario Gerente, quiosco, impresora y certificado de Odoo | VirtualBox en clase |
-| 02 Recreativa | 7 de 9 | Benchmark en la VM de VirtualBox y prueba con el stick | QEMU (VM exportada) y anfitrión (benchmark) |
+| 02 Recreativa | 7 de 9 | Benchmark en la VM de VirtualBox y prueba con el stick | VM y anfitrión (benchmark) |
 | 03 Arcade stick | 0 de 8 (los cuatro programas compilan, incluido el configurable con antirrebote y remapeo) | Todas | — (necesita la placa y el material) |
 | 04 Red | 0 de 14 | Todas | — (necesita Packet Tracer y los routers) |
-| 05 ERP Odoo | 9 de 12 completas, 3 a medias | Envío real del correo, ticket en la impresora física y fallo del RAID del servidor | Servidor de pruebas, QEMU (VM exportada) y VirtualBox (RAID 1, 30 oct) |
+| 05 ERP Odoo | 9 de 12 completas, 3 a medias | Envío real del correo, ticket en la impresora física y fallo del RAID del servidor | Servidor de Odoo y VirtualBox (RAID 1, 30 oct) |
 | 06 Web en AWS | 0 de 10 documentadas (Lighthouse hecho solo en local); la web ya está desplegada | Capturas y pruebas | AWS Academy |
 | 08 Copias de los SO | Fallo de disco del RAID, copia de Windows y Debian, incremental, retención, cron semanal real (10 nov), réplica en AWS y restauración desde AWS. **Validado por el profesor** | — | VirtualBox en clase y AWS Academy |
-| 07 Base de datos | 15 de 15 | Repetir en VirtualBox las del RAID | Servidor de pruebas (1-8) y QEMU, VM exportada (9-15) |
-| VM exportadas | Primer arranque de las tres en QEMU, copias cruzadas entre ALMI-ODOO y ALMI-BD | Importación en VirtualBox | QEMU |
+| 07 Base de datos | 15 de 15 | Repetir en VirtualBox las del RAID | VM de la base de datos |
 
 ## Conclusiones
 
@@ -29,7 +28,6 @@ Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Es
 ## Trabajo pendiente antes de la entrega (13 de noviembre)
 
 1. Montar en clase los bloques 03, 04 y 06, terminar el 01 (quiosco, impresora, certificado; se puede hacer con sus scripts) y rellenar sus tablas de pruebas con capturas.
-2. Importar las tres OVA en VirtualBox y repetir allí las pruebas principales (prueba B del RAID, benchmark de la recreativa).
 3. Poner la contraseña de aplicación de Gmail en Odoo y probar el envío real; imprimir un ticket en la impresora física.
 4. Gestión: repartir las tareas en el tablero, exportarlo, Anexo I firmado (sin datos personales en el repositorio), Anexo II y commits de los cinco.
 5. Presupuesto: completar las filas que faltan y el total.
@@ -63,10 +61,8 @@ Documentación oficial consultada (cada capítulo tiene además sus propias fuen
 
 | Anexo | Qué es | Dónde |
 |---|---|---|
-| A | Máquinas virtuales exportadas: importar, primer acceso y secretos | [`docs/maquinas-virtuales.md`](maquinas-virtuales.md) |
-| B | Routers reales y repetidor WDS | [`04-red/routers/configuracion-routers.md`](../04-red/routers/configuracion-routers.md) |
-| C y D | Web: guía de despliegue y explicación del código | [`06-web-aws/docs/`](../06-web-aws/docs/) |
-| E | Herramientas: cómo se hicieron las VM, las pruebas y las capturas | [`herramientas/README.md`](../herramientas/README.md) |
-| F | Web: diseño (secciones, colores, responsive, accesibilidad) | [`06-web-aws/docs/00-diseno-web.md`](../06-web-aws/docs/00-diseno-web.md) |
+| A | Routers reales y repetidor WDS | [`04-red/routers/configuracion-routers.md`](../04-red/routers/configuracion-routers.md) |
+| B y C | Web: guía de despliegue y explicación del código | [`06-web-aws/docs/`](../06-web-aws/docs/) |
+| D | Web: diseño (secciones, colores, responsive, accesibilidad) | [`06-web-aws/docs/00-diseno-web.md`](../06-web-aws/docs/00-diseno-web.md) |
 | — | Guías paso a paso del equipo (planificación previa) | [`00-gestion/Guias-paso-a-paso-Reto1-Almi-Chain.docx`](../00-gestion/Guias-paso-a-paso-Reto1-Almi-Chain.docx) |
 | — | Anexo I y Anexo II del reto | Pendientes (ver [00-gestion](../00-gestion/README.md)) |

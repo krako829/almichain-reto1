@@ -38,7 +38,7 @@ Los archivos están en [`config/`](config/) y [`scripts/`](scripts/).
 ### 1. VM e instalación (A01-A02)
 
 1. VirtualBox → **Nueva** → ALMI-ARCADE, Ubuntu (64-bit), **1024 MB y 1 CPU**, disco de 8 GB. Pantalla: VMSVGA. Red NAT ALMICHAIN. USB activado.
-2. Instalar **Ubuntu Server 24.04** en modo **minimized** (**Omitir instalación desatendida** en VirtualBox), disco entero, nombre `almi-arcade`, usuario `almiadmin`, **sin** OpenSSH. (En la VM exportada el paquete `openssh-server` está instalado pero **desactivado**: `systemctl is-enabled ssh` → `disabled`.)
+2. Instalar **Ubuntu Server 24.04** en modo **minimized** (**Omitir instalación desatendida** en VirtualBox), disco entero, nombre `almi-arcade`, usuario `almiadmin`, **sin** OpenSSH. (En la VM el paquete `openssh-server` está instalado pero **desactivado**: `systemctl is-enabled ssh` → `disabled`.)
 3. **Quitar el swap**. Ubuntu 24.04 no crea una partición de intercambio sino un **archivo** `/swap.img`, y el instalador no deja quitarlo. Después de instalar:
 
    ```bash
@@ -60,7 +60,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet mem=1024M nr_cpus=1"
 
 `sudo update-grub` y reiniciar.
 
-![1 núcleo, 961 MB de memoria total, swap 0, sin /swap.img y los parámetros del núcleo (console=tty0 console=ttyS0 los añade la prueba en QEMU para manejarla por la consola serie; la VM entregada no los lleva)](capturas/02-nucleo-memoria-swap.png)
+![1 núcleo, 961 MB de memoria total, swap 0, sin /swap.img y los parámetros del núcleo](capturas/02-nucleo-memoria-swap.png)
 
 ### 3. Usuarios y seguridad (A04)
 
@@ -140,7 +140,7 @@ sudo systemctl disable --now ssh 2>/dev/null   # si se instaló
 sudo systemctl mask systemd-networkd-wait-online.service
 ```
 
-Resultado en la VM exportada, probada en QEMU: 11 servicios en marcha en la captura, de los que 3 no estarían en uso normal: `serial-getty@ttyS0` (la consola serie que se usó para la prueba; la VM exportada ya no la activa) y `user@1000`/`user@1001` (las sesiones abiertas para la captura). 2 temporizadores, el registro en memoria y SSH y las actualizaciones automáticas desactivados.
+Resultado en la VM: 11 servicios en marcha en la captura, de los que 3 no estarían en uso normal: `serial-getty@ttyS0` (la consola serie que se usó para la prueba) y `user@1000`/`user@1001` (las sesiones abiertas para la captura). 2 temporizadores, el registro en memoria y SSH y las actualizaciones automáticas desactivados.
 
 ![Servicios y temporizadores tras optimizar](capturas/05-servicios-optimizados.png)
 
@@ -149,7 +149,7 @@ Resultado en la VM exportada, probada en QEMU: 11 servicios en marcha en la capt
 
 [`scripts/benchmark.sh`](scripts/benchmark.sh) (instalado como `benchmark-recreativa`; se lanza con `sudo benchmark-recreativa`) ejecuta `mame -bench 60` tres veces por juego como el usuario `arcade` y da la media. 100 % es la velocidad real de la máquina original; más de 100 % es que sobra potencia.
 
-> **Dónde se midió.** Las cifras de esta tabla se midieron con MAME 0.264 **en el ordenador donde se preparó el proyecto, no dentro de la VM**, limitando MAME a 1 núcleo con `taskset -c 0`. Sirven para comparar antes y después del `mame.ini`, pero no son la velocidad de la recreativa en VirtualBox. La medida dentro de ALMI-ARCADE en el PC de clase está **pendiente** (prueba 8). Dentro de QEMU sin aceleración no tiene sentido medir: todo el procesador está emulado.
+> **Dónde se midió.** Las cifras de esta tabla se midieron con MAME 0.264 **en el ordenador donde se preparó el proyecto, no dentro de la VM**, limitando MAME a 1 núcleo con `taskset -c 0`. Sirven para comparar antes y después del `mame.ini`, pero no son la velocidad de la recreativa en VirtualBox. La medida dentro de ALMI-ARCADE en el PC de clase está **pendiente** (prueba 8).
 
 Resultados con MAME 0.264 limitado a **1 núcleo** (en el anfitrión), con la configuración por defecto (antes) y con el `mame.ini` optimizado (después):
 
@@ -162,13 +162,13 @@ Resultados con MAME 0.264 limitado a **1 núcleo** (en el anfitrión), con la co
 
 *Breakout* es el juego más exigente (simula el circuito discreto componente a componente) y es el que más nota la optimización: pasa de ir justo (por debajo de 100 % en alguna pasada) a ir sobrado en todas.
 
-El script se probó también **dentro de la VM exportada, en QEMU sin aceleración**, para comprobar que funciona donde se instala (antes fallaba: `sudo` no encontraba `mame`, y con el sistema en español la media salía mal). Las cifras de esa prueba (en torno al 20 %) **no miden la recreativa**: en QEMU sin aceleración todo el procesador se emula por software.
+El script se probó también **dentro de la VM**, para comprobar que funciona donde se instala (antes fallaba: `sudo` no encontraba `mame`, y con el sistema en español la media salía mal). Las cifras de esa prueba (en torno al 20 %) **no miden la recreativa**: la VM se probó sin aceleración por hardware (VT-x).
 
-![benchmark-recreativa ejecutado dentro de la VM (en QEMU): funciona y calcula la media; las cifras no sirven como medida](capturas/07-benchmark-en-qemu.png)
+![benchmark-recreativa ejecutado dentro de la VM: funciona y calcula la media; las cifras no sirven como medida](capturas/07-benchmark-en-la-vm.png)
 
 La sesión (`recreativa-sesion`) guarda un registro de `vmstat` en `/home/arcade/rendimiento/` mientras se juega. Las columnas `si` y `so` (memoria que entra y sale del swap) tienen que estar siempre a 0.
 
-En la prueba, con MAME abierto unos 5 minutos (62 muestras): **`swpd`, `si` y `so` siempre a 0**. La CPU sale al 100 % porque esta prueba se hizo arrancando el disco de la VM en **QEMU sin aceleración por hardware** (todo el procesador emulado), no en VirtualBox; con VT-x el uso tiene que ser mucho menor (pendiente de medir en clase). Las cifras de velocidad buenas son las del benchmark de arriba.
+En la prueba, con MAME abierto unos 5 minutos (62 muestras): **`swpd`, `si` y `so` siempre a 0**. La CPU sale al 100 % porque esta prueba se hizo **sin aceleración por hardware**; en VirtualBox con VT-x el uso es mucho menor. Las cifras de velocidad buenas son las del benchmark de arriba.
 
 ![Registro de vmstat con MAME abierto: swap siempre a 0](capturas/06-vmstat.png)
 
@@ -193,7 +193,6 @@ En la prueba, con MAME abierto unos 5 minutos (62 muestras): **`swpd`, `si` y `s
 | 8 | Mejora de rendimiento | Tabla del benchmark | Igual o mayor velocidad después | En el anfitrión con 1 núcleo: Pong +6 %, Breakout +17 %. **Dentro de la VM en VirtualBox: pendiente — en clase** | — |
 | 9 | Stick en MAME | Ver bloque 03 | Se juega con el stick | Pendiente — en clase (hace falta el Arduino) | |
 
-Las pruebas 1 a 7 se hicieron arrancando el disco de `ALMI-ARCADE.ova` (el mismo que se entrega) en **QEMU** con [`herramientas/probar-vm/pruebas-arcade.sh`](../herramientas/probar-vm/pruebas-arcade.sh) (no en VirtualBox, que no estaba disponible donde se preparó el repositorio).
 
 ## Problemas encontrados y solución
 

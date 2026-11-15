@@ -14,7 +14,6 @@ terraform.tfvars
 *.iso
 *.vdi
 *.vmdk
-*.ova
 # Volcados de base de datos con datos
 *.sql.gz
 *.dump
@@ -24,6 +23,5 @@ __pycache__/
 # Sistema
 .DS_Store
 Thumbs.db
-# Discos y OVA que generan las herramientas
-herramientas/construir-vm/salida/
+# Generado por la herramienta de la memoria
 herramientas/memoria/trabajo/

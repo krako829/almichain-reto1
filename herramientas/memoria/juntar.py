@@ -33,12 +33,10 @@ CAPITULOS = [
     ('docs/conclusiones.md', None),
 ]
 ANEXOS = [
-    ('docs/maquinas-virtuales.md', 'Anexo A. Máquinas virtuales exportadas'),
-    ('04-red/routers/configuracion-routers.md', 'Anexo B. Routers reales y repetidor WDS'),
-    ('06-web-aws/docs/02-guia-despliegue.md', 'Anexo C. Web: guía de despliegue'),
-    ('06-web-aws/docs/03-explicacion-codigo.md', 'Anexo D. Web: explicación del código'),
-    ('herramientas/README.md', 'Anexo E. Herramientas: cómo se hicieron las VM, las pruebas y las capturas'),
-    ('06-web-aws/docs/00-diseno-web.md', 'Anexo F. Web: diseño'),
+    ('04-red/routers/configuracion-routers.md', 'Anexo A. Routers reales y repetidor WDS'),
+    ('06-web-aws/docs/02-guia-despliegue.md', 'Anexo B. Web: guía de despliegue'),
+    ('06-web-aws/docs/03-explicacion-codigo.md', 'Anexo C. Web: explicación del código'),
+    ('06-web-aws/docs/00-diseno-web.md', 'Anexo D. Web: diseño'),
 ]
 figura = 0
 

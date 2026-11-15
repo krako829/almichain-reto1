@@ -237,14 +237,9 @@ Prueba de restauración en una base nueva `almichain_restaurada`: tiene el mismo
 
 ![Restauración de la copia de Odoo](capturas/35-restauracion-odoo.png)
 
-### 8. Máquina virtual exportada
+### 8. Copias cruzadas con ALMI-BD
 
-ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)) y se construye con [`herramientas/construir-vm`](../herramientas/README.md). Se probó **arrancando su disco en QEMU** (no en VirtualBox) con [`herramientas/probar-vm/pruebas-odoo.sh`](../herramientas/probar-vm/pruebas-odoo.sh). En el primer arranque ([`scripts/primer-arranque-odoo.sh`](scripts/primer-arranque-odoo.sh)) genera sus propios secretos, carga las imágenes de Docker que lleva dentro (no necesita Internet), restaura la base `almichain` con los datos de este bloque, arranca Odoo y nginx y aplica el cortafuegos. Cada captura tiene al lado su transcripción `.txt`.
-
-
-
-
-**Copias cruzadas entre las dos VM** (ALMI-ODOO y ALMI-BD encendidas a la vez en la misma red): la copia de Odoo llega a ALMI-BD, la de la base de datos llega aquí, y la clave de copias **no puede** ejecutar órdenes, borrar, leer ni salir de su carpeta.
+Con ALMI-ODOO y ALMI-BD encendidas a la vez en la misma red, la copia de Odoo llega a ALMI-BD, la de la base de datos llega aquí, y la clave de copias **no puede** ejecutar órdenes, borrar, leer ni salir de su carpeta.
 
 
 ![En ALMI-ODOO llegan las copias de la base de datos](capturas/40-vm-copias-recibidas-de-bd.png)
@@ -336,9 +331,7 @@ sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
 
 - **Solo HTTPS**: nginx redirige el 80 al 443 (salvo la descarga de la parte pública del certificado); Odoo solo escucha en 127.0.0.1. Certificado de servidor (`CA:FALSE`) instalado como de confianza en los Windows tras comprobar su huella.
 - **Cortafuegos** ufw: entrada denegada salvo SSH desde las VLAN 10 y 99, y HTTP/HTTPS desde las VLAN 10 y 20.
-- **Secretos propios en cada VM importada**: en el primer arranque se generan la contraseña de PostgreSQL, la contraseña maestra de Odoo, contraseñas nuevas para los 4 usuarios de Odoo, el secreto con el que Odoo firma las sesiones (`database.secret`), el certificado con su clave y las claves de host SSH. La OVA no los lleva.
-- **No apagar la VM durante el primer arranque** (unos 15 minutos en QEMU; menos en VirtualBox). Si se interrumpe, al repetirlo se genera otra contraseña de PostgreSQL que no coincide con la de la base ya creada y Odoo no conecta: la solución es **volver a importar la OVA**. Está anotado como mejora pendiente.
-- **Cortafuegos desde el primer segundo**: en la VM exportada lo pone el servicio `almi-cortafuegos` ([`scripts/cortafuegos-odoo.sh`](scripts/cortafuegos-odoo.sh)) antes de que haya red.
+- **Cortafuegos** aplicado con [`scripts/cortafuegos-odoo.sh`](scripts/cortafuegos-odoo.sh).
 - **Gestor de bases de datos oculto** (`list_db = False`) y contraseña maestra larga.
 - **Mínimo privilegio** en Odoo: los camareros solo usan el TPV; el gerente no tiene Ajustes; solo el administrador configura.
 - **Secretos fuera del repositorio**: `.env`, `odoo.conf` real, clave del certificado y contraseñas en KeePassXC.
@@ -349,20 +342,17 @@ sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
 
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
-| 1 | Odoo solo por HTTPS | `curl -I http://192.168.10.30/` | 301 a https y candado | 301 Moved Permanently → https | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused (en el servidor de pruebas, desde la misma máquina); en la VM, 8069 solo escucha en 127.0.0.1 . Desde un Windows: pendiente | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 3 | Gestor de bases de datos oculto | Abrir `/web/database/manager` | No se abre | "The database manager has been disabled" | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 4 | Camareros sin facturación | Entrar como Camarero Barra 1 | Sin menús de Facturación, Inventario ni CRM | Solo Punto de venta (y apps comunes: Conversaciones, Calendario, Contactos, Empleados) | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Factura, publicación y stock: correcto. **Correo: solo comprobado que queda en la cola con el PDF**; el envío real está pendiente de poner la contraseña de aplicación de Gmail |   [30](capturas/30-stock-despues-de-vender.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 1 | Odoo solo por HTTPS | `curl -I http://192.168.10.30/` | 301 a https y candado | 301 Moved Permanently → https | — |
+| 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused; 8069 solo escucha en 127.0.0.1. Desde un Windows: pendiente | — |
+| 3 | Gestor de bases de datos oculto | Abrir `/web/database/manager` | No se abre | "The database manager has been disabled" | — |
+| 4 | Camareros sin facturación | Entrar como Camarero Barra 1 | Sin menús de Facturación, Inventario ni CRM | Solo Punto de venta (y apps comunes: Conversaciones, Calendario, Contactos, Empleados) | — |
+| 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Factura, publicación y stock: correcto. **Correo: solo comprobado que queda en la cola con el PDF**; el envío real está pendiente de poner la contraseña de aplicación de Gmail |   [30](capturas/30-stock-despues-de-vender.png) |
 | 6 | Ticket impreso | Cobrar en cada barra | Ticket con cabecera y pie | Ticket generado en pantalla con cabecera y pie. **Impresión en la impresora física: pendiente — en clase** (bloque 01) | [ticket 1](capturas/25-barra1-4-ticket.png) [ticket 2](capturas/26-barra2-4-ticket.png) |
 | 7 | Copia y restauración | Restaurar en `almichain_restaurada` | Mismo número de pedidos | 2 y 2 | [35](capturas/35-restauracion-odoo.png) |
-| 8 | VM exportada | Arrancar el disco de `ALMI-ODOO.ova` desde cero (en QEMU) | Odoo por HTTPS con los datos del reto | HTTPS 200 y 2 pedidos | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 9 | Certificado de servidor | `openssl x509 -ext basicConstraints…` en la VM | `CA:FALSE`, `serverAuth`, SAN correcto; misma huella por HTTP | Correcto | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 10 | Secretos propios y cortafuegos | `ufw status`, `ss -ltn`, permisos | Redes del diseño; 8069 solo en local; secretos 600 | Correcto | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 11 | Copias cruzadas y clave restringida | `copia-odoo.sh`, `copia-bd.sh` y órdenes prohibidas con la clave | Las copias llegan; lo demás se rechaza | Correcto | [40](capturas/40-vm-copias-recibidas-de-bd.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
-| 12 | RAID 1 del servidor | `cat /proc/mdstat` y `mdadm --detail /dev/md0` en la VM de clase | raid1 con 2 discos `active sync`, montado en `/srv/raid1` | Correcto (creación). **Fallo y reconstrucción: pendiente** | [52](capturas/52-raid-mdstat.png), [54](capturas/54-raid-detalle-final.png) |
+| 8 | Copias cruzadas y clave restringida | `copia-odoo.sh`, `copia-bd.sh` y órdenes prohibidas con la clave | Las copias llegan; lo demás se rechaza | Correcto | [40](capturas/40-vm-copias-recibidas-de-bd.png) |
+| 9 | RAID 1 del servidor | `cat /proc/mdstat` y `mdadm --detail /dev/md0` en la VM de clase | raid1 con 2 discos `active sync`, montado en `/srv/raid1` | Correcto (creación). **Fallo y reconstrucción: pendiente** | [52](capturas/52-raid-mdstat.png), [54](capturas/54-raid-detalle-final.png) |
 
-Las pruebas 1 a 7 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal) y las 8 a 11 con la VM exportada en QEMU. La 12 se hizo en **VirtualBox**, en la VM de Odoo de clase. En VirtualBox, y con los Windows de verdad, quedan por repetir en clase.
+La prueba 9 se hizo en **VirtualBox**, en la VM de Odoo de clase.
 
 ## Problemas encontrados y solución
 

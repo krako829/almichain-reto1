@@ -4,7 +4,6 @@
 # Hace lo mismo que los pasos a mano de la guía:
 #   mdadm --create  ->  mkfs.ext4  ->  copiar /var/lib/mysql  ->  vaciar el original  ->  fstab
 #   ->  MariaDB depende del montaje  ->  mdadm.conf  ->  initramfs
-# En la VM exportada se ejecuta solo una vez, en el primer arranque (servicio almi-crear-raid).
 # Si el RAID ya existe, no hace nada.
 set -euo pipefail
 LOG=/var/log/almi-crear-raid.log
@@ -31,8 +30,7 @@ mdadm --create /dev/md0 --level=1 --raid-devices=2 --metadata=1.2 --run "$DISCO1
 mkfs.ext4 -q -L datos-bd /dev/md0
 
 # 3. Copiar los datos de MariaDB al RAID (con el servicio parado)
-# Solo si está en marcha: en el primer arranque de la OVA todavía no ha arrancado y un "stop"
-# cancelaría su arranque pendiente (y el de los servicios que dependen de él)
+# Solo si está en marcha
 if systemctl is-active --quiet mariadb; then systemctl stop mariadb; fi
 mkdir -p /mnt/raid
 mount /dev/md0 /mnt/raid
