@@ -18,26 +18,9 @@ W = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else 'trabajo')
 os.makedirs(f'{W}/mmd', exist_ok=True)
 
 CAPITULOS = [
-    ('README.md', 'Introducción'),
-    ('docs/decisiones.md', None),
-    ('00-gestion/README.md', None),
-    ('01-windows-gerente-tpv/README.md', None),
-    ('02-linux-recreativa/README.md', None),
-    ('03-arcade-stick/README.md', None),
-    ('04-red/README.md', None),
-    ('05-erp-odoo/README.md', None),
-    ('06-web-aws/README.md', None),
-    ('07-bd-raid-copias/README.md', None),
-    ('08-copias-so/README.md', None),
-    ('presupuesto/README.md', None),
-    ('docs/conclusiones.md', None),
+    ('docs/documentacion.md', None),
 ]
-ANEXOS = [
-    ('04-red/routers/configuracion-routers.md', 'Anexo A. Routers reales y repetidor WDS'),
-    ('06-web-aws/docs/02-guia-despliegue.md', 'Anexo B. Web: guía de despliegue'),
-    ('06-web-aws/docs/03-explicacion-codigo.md', 'Anexo C. Web: explicación del código'),
-    ('06-web-aws/docs/00-diseno-web.md', 'Anexo D. Web: diseño'),
-]
+ANEXOS = []
 figura = 0
 
 
@@ -121,7 +104,8 @@ def procesar(ruta, titulo, anexo=False):
 
 
 partes = [procesar(p, t) for p, t in CAPITULOS if os.path.exists(f'{REPO}/{p}')]
-partes.append('# Anexos\n\nDocumentos que amplían algún capítulo. Están también en el repositorio, en la ruta que se indica en cada uno.\n')
+if ANEXOS:
+    partes.append('# Anexos\n\nDocumentos que amplían algún capítulo. Están también en el repositorio, en la ruta que se indica en cada uno.\n')
 partes += [procesar(p, t, anexo=True) for p, t in ANEXOS if os.path.exists(f'{REPO}/{p}')]
 open(f'{W}/documentacion.md', 'w', encoding='utf-8').write('\n\n'.join(partes))
 print(f'Markdown listo: {sum(len(x) for x in partes)} caracteres, {figura} figuras')
