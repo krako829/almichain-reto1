@@ -151,7 +151,7 @@ sudo ~/scripts/crear-usuarios-bd.sh 03-usuarios.sql
 
 Todos solo desde `localhost`.
 
-![Usuarios y sus privilegios (servidor de pruebas, antes de limitar copias a almichain.*; el estado actual está en la captura 19)](capturas/04-usuarios-privilegios.png)
+![Usuarios y sus privilegios (servidor de pruebas, antes de limitar copias a almichain.*)](capturas/04-usuarios-privilegios.png)
 
 ### 5. Consultas (B07)
 
@@ -188,7 +188,7 @@ En **los dos** servidores:
   command="/usr/bin/rrsync -wo -no-del /srv/copias-remotas/bd/",from="192.168.10.20",restrict ssh-ed25519 …
   ```
 
-  Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado entre las dos VM: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan (captura [41 de Odoo](../05-erp-odoo/capturas/41-vm-clave-copias-restringida.png) y [26](capturas/26-vm-clave-copias-en-almi-bd.png), con la línea de `authorized_keys` de ALMI-BD).
+ Así, aunque alguien se hiciera con un servidor, desde él **no puede borrar ni leer las copias** que hay en el otro, ni ejecutar órdenes allí. Probado entre las dos VM: la copia normal funciona; `ssh … 'ls /'`, `rsync --delete`, leer y `../` se rechazan (las capturas de esta prueba se retiraron porque eran de la red antigua 192.168.10.x: **repetir en 192.168.0.0/24**).
 - A mano (lo mismo que hace `herramientas/construir-vm/lib.sh`). Los archivos del repositorio se llevan a la VM con `git clone` o `scp -r`. En **ALMI-ODOO**, que envía a ALMI-BD:
 
   ```bash
@@ -214,7 +214,6 @@ En **los dos** servidores:
 
 Script [`scripts/copia-bd.sh`](scripts/copia-bd.sh) en `/usr/local/bin/`, en el cron de root a las 02:00:
 
-![Copia hecha, comprobada, enviada y programada en cron (servidor de pruebas, antes de restringir la clave con rrsync: el `ls` remoto que se ve ahora se rechaza; ver las capturas 24 y 25)](capturas/09-copia-automatica.png)
 
 ## Pruebas de restauración (B10)
 
@@ -236,7 +235,6 @@ Hecho arrancando los discos de `ALMI-BD.ova` (el de sistema y los dos de 10 GB) 
 
 ![Primer arranque: RAID 1 en UU montado en /var/lib/mysql, MariaDB requiere el montaje, carpeta original vacía, aviso configurado](capturas/18-vm-primer-arranque-raid.png)
 
-![Usuarios con contraseñas nuevas: copias solo sobre almichain y mysql.proc, secretos solo para root, consulta no puede borrar, cortafuegos solo SSH desde las VLAN 10 y 99, claves SSH propias](capturas/19-vm-usuarios-secretos-cortafuegos.png)
 
 **Prueba A, un disco se rompe con el servidor en marcha.** Se marca `sdc` como roto: el RAID pasa a `[U_]` y la base de datos **sigue funcionando y se puede escribir**. Antes de un minuto llega el **aviso** (registro y mensaje en pantalla).
 
@@ -277,9 +275,7 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 
 ![En ALMI-BD llegan las copias de Odoo](capturas/24-vm-copias-recibidas-de-odoo.png)
 
-![ALMI-BD hace su copia y la envía a ALMI-ODOO](capturas/25-vm-copia-a-almi-odoo.png)
 
-![La clave de Odoo en ALMI-BD solo puede escribir en su carpeta (rrsync -wo -no-del) y solo desde 192.168.10.30](capturas/26-vm-clave-copias-en-almi-bd.png)
 
 ## Seguridad aplicada
 
@@ -299,10 +295,10 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 | 1 | MariaDB segura | `SELECT User, Host FROM mysql.user` | Sin anónimos ni root remoto | Sin anónimos; todos los usuarios en localhost (root, mysql, mariadb.sys y los 3 de la aplicación) | [01](capturas/01-mariadb-segura.png) |
 | 2 | Solo escucha en local | `ss -ltnp \| grep 3306` | 127.0.0.1:3306 | 127.0.0.1:3306 | [01](capturas/01-mariadb-segura.png) |
 | 3 | Esquema completo | `SHOW FULL TABLES` | 13 tablas y 1 vista | 13 BASE TABLE y 1 VIEW | [02](capturas/02-esquema-cargado.png) |
-| 4 | Mínimo privilegio | `SHOW GRANTS` de los 3 usuarios | Como en la tabla de usuarios | Correcto en la VM ([19](capturas/19-vm-usuarios-secretos-cortafuegos.png)). La captura 04 es anterior: ahí `copias` todavía tenía `SELECT` en `*.*` | [04](capturas/04-usuarios-privilegios.png) [19](capturas/19-vm-usuarios-secretos-cortafuegos.png) |
+| 4 | Mínimo privilegio | `SHOW GRANTS` de los 3 usuarios | Como en la tabla de usuarios | Correcto en la VM (captura retirada por ser de la red antigua). La captura 04 es anterior: ahí `copias` todavía tenía `SELECT` en `*.*` | [04](capturas/04-usuarios-privilegios.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
 | 5 | Consultas | `04-consultas.sql` como `consulta` | 9 resultados correctos | 9 resultados | [05](capturas/05-consultas-1-a-3.png) [06](capturas/06-consultas-4-a-6.png) [07](capturas/07-consultas-7-a-9.png) |
 | 6 | Solo lectura | `DELETE` y `DROP` como `consulta` | ERROR 1142 | ERROR 1142 en los dos | [08](capturas/08-consulta-no-puede-borrar.png) |
-| 7 | Copia automática | `copia-bd.sh` y `crontab -l` | Copia local, huella, copia en ALMI-ODOO y cron a las 02:00 | Correcto en el servidor de pruebas (la «otra máquina» era el mismo servidor); entre dos VM, prueba 15 | [09](capturas/09-copia-automatica.png) |
+| 7 | Copia automática | `copia-bd.sh` y `crontab -l` | Copia local, huella, copia en ALMI-ODOO y cron a las 02:00 | Correcto en el servidor de pruebas (la «otra máquina» era el mismo servidor); entre dos VM, prueba 15 | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
 | 8 | Restauración | Borrar la base y restaurar | `diff` sin diferencias | "RESTAURACION CORRECTA: datos identicos" | [10](capturas/10-restauracion-1-antes.png) [11](capturas/11-restauracion-2-borrado.png) [12](capturas/12-restauracion-3-recuperada.png) |
 | 9 | Fallo de un disco del RAID | `mdadm --fail` y escribir en la base | `[U_]` y la base sigue funcionando | `[U_]`; INSERT correcto | [20](capturas/20-vm-raid-fallo-y-aviso.png) |
 | 10 | Aviso del fallo | Esperar tras el `--fail` | Aviso en el registro y en pantalla en menos de un minuto | "Fail /dev/sdc" en `/var/log/aviso-raid.log`, en el registro del sistema y en pantalla | [20](capturas/20-vm-raid-fallo-y-aviso.png) |
@@ -310,7 +306,7 @@ En VirtualBox es igual: VM apagada → **Configuración → Almacenamiento** →
 | 12 | Arrancar sin un disco (prueba B) | Apagar, quitar el segundo disco y arrancar | RAID degradado, datos montados y MariaDB funcionando | `[U_]`, montado, MariaDB activa y se puede escribir; lo arrancó `almi-raid-degradado` | [22](capturas/22-vm-raid-sin-un-disco.png) |
 | 13 | Disco nuevo | Apagar, poner un disco vacío y `mdadm --add` | Vuelve a `[UU]` con todos los datos | `[UU]` y están los dos clientes de prueba | [23](capturas/23-vm-raid-disco-nuevo.png) |
 | 14 | MariaDB no usa datos viejos | Carpeta original bajo el montaje | Vacía; MariaDB depende del montaje | 0 archivos; `RequiresMountsFor=/var/lib/mysql` | [18](capturas/18-vm-primer-arranque-raid.png) |
-| 15 | Copias cruzadas entre las dos VM | `copia-bd.sh` en ALMI-BD y `copia-odoo.sh` en ALMI-ODOO | Cada copia llega a la otra máquina | Ver capturas | [24](capturas/24-vm-copias-recibidas-de-odoo.png) [25](capturas/25-vm-copia-a-almi-odoo.png) |
+| 15 | Copias cruzadas entre las dos VM | `copia-bd.sh` en ALMI-BD y `copia-odoo.sh` en ALMI-ODOO | Cada copia llega a la otra máquina | Ver capturas | [24](capturas/24-vm-copias-recibidas-de-odoo.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
 
 Las pruebas 1 a 8 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal); las 9 a 15, con la VM exportada arrancada en QEMU. En VirtualBox están pendientes de repetir en clase.
 

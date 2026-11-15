@@ -58,6 +58,8 @@ Para que se pueda valorar cada captura sabiendo de dónde sale:
 | `01-windows-gerente-tpv/capturas/*` (77) | En **VirtualBox**, en clase, por el equipo (documento de Oier, 4 de noviembre) |
 | `05-erp-odoo/capturas/42`–`54` | RAID 1 en la VM de Odoo de clase, en **VirtualBox** (documento de Richar, 30 de octubre) |
 | `08-copias-so/capturas/*` | En **VirtualBox** en clase y en AWS Academy (4 y 10 de noviembre) |
+
+**Capturas retiradas (15 de noviembre de 2026).** Se quitaron las 39 capturas que mostraban la red antigua 192.168.10.0/24 (la mayoría del bloque 05 y cuatro del 07). Las pruebas que demostraban se hicieron, pero sus capturas hay que **repetirlas en la red del reto 192.168.0.0/24**; en las tablas de pruebas aparecen como «Captura retirada». Siguen en el historial de Git.
 | Bloques 03, 04 y 06 | **Sin capturas todavía** |
 
 Cómo se construyeron y probaron las VM, y con qué herramientas se hicieron las capturas: [`herramientas/`](herramientas/README.md).
@@ -84,45 +86,72 @@ Parte del contenido de este repositorio (scripts, configuraciones, documentació
 | [`herramientas`](herramientas/) | — | Cómo se construyeron y probaron las VM exportadas y cómo se genera la memoria |
 | [`presupuesto`](presupuesto/) | — | Presupuesto global |
 
-## Máquinas del reto
+## Red del laboratorio y máquinas del reto
 
-| Máquina | Sistema | IP | Para qué |
-|---|---|---|---|
-| **ALMI-ODOO** | Ubuntu Server 24.04 + Docker | 192.168.10.30 | ERP Odoo 18 y los TPV, por HTTPS |
-| **ALMI-BD** | Ubuntu Server 24.04 | 192.168.10.20 | MariaDB con RAID 1 y copias cruzadas con ALMI-ODOO |
-| **ALMI-ARCADE** | Ubuntu 24.04 mínimo + MAME | DHCP | Recreativa: 1 núcleo, 1 GB, sin swap |
-| **ALMI-GERENTE** | Windows 10 Pro + Debian 13 (arranque dual) | DHCP | Equipo del despacho (usuario Gerente) |
-| **ALMI-TPV** | Windows 10 Pro | DHCP | Los dos TPV de barra (usuarios TPV1 y TPV2) en modo quiosco |
-| **almichain-web** | Ubuntu 24.04 en AWS | IP elástica | Web https://almichain2.duckdns.org |
-| **Servidor de copias** (`almichaincopia`) | Ubuntu Server | 192.168.0.52 (adaptador puente) | Copias de los SO de ALMI-GERENTE en RAID 1 ([bloque 08](08-copias-so/README.md)) |
-| **almichain-backup-remoto** | Ubuntu 24.04 en AWS | IP elástica | Copia remota de las copias de los SO (Terraform) |
+En clase hay **dos redes**:
 
-Todas las VM van en la **Red NAT `ALMICHAIN`** de VirtualBox (192.168.10.0/24, puerta de enlace 192.168.10.1). Cómo crearla: [00-gestion](00-gestion/README.md#red-nat-almichain).
+| Red | Rango | Qué hay |
+|---|---|---|
+| **Red de clase** | 192.168.1.0/24 | La red del aula. Aquí se conecta la **WAN del router R1** (IP fija) |
+| **Red del reto** (LAN del router R1) | 192.168.0.0/24 | Todo lo del reto: el PC de clase, las VM en **adaptador puente** y el repetidor WDS. Puerta de enlace y DNS: **192.168.0.1** (R1). El DHCP de R1 reparte de la .50 a la .199 |
 
 ```mermaid
-flowchart LR
-  subgraph PC["PC de clase · VirtualBox · Red NAT ALMICHAIN 192.168.10.0/24"]
-    GER["ALMI-GERENTE<br/>Windows 10"]
-    TPV["ALMI-TPV<br/>Windows 10 · TPV1 / TPV2"]
-    ODOO["ALMI-ODOO .30<br/>nginx HTTPS → Odoo 18 + PostgreSQL 16"]
-    BD["ALMI-BD .20<br/>MariaDB sobre RAID 1"]
-    ARC["ALMI-ARCADE<br/>MAME · 1 núcleo · 1 GB"]
+flowchart TB
+  INET(("Internet"))
+  subgraph CLASE["Red de clase · 192.168.1.0/24"]
+    GWC["Salida a Internet del aula"]
   end
-  IMP[["Impresora de tickets"]] --- TPV
-  STK[["Arcade stick Arduino"]] --- ARC
+  subgraph LAN["Red del reto · LAN de R1 · 192.168.0.0/24 · DHCP .50–.199"]
+    R1{{"Router R1<br/>LAN 192.168.0.1<br/>WAN 192.168.1.x (fija, por confirmar)<br/>WPA2-AES"}}
+    R2{{"Router R2 · repetidor WDS<br/>192.168.0.x (por confirmar)<br/>sin DHCP"}}
+    subgraph PCC["PC de clase · Zorin OS · 192.168.0.100 · VirtualBox (adaptador puente)"]
+      GER["ALMI-GERENTE · 192.168.0.63 (fija)<br/>Windows 10 Pro / Debian 13 (arranque dual)"]
+      COP["almichaincopia · 192.168.0.52 (fija)<br/>Ubuntu Server · RAID 1 de copias"]
+      TPV["ALMI-TPV · 192.168.0.x<br/>Windows 10 · TPV1 / TPV2 (quiosco)"]
+      ODOO["ALMI-ODOO · 192.168.0.x<br/>nginx HTTPS → Odoo 18 + PostgreSQL"]
+      BD["ALMI-BD · 192.168.0.x<br/>MariaDB sobre RAID 1"]
+      ARC["ALMI-ARCADE · 192.168.0.x<br/>MAME · 1 núcleo · 1 GB · sin swap"]
+    end
+    MOV["Móviles y portátiles<br/>(Wi-Fi, DHCP)"]
+  end
+  subgraph AWS["AWS Academy · us-east-1 (Terraform)"]
+    WEB["almichain-web · IP elástica<br/>https://almichain2.duckdns.org"]
+    REM["almichain-backup-remoto<br/>32.193.36.186"]
+  end
+  IMP[["Impresora de tickets"]] -- USB --> TPV
+  STK[["Arcade stick Arduino"]] -- USB --> ARC
+  INET --- GWC --- R1
+  R1 -. "WDS (Wi-Fi)" .- R2
+  R2 -. Wi-Fi .- MOV
+  R1 --- PCC
   GER -- "HTTPS 443" --> ODOO
   TPV -- "HTTPS 443" --> ODOO
-  ODOO <-- "copias 02:00 / 02:30<br/>SSH 22 (rrsync, solo escribir)" --> BD
-  ODOO -- "SMTP 587" --> GMAIL["Gmail"]
-  CLI["Clientes del local<br/>(navegador)"] -- "HTTPS 443" --> WEB["almichain2.duckdns.org<br/>EC2 en AWS (Terraform)<br/>nginx + Let's Encrypt"]
-  ADM["PC de clase"] -. "127.0.0.1:2230 / 2220 / 8443<br/>(reenvío de puertos)" .-> ODOO
+  ODOO <-- "copias cruzadas · SSH 22 (rrsync)" --> BD
+  GER -- "copias SSH 22 · viernes 12:00" --> COP
+  COP -- "rsync por SSH (espejo)" --> REM
+  INET --> WEB
+  INET --> REM
 ```
 
-En el restaurante real cada grupo de equipos va en su VLAN (gestión, TPV, clientes y administración) con las reglas del [bloque de red](04-red/README.md); en el laboratorio todas las VM comparten la Red NAT.
+| Máquina | Sistema | IP | Dónde está | Para qué |
+|---|---|---|---|---|
+| **Router R1** | Router Wi-Fi | LAN **192.168.0.1** · WAN 192.168.1.x fija (**por confirmar**) | Físico | Puerta de enlace de la red del reto, DHCP .50–.199, Wi-Fi WPA2 ([bloque 04](04-red/README.md)) |
+| **Router R2** | Router Wi-Fi | 192.168.0.x (**por confirmar**) | Físico | Repetidor WDS de R1, sin DHCP |
+| **PC de clase** | Zorin OS | 192.168.0.100 | Físico | Anfitrión de VirtualBox; administración por SSH y Terraform |
+| **ALMI-GERENTE** | Windows 10 Pro + Debian 13 | **192.168.0.63** (fija en los dos sistemas) | VirtualBox | Equipo del gerente con arranque dual ([01](01-windows-gerente-tpv/README.md), [08](08-copias-so/README.md)) |
+| **Servidor de copias** (`almichaincopia`) | Ubuntu Server | **192.168.0.52** (fija) | VirtualBox | Copias de los SO de ALMI-GERENTE en RAID 1 ([08](08-copias-so/README.md)) |
+| **ALMI-TPV** | Windows 10 Pro | 192.168.0.x (**por confirmar**) | VirtualBox | Los dos TPV de barra (TPV1 y TPV2) en quiosco ([01](01-windows-gerente-tpv/README.md)) |
+| **ALMI-ODOO** | Ubuntu Server 24.04 + Docker | 192.168.0.x (**por confirmar**) | VirtualBox | ERP Odoo 18 y los TPV, por HTTPS ([05](05-erp-odoo/README.md)) |
+| **ALMI-BD** | Ubuntu Server 24.04 | 192.168.0.x (**por confirmar**) | VirtualBox | MariaDB con RAID 1 y copias cruzadas con ALMI-ODOO ([07](07-bd-raid-copias/README.md)) |
+| **ALMI-ARCADE** | Ubuntu 24.04 mínimo + MAME | 192.168.0.x (**por confirmar**) | VirtualBox | Recreativa: 1 núcleo, 1 GB, sin swap ([02](02-linux-recreativa/README.md)) |
+| **almichain-web** | Ubuntu 24.04 en EC2 | IP elástica | AWS | Web https://almichain2.duckdns.org ([06](06-web-aws/README.md)) |
+| **almichain-backup-remoto** | Ubuntu 24.04 en EC2 | 32.193.36.186 | AWS | Copia remota de las copias de los SO ([08](08-copias-so/README.md)) |
+
+Las IP de ALMI-GERENTE, del servidor de copias y del PC de clase salen de las capturas del bloque 08 (01, 11, 28 y 30). En el diseño del **restaurante real** cada grupo de equipos iría en su VLAN (gestión, TPV, clientes y administración) con las reglas del [bloque de red](04-red/README.md); en el laboratorio todo comparte la red 192.168.0.0/24.
 
 ## Máquinas virtuales exportadas
 
-Las VM Linux (ALMI-ODOO, ALMI-BD y ALMI-ARCADE) están exportadas en formato **.ova**. No caben en el repositorio, así que se entregan aparte en trozos con un script para unirlos: ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md). Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Red NAT → ALMICHAIN**. Las contraseñas no están en el repositorio. Cada VM genera sus propios secretos la primera vez que arranca y `almiadmin` tiene que cambiar su contraseña inicial al entrar (ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md)).
+Las VM Linux (ALMI-ODOO, ALMI-BD y ALMI-ARCADE) están exportadas en formato **.ova**. No caben en el repositorio, así que se entregan aparte en trozos con un script para unirlos: ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md). Para usarlas: VirtualBox → **Archivo → Importar servicio virtualizado** → elegir la .ova → **Importar**. Después, en **Configuración → Red**, poner el adaptador en **Adaptador puente** (red del reto 192.168.0.0/24). **Aviso:** las OVA se construyeron para la red antigua 192.168.10.0/24 (IP, certificado y cortafuegos de ALMI-ODOO y ALMI-BD); hay que adaptarlas a sus IP nuevas. Las contraseñas no están en el repositorio. Cada VM genera sus propios secretos la primera vez que arranca y `almiadmin` tiene que cambiar su contraseña inicial al entrar (ver [docs/maquinas-virtuales.md](docs/maquinas-virtuales.md)).
 
 ## Reglas del repositorio
 

@@ -68,7 +68,7 @@ sudo ufw status verbose
 
 > En el laboratorio todas las VM están en la misma Red NAT 192.168.10.0/24, así que el TPV entra por la regla de la VLAN 10. La regla de la VLAN 20 es la del restaurante real.
 
-![Cortafuegos en el servidor de pruebas con la regla anterior (192.168.0.0/16); la regla actual, por VLAN, está en la captura 38](capturas/01-cortafuegos-ufw.png)
+![Cortafuegos en el servidor de pruebas con la regla anterior (192.168.0.0/16)](capturas/01-cortafuegos-ufw.png)
 
 ### 2. Docker y Odoo (E03)
 
@@ -96,7 +96,6 @@ sudo docker compose --project-directory /opt/odoo up -d
 
 ![Versiones de Docker y permisos de /opt/odoo](capturas/02-docker-version.png)
 
-![Los dos contenedores en marcha y Odoo respondiendo en 127.0.0.1:8069](capturas/03-odoo-contenedores.png)
 
 ### 3. HTTPS interno con nginx (E04)
 
@@ -122,9 +121,7 @@ sudo rm /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-![nginx correcto, HTTPS respondiendo y HTTP redirigiendo a HTTPS](capturas/04-nginx-https.png)
 
-![Certificado en el servidor de pruebas (era CA:TRUE, antes de corregirlo; el actual está en la captura 37), clave solo para root, 443 abierto y 8069 cerrado](capturas/05-certificado.png)
 
 nginx publica también la parte **pública** del certificado en `http://192.168.10.30/almichain-odoo.crt` (nunca la clave). En los dos Windows se descarga e instala como de confianza con [`../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1`](../01-windows-gerente-tpv/scripts/3-certificado-odoo.ps1), que **pide la huella SHA-256** apuntada en el servidor y no lo instala si no coincide. Así no hace falta entrar por SSH al servidor desde los TPV (la red no lo permite) y Edge muestra el candado sin avisos.
 
@@ -132,9 +129,7 @@ nginx publica también la parte **pública** del certificado en `http://192.168.
 
 En el navegador, `https://192.168.10.30` → formulario de creación: contraseña maestra, base `almichain`, correo del administrador, idioma **Spanish (ES)**, país **Spain**, sin datos de demostración.
 
-![Formulario de creación de la base de datos almichain](capturas/06-crear-base-de-datos.png)
 
-![Base creada: pantalla de acceso de Odoo](capturas/07-base-creada-primer-acceso.png)
 
 Después se oculta el gestor de bases de datos para que nadie pueda borrarlas o copiarlas desde la web. Al final de `odoo.conf` se quitan los `;` de las dos líneas:
 
@@ -147,7 +142,6 @@ dbfilter = ^almichain$
 sudo docker compose --project-directory /opt/odoo restart odoo
 ```
 
-![El gestor de bases de datos queda desactivado](capturas/08-gestor-bd-oculto.png)
 
 ### 5. Aplicaciones, empresa, usuarios, productos, TPV y regla (E05 a E10)
 
@@ -161,11 +155,9 @@ python3 scripts/configurar_odoo.py
 
 **Aplicaciones**: Facturación, Punto de venta, CRM, Empleados, Marketing por correo electrónico, Inventario y Reglas de automatización.
 
-![Aplicaciones instaladas](capturas/09-aplicaciones-instaladas.png)
 
 **Empresa**: Almi Bites Restaurantes, Bilbao, EUR, con el logotipo de la web.
 
-![Datos de la empresa](capturas/10-empresa.png)
 
 **Usuarios con mínimo privilegio** (E06):
 
@@ -175,11 +167,8 @@ python3 scripts/configurar_odoo.py
 | Camarero Barra 1 | barra1@almichain.local | Solo Punto de venta: Usuario |
 | Camarero Barra 2 | barra2@almichain.local | Solo Punto de venta: Usuario |
 
-![Usuarios de Odoo](capturas/11-usuarios.png)
 
-![Camarero Barra 1: solo Punto de venta como Usuario](capturas/12-permisos-camarero-barra1.png)
 
-![Permisos del Gerente](capturas/13-permisos-gerente.png)
 
 **Empleados**: Gorka Larrea (Gerente, Dirección, usuario Gerente), Nerea Olabarria (Camarera, Sala, usuario Camarero Barra 1), Asier Landa (Camarero, Sala, usuario Camarero Barra 2) y Miren Agirre (Cocinera, Cocina).
 
@@ -189,19 +178,15 @@ python3 scripts/configurar_odoo.py
 
 ![Productos con su stock (después de la prueba de venta)](capturas/15-productos-stock.png)
 
-![Producto con IVA 10 % hostelería](capturas/16-producto-iva-tpv.png)
 
 ![Clientes](capturas/17-clientes.png)
 
 **TPV** (E08): **Barra 1** (`config_id=1`) y **Barra 2** (`config_id=2`), cada uno con **Tarjeta** y su propia caja de **Efectivo** (Odoo no deja compartir un método de efectivo entre dos TPV), cabecera y pie del recibo e **impresión automática** sin vista previa.
 
-![Panel del Punto de venta con Barra 1 y Barra 2](capturas/22-tpv-panel.png)
 
-![Ajustes de Barra 1: métodos de pago](capturas/23-tpv-ajustes-barra1.png)
 
 **Correo saliente** (E09): servidor `smtp.gmail.com`, puerto 587, STARTTLS, usuario `almichain.reto@gmail.com`. La **contraseña de aplicación** de Gmail se escribe a mano en Odoo y se guarda en KeePassXC.
 
-![Servidor de correo de Gmail](capturas/21-servidor-correo-gmail.png)
 
 **Factura automática** (E10): regla **TPV - Facturar pedidos con cliente** sobre *Pedidos de TPV*, que se dispara cuando el estado pasa a **Pagado**, con el filtro `[('partner_id', '!=', False), ('to_invoice', '=', False), ('account_move', '=', False)]`: el pedido tiene cliente, el camarero **no** ha marcado ya *Factura* en el TPV (si lo marca, Odoo la hace él) y todavía no tiene factura. Así nunca sale una factura doble:
 
@@ -211,9 +196,7 @@ for order in records:
         order.action_pos_order_invoice()
 ```
 
-![Reglas de automatización](capturas/18-reglas-automatizacion.png)
 
-![Código de la regla de factura automática](capturas/19-regla-factura-automatica.png)
 
 ### 6. Prueba de principio a fin (E12)
 
@@ -223,11 +206,8 @@ Con el usuario **Camarero Barra 1** se abre la caja de **Barra 1**, se marcan un
 
 ![Barra 1: apertura de caja](capturas/25-barra1-1-apertura-caja.png)
 
-![Barra 1: TPV abierto](capturas/25-barra1-1b-tpv-abierto.png)
 
-![Barra 1: pedido con la clienta elegida](capturas/25-barra1-2-pedido.png)
 
-![Barra 1: pago en efectivo](capturas/25-barra1-3-pago.png)
 
 ![Barra 1: ticket que se manda a la impresora, con cabecera y pie](capturas/25-barra1-4-ticket.png)
 
@@ -235,31 +215,23 @@ Con el usuario **Camarero Barra 1** se abre la caja de **Barra 1**, se marcan un
 
 ![Barra 2: apertura de caja](capturas/26-barra2-1-apertura-caja.png)
 
-![Barra 2: TPV abierto](capturas/26-barra2-1b-tpv-abierto.png)
 
-![Barra 2: pedido con el cliente elegido](capturas/26-barra2-2-pedido.png)
 
-![Barra 2: pago](capturas/26-barra2-3-pago.png)
 
 ![Barra 2: ticket que se manda a la impresora](capturas/26-barra2-4-ticket.png)
 
 Resultado visto por el **Gerente**:
 
-![Los dos pedidos, cada uno en su TPV](capturas/27-pedidos-tpv.png)
 
-![Las dos facturas creadas y publicadas solas](capturas/28-facturas-publicadas.png)
 
-![Factura INV/2026/00001 publicada y pagada, con IVA 10 %](capturas/29-factura-con-correo.png)
 
 ![El stock ha bajado en lo vendido](capturas/30-stock-despues-de-vender.png)
 
-![Correos de las facturas con el PDF adjunto, en la cola de salida](capturas/33-cola-de-correos.png)
 
 ### 7. Copia de seguridad de Odoo (E11)
 
-Script [`scripts/copia-odoo.sh`](scripts/copia-odoo.sh) en `/usr/local/bin/`, todos los días a las **02:30** con cron de root. Guarda la base de datos (`pg_dump` en formato propio), los adjuntos (`filestore`), las huellas SHA-256, borra las copias de más de 7 días y lo manda todo a **ALMI-BD** por SSH con una clave que solo sirve para eso (ver [07-bd-raid-copias](../07-bd-raid-copias/README.md#7-copias-cruzadas-automáticas-b09)).
+Script [`scripts/copia-odoo.sh`](scripts/copia-odoo.sh) en `/usr/local/bin/`, todos los días a las **02:30** con cron de root. Guarda la base de datos (`pg_dump` en formato propio), los adjuntos (`filestore`), las huellas SHA-256, borra las copias de más de 7 días y lo manda todo a **ALMI-BD** por SSH con una clave que solo sirve para eso (ver ).
 
-![Copia hecha y programada en cron (servidor de pruebas: la «copia en ALMI-BD» iba al mismo servidor y el `ls` remoto que se ve ahora lo rechaza la clave restringida; la prueba entre dos máquinas está en el apartado 8)](capturas/34-copia-odoo.png)
 
 Prueba de restauración en una base nueva `almichain_restaurada`: tiene el mismo número de pedidos que la original.
 
@@ -269,19 +241,14 @@ Prueba de restauración en una base nueva `almichain_restaurada`: tiene el mismo
 
 ALMI-ODOO está exportada como `ALMI-ODOO.ova` (ver [docs/maquinas-virtuales.md](../docs/maquinas-virtuales.md)) y se construye con [`herramientas/construir-vm`](../herramientas/README.md). Se probó **arrancando su disco en QEMU** (no en VirtualBox) con [`herramientas/probar-vm/pruebas-odoo.sh`](../herramientas/probar-vm/pruebas-odoo.sh). En el primer arranque ([`scripts/primer-arranque-odoo.sh`](scripts/primer-arranque-odoo.sh)) genera sus propios secretos, carga las imágenes de Docker que lleva dentro (no necesita Internet), restaura la base `almichain` con los datos de este bloque, arranca Odoo y nginx y aplica el cortafuegos. Cada captura tiene al lado su transcripción `.txt`.
 
-![Primer arranque terminado: contenedores en marcha, HTTPS 200, los 2 pedidos restaurados y la dirección pública fija](capturas/36-vm-primer-arranque.png)
 
-![Certificado de servidor (CA:FALSE, serverAuth, SAN con la IP, almi-odoo y localhost), la misma huella publicada por HTTP, la clave no se publica y la huella en la consola](capturas/37-vm-certificado-servidor.png)
 
-![Cortafuegos con las redes del diseño puesto antes que la red (17:01:22, antes de crear las claves SSH a las 17:01:34), Odoo solo en 127.0.0.1:8069, secretos solo para root, contraseña maestra cambiada, contraseñas nuevas para los 4 usuarios de Odoo, secreto de sesiones nuevo, claves SSH propias y contraseña de almiadmin cambiada](capturas/38-vm-secretos-cortafuegos.png)
 
 **Copias cruzadas entre las dos VM** (ALMI-ODOO y ALMI-BD encendidas a la vez en la misma red): la copia de Odoo llega a ALMI-BD, la de la base de datos llega aquí, y la clave de copias **no puede** ejecutar órdenes, borrar, leer ni salir de su carpeta.
 
-![copia-odoo.sh: copia local, envío a ALMI-BD y cron](capturas/39-vm-copia-a-almi-bd.png)
 
 ![En ALMI-ODOO llegan las copias de la base de datos](capturas/40-vm-copias-recibidas-de-bd.png)
 
-![La clave de copias solo puede escribir: ls, --delete, leer y ../ rechazados por rrsync](capturas/41-vm-clave-copias-restringida.png)
 
 ### 9. Disco redundante del servidor (RAID 1 en VirtualBox)
 
@@ -382,17 +349,17 @@ sudo mdadm --detail --scan | sudo tee -a /etc/mdadm/mdadm.conf
 
 | Nº | Qué se prueba | Cómo | Resultado esperado | Resultado obtenido | Captura |
 |---|---|---|---|---|---|
-| 1 | Odoo solo por HTTPS | `curl -I http://192.168.10.30/` | 301 a https y candado | 301 Moved Permanently → https | [04](capturas/04-nginx-https.png) |
-| 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused (en el servidor de pruebas, desde la misma máquina); en la VM, 8069 solo escucha en 127.0.0.1 ([38](capturas/38-vm-secretos-cortafuegos.png)). Desde un Windows: pendiente | [05](capturas/05-certificado.png) |
-| 3 | Gestor de bases de datos oculto | Abrir `/web/database/manager` | No se abre | "The database manager has been disabled" | [08](capturas/08-gestor-bd-oculto.png) |
-| 4 | Camareros sin facturación | Entrar como Camarero Barra 1 | Sin menús de Facturación, Inventario ni CRM | Solo Punto de venta (y apps comunes: Conversaciones, Calendario, Contactos, Empleados) | [31](capturas/31-camarero-solo-tpv.png) |
-| 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Factura, publicación y stock: correcto. **Correo: solo comprobado que queda en la cola con el PDF**; el envío real está pendiente de poner la contraseña de aplicación de Gmail | [27](capturas/27-pedidos-tpv.png) [28](capturas/28-facturas-publicadas.png) [30](capturas/30-stock-despues-de-vender.png) [33](capturas/33-cola-de-correos.png) |
+| 1 | Odoo solo por HTTPS | `curl -I http://192.168.10.30/` | 301 a https y candado | 301 Moved Permanently → https | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 2 | Puerto 8069 cerrado desde fuera | `nc -zv 192.168.10.30 8069` (en Windows: `Test-NetConnection`) | Conexión rechazada | Connection refused (en el servidor de pruebas, desde la misma máquina); en la VM, 8069 solo escucha en 127.0.0.1 . Desde un Windows: pendiente | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 3 | Gestor de bases de datos oculto | Abrir `/web/database/manager` | No se abre | "The database manager has been disabled" | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 4 | Camareros sin facturación | Entrar como Camarero Barra 1 | Sin menús de Facturación, Inventario ni CRM | Solo Punto de venta (y apps comunes: Conversaciones, Calendario, Contactos, Empleados) | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 5 | Caso real completo | Venta con cliente en Barra 1 y Barra 2 | Pedido facturado, factura publicada, correo con PDF y stock bajado | Factura, publicación y stock: correcto. **Correo: solo comprobado que queda en la cola con el PDF**; el envío real está pendiente de poner la contraseña de aplicación de Gmail |   [30](capturas/30-stock-despues-de-vender.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
 | 6 | Ticket impreso | Cobrar en cada barra | Ticket con cabecera y pie | Ticket generado en pantalla con cabecera y pie. **Impresión en la impresora física: pendiente — en clase** (bloque 01) | [ticket 1](capturas/25-barra1-4-ticket.png) [ticket 2](capturas/26-barra2-4-ticket.png) |
 | 7 | Copia y restauración | Restaurar en `almichain_restaurada` | Mismo número de pedidos | 2 y 2 | [35](capturas/35-restauracion-odoo.png) |
-| 8 | VM exportada | Arrancar el disco de `ALMI-ODOO.ova` desde cero (en QEMU) | Odoo por HTTPS con los datos del reto | HTTPS 200 y 2 pedidos | [36](capturas/36-vm-primer-arranque.png) |
-| 9 | Certificado de servidor | `openssl x509 -ext basicConstraints…` en la VM | `CA:FALSE`, `serverAuth`, SAN correcto; misma huella por HTTP | Correcto | [37](capturas/37-vm-certificado-servidor.png) |
-| 10 | Secretos propios y cortafuegos | `ufw status`, `ss -ltn`, permisos | Redes del diseño; 8069 solo en local; secretos 600 | Correcto | [38](capturas/38-vm-secretos-cortafuegos.png) |
-| 11 | Copias cruzadas y clave restringida | `copia-odoo.sh`, `copia-bd.sh` y órdenes prohibidas con la clave | Las copias llegan; lo demás se rechaza | Correcto | [39](capturas/39-vm-copia-a-almi-bd.png) [40](capturas/40-vm-copias-recibidas-de-bd.png) [41](capturas/41-vm-clave-copias-restringida.png) |
+| 8 | VM exportada | Arrancar el disco de `ALMI-ODOO.ova` desde cero (en QEMU) | Odoo por HTTPS con los datos del reto | HTTPS 200 y 2 pedidos | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 9 | Certificado de servidor | `openssl x509 -ext basicConstraints…` en la VM | `CA:FALSE`, `serverAuth`, SAN correcto; misma huella por HTTP | Correcto | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 10 | Secretos propios y cortafuegos | `ufw status`, `ss -ltn`, permisos | Redes del diseño; 8069 solo en local; secretos 600 | Correcto | Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
+| 11 | Copias cruzadas y clave restringida | `copia-odoo.sh`, `copia-bd.sh` y órdenes prohibidas con la clave | Las copias llegan; lo demás se rechaza | Correcto | [40](capturas/40-vm-copias-recibidas-de-bd.png) · Captura retirada (red antigua 192.168.10.x): **repetir en 192.168.0.0/24** |
 | 12 | RAID 1 del servidor | `cat /proc/mdstat` y `mdadm --detail /dev/md0` en la VM de clase | raid1 con 2 discos `active sync`, montado en `/srv/raid1` | Correcto (creación). **Fallo y reconstrucción: pendiente** | [52](capturas/52-raid-mdstat.png), [54](capturas/54-raid-detalle-final.png) |
 
 Las pruebas 1 a 7 se hicieron en el servidor de pruebas (ver el origen de las evidencias en el README principal) y las 8 a 11 con la VM exportada en QEMU. La 12 se hizo en **VirtualBox**, en la VM de Odoo de clase. En VirtualBox, y con los Windows de verdad, quedan por repetir en clase.
@@ -407,7 +374,7 @@ Las pruebas 1 a 7 se hicieron en el servidor de pruebas (ver el origen de las ev
 | Los PDF de las facturas tardaban un minuto | wkhtmltopdf, dentro del contenedor, pedía los estilos a `https://192.168.10.30` | Parámetro del sistema `report.url = http://127.0.0.1:8069` |
 | No se podía compartir el efectivo entre Barra 1 y Barra 2 | Odoo exige un método de efectivo por TPV | Un diario de caja por barra: "Efectivo Barra 1" y "Efectivo Barra 2" |
 | La ACL de Packet Tracer de la guía solo dejaba el puerto 80 a los TPV | Odoo se usa por HTTPS | Se añade `eq 443` en la ACL `TPV-SOLO-ODOO` (bloque 04) |
-| El camarero puede abrir la lista de facturas si escribe la dirección a mano | El grupo "Punto de venta: Usuario" necesita leer facturas para reimprimirlas | No tiene menú de Facturación ni puede modificarlas. Se documenta como riesgo aceptado ([captura 32](capturas/32-camarero-ve-facturas-riesgo-aceptado.png)) |
+| El camarero puede abrir la lista de facturas si escribe la dirección a mano | El grupo "Punto de venta: Usuario" necesita leer facturas para reimprimirlas | No tiene menú de Facturación ni puede modificarlas. Se documenta como riesgo aceptado |
 
 ## Fuentes
 

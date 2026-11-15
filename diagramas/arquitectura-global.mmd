@@ -1,0 +1,35 @@
+flowchart TB
+  INET(("Internet"))
+  subgraph CLASE["Red de clase · 192.168.1.0/24"]
+    GWC["Salida a Internet del aula"]
+  end
+  subgraph LAN["Red del reto · LAN de R1 · 192.168.0.0/24 · DHCP .50–.199"]
+    R1{{"Router R1<br/>LAN 192.168.0.1<br/>WAN 192.168.1.x (fija, por confirmar)<br/>WPA2-AES"}}
+    R2{{"Router R2 · repetidor WDS<br/>192.168.0.x (por confirmar)<br/>sin DHCP"}}
+    subgraph PCC["PC de clase · Zorin OS · 192.168.0.100 · VirtualBox (adaptador puente)"]
+      GER["ALMI-GERENTE · 192.168.0.63 (fija)<br/>Windows 10 Pro / Debian 13 (arranque dual)"]
+      COP["almichaincopia · 192.168.0.52 (fija)<br/>Ubuntu Server · RAID 1 de copias"]
+      TPV["ALMI-TPV · 192.168.0.x<br/>Windows 10 · TPV1 / TPV2 (quiosco)"]
+      ODOO["ALMI-ODOO · 192.168.0.x<br/>nginx HTTPS → Odoo 18 + PostgreSQL"]
+      BD["ALMI-BD · 192.168.0.x<br/>MariaDB sobre RAID 1"]
+      ARC["ALMI-ARCADE · 192.168.0.x<br/>MAME · 1 núcleo · 1 GB · sin swap"]
+    end
+    MOV["Móviles y portátiles<br/>(Wi-Fi, DHCP)"]
+  end
+  subgraph AWS["AWS Academy · us-east-1 (Terraform)"]
+    WEB["almichain-web · IP elástica<br/>https://almichain2.duckdns.org"]
+    REM["almichain-backup-remoto<br/>32.193.36.186"]
+  end
+  IMP[["Impresora de tickets"]] -- USB --> TPV
+  STK[["Arcade stick Arduino"]] -- USB --> ARC
+  INET --- GWC --- R1
+  R1 -. "WDS (Wi-Fi)" .- R2
+  R2 -. Wi-Fi .- MOV
+  R1 --- PCC
+  GER -- "HTTPS 443" --> ODOO
+  TPV -- "HTTPS 443" --> ODOO
+  ODOO <-- "copias cruzadas · SSH 22 (rrsync)" --> BD
+  GER -- "copias SSH 22 · viernes 12:00" --> COP
+  COP -- "rsync por SSH (espejo)" --> REM
+  INET --> WEB
+  INET --> REM
