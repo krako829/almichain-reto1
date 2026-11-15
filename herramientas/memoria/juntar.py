@@ -19,6 +19,7 @@ os.makedirs(f'{W}/mmd', exist_ok=True)
 
 CAPITULOS = [
     ('README.md', 'Introducción'),
+    ('docs/decisiones.md', None),
     ('00-gestion/README.md', None),
     ('01-windows-gerente-tpv/README.md', None),
     ('02-linux-recreativa/README.md', None),

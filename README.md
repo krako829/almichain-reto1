@@ -86,6 +86,8 @@ Parte del contenido de este repositorio (scripts, configuraciones, documentació
 | [`herramientas`](herramientas/) | — | Cómo se construyeron y probaron las VM exportadas y cómo se genera la memoria |
 | [`presupuesto`](presupuesto/) | — | Presupuesto global |
 
+Las decisiones técnicas del reto y su porqué (por ejemplo, por qué Odoo va en VirtualBox y la web en AWS) están en [docs/decisiones.md](docs/decisiones.md).
+
 ## Red del laboratorio y máquinas del reto
 
 En clase hay **dos redes**:
