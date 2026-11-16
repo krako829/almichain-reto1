@@ -9,8 +9,8 @@ Los cuatro grupos hemos montado lo mismo: un ERP con TPV, una base de datos con 
 | Dónde va Odoo | VM en VirtualBox, en el local | EC2 en AWS | El TPV tiene que cobrar aunque se caiga Internet, y los datos de clientes y facturas se quedan en el local |
 | Dónde va la web | EC2 en AWS | Servidor en el local | Es pública: tiene que estar siempre en línea y separada de la red interna |
 | Cómo se crea la web | Terraform (IaC) | Consola de AWS a mano | AWS Academy borra los laboratorios: con un `apply` vuelve igual |
-| ERP | Odoo 18 Community en Docker | Dolibarr, ERPNext; instalación nativa | TPV, facturas, inventario y CRM en uno; Docker hace la instalación repetible |
-| Base de datos | PostgreSQL | MySQL/MariaDB | El mismo motor que Odoo: integrar las dos bases es más sencillo |
+| ERP | Odoo Community instalado en Ubuntu con systemd | Dolibarr, ERPNext | TPV, facturas, inventario y CRM en uno; arranca solo como servicio |
+| Base de datos | MySQL, y una copia en el PostgreSQL de Odoo | Solo una de las dos | MySQL es el gestor de clase; en PostgreSQL queda junto a los datos de Odoo |
 | Disco redundante | RAID 1 por software (mdadm) | RAID 0, RAID 5, controladora | Con 2 discos, el espejo es el único que aguanta un fallo |
 | Copias | Local + otro servidor + nube (S3/EC2) | Solo una copia local | Regla 3-2-1: una copia fuera del local |
 | Red de las VM | Adaptador puente (192.168.0.0/24) | Red NAT de VirtualBox | Las VM tienen que hablar con los equipos físicos: routers, impresora, móviles |
@@ -25,7 +25,7 @@ Los cuatro grupos hemos montado lo mismo: un ERP con TPV, una base de datos con 
 
 ## Odoo en VirtualBox y no en AWS
 
-**Lo que hicimos.** Odoo 18 corre en la VM **ALMI-ODOO** (192.168.0.70) dentro del PC de clase, en la red del local.
+**Lo que hicimos.** Odoo corre en la VM **ALMI-ODOO** (`odooserver`, 192.168.0.53) dentro del PC de clase, en la red del local.
 
 **Alternativa.** Montarlo en una EC2 de AWS, como la web.
 
@@ -53,17 +53,15 @@ Los cuatro grupos hemos montado lo mismo: un ERP con TPV, una base de datos con 
 
 **Por qué DuckDNS:** es gratis y basta para tener un nombre fijo y un certificado de Let's Encrypt. Un dominio propio de pago sería lo siguiente para un restaurante real.
 
-## Odoo y por qué en Docker
+## Odoo y cómo lo instalamos
 
-**Por qué Odoo:** tiene en un solo programa todo lo que pide el enunciado (facturas, clientes, personal, marketing, inventario y **TPV**), la versión Community es gratuita y permite automatizar sin programar un módulo (la factura se crea y se publica sola al cobrar). Además es el ERP que indicó el profesor.
+**Por qué Odoo:** tiene en un solo programa todo lo que pide el enunciado (facturas, clientes, personal, marketing, inventario y **TPV**), la versión Community es gratuita y es el ERP que indicó el profesor.
 
-**Por qué Docker:** la imagen oficial fija la versión de Odoo y de PostgreSQL, la instalación es la misma en cualquier máquina (`docker compose up`) y actualizar o volver atrás es cambiar una etiqueta. Instalarlo a mano en el sistema obliga a resolver dependencias de Python en cada equipo.
-
-**Por qué un caso real automatizado:** no usamos todas las aplicaciones de Odoo; preferimos que una cosa funcione de principio a fin: venta en el TPV → factura publicada → stock descontado.
+**Por qué instalado a mano y como servicio:** en Ubuntu Server, con su entorno virtual de Python y PostgreSQL 16, se ve cada pieza (configuración, usuario, base de datos). Como servicio de systemd arranca solo al encender el servidor y se reinicia si se cae.
 
 ## Base de datos
 
-**Por qué PostgreSQL:** es el motor que ya usa Odoo. Tener la base del restaurante en el mismo motor facilita integrar las dos (que es lo que pide el nivel alto de la rúbrica) y solo hay que saber administrar y copiar un tipo de base de datos.
+**Por qué MySQL y también PostgreSQL:** la base del restaurante se hizo en MySQL, el gestor que trabajamos en clase. Odoo usa PostgreSQL, así que la base del restaurante también se importó en el PostgreSQL del servidor de Odoo, para tener las dos juntas si hay que cruzar datos.
 
 **Por qué RAID 1:** con dos discos, el espejo es la única opción que sigue funcionando si se rompe uno. RAID 0 pierde todo con un fallo y RAID 5 necesita tres discos. Lo hacemos **por software con mdadm** porque las VM no tienen controladora RAID y así se puede ver y probar el fallo de un disco.
 
@@ -93,7 +91,7 @@ Los cuatro grupos hemos montado lo mismo: un ERP con TPV, una base de datos con 
 
 **Por qué WDS:** el segundo router amplía la cobertura de la Wi-Fi sin tirar cable ni comprar nada. Va sin DHCP, para que solo R1 reparta direcciones.
 
-**Por qué VLAN en el diseño del restaurante real (Packet Tracer):** los clientes de la Wi-Fi no deben poder llegar a los TPV ni a los servidores. En el laboratorio todo comparte la misma red; en el restaurante real cada grupo de equipos iría en su VLAN.
+**Por qué la Wi-Fi de clientes va aparte (Packet Tracer):** los clientes no deben poder llegar a los TPV ni a los servidores. Por eso tienen su propia red, 192.168.50.0/24, detrás de su propio router.
 
 ## Puestos Windows
 
