@@ -9,4 +9,6 @@ Precios con IVA de los equipos del restaurante, consultados en tiendas online en
 | Arcade stick | Kit de joystick y 10 botones (el Arduino lo da el centro) | 33,05 |
 | **Total** | | **2.296,74** |
 
-Falta por sumar el equipo del gerente, el cableado, la caja del stick y la cuota mensual de la fibra.
+Aparte, la **línea de fibra** (Movistar Fibra 600 Mb, capítulo 6): 24,90 €/mes con IVA el primer año (298,80 €) y 35,00 €/mes después.
+
+Falta por sumar el equipo del gerente, el cableado y la caja del stick.

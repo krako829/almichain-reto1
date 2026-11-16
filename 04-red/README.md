@@ -21,7 +21,23 @@ Tareas del tablero: R01 a R10.
 
 ## Línea WAN (R02)
 
-Criterios: fibra simétrica de 300 Mb/s o más, **IP fija**, soporte 24 h y respaldo móvil 4G/5G para que el TPV no se quede sin línea. La comparativa de 4 operadores (precio, enlace y fecha) irá en el [presupuesto](../presupuesto/README.md#red-r02-r04): **pendiente** (la fila está «por completar»).
+Lo que necesita el restaurante: fibra **simétrica** (las copias suben a la nube), suficiente para los TPV, Odoo, la Wi-Fi de clientes y las copias, **línea fija** para las reservas, router con buena Wi-Fi y sin permanencia larga. Se han comparado las ofertas de fibra para negocios de dos operadores, a la misma velocidad (600 Mb), consultadas el 16 de noviembre de 2026 en sus páginas oficiales:
+
+| | **Movistar** · Fibra 600 Mb Autónomos | **Vodafone Business** · Fibra óptica 600 Mbps |
+|---|---|---|
+| Velocidad | 600 Mb simétricos | 600 Mb simétricos (según cobertura) |
+| Precio con IVA | **24,90 €/mes** los 12 primeros meses, después 35,00 €/mes | **37,05 €/mes** (30,62 € sin IVA) |
+| Precio sin IVA | 20,57 €/mes, después 28,93 €/mes | 30,62 €/mes |
+| Coste el primer año (con IVA) | **298,80 €** | **444,60 €** |
+| Línea fija | Incluida: llamadas ilimitadas a fijos y 50 min/mes a móviles | Incluida: 6.000 min/mes a fijos y móviles nacionales |
+| Router | Smart WiFi 7 | WiFi 6, hasta 120 dispositivos |
+| Alta e instalación | Gratis | Gratis (oferta web) |
+| Permanencia | Sin permanencia | No se indica |
+| Soporte | Llamadas de clientes prioritarias | Soporte preferente para empresas |
+| IP fija | No se indica: hay que pedirla aparte | No se indica: hay que pedirla aparte |
+| Fuente | [movistar.es · Internet autónomos](https://www.movistar.es/autonomos/fibra-optica/internet-autonomos) (promoción hasta el 30/11/2026) | [vodafone.es · Fibra pymes](https://www.vodafone.es/c/empresas/pymes/es/conectividad/internet-fijo-y-television/fibra/) |
+
+**Elección: Movistar Fibra 600 Mb.** A la misma velocidad cuesta unos 146 € menos el primer año y, después de la promoción, sigue siendo más barata (35,00 € frente a 37,05 € al mes). Además no tiene permanencia, las llamadas a fijos son ilimitadas y el router es Wi-Fi 7. Ninguna de las dos incluye IP fija en la oferta: hay que pedirla al contratar, porque el local no la necesita para navegar pero sí si un día se quiere acceder a Odoo desde fuera.
 
 ## Plan de direccionamiento (R03)
 

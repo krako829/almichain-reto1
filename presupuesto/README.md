@@ -22,7 +22,7 @@ Precios con IVA en tiendas online, con el enlace y la fecha en que se miraron, p
 
 | Elemento | Cant. | Modelo / tarifa | Características | Precio (€) | Enlace y fecha |
 |---|---|---|---|---|---|
-| Línea de fibra para empresas | 1 | *por completar* (comparar 4 operadores: Movistar Empresas, Vodafone Business, Orange Empresas, Euskaltel/Digi; cuota mensual × 12) | Simétrica ≥ 300 Mb/s, IP fija, soporte 24 h, respaldo 4G/5G | /mes | |
+| Línea de fibra | 1 | Movistar Fibra 600 Mb Autónomos (comparada con Vodafone Business en el [bloque de red](../04-red/README.md#línea-wan-r02)) | 600 Mb simétricos, fijo incluido, router Wi-Fi 7, sin permanencia | 24,90 €/mes (12 meses), después 35,00 €/mes | [Movistar](https://www.movistar.es/autonomos/fibra-optica/internet-autonomos) · 16/11/2026 |
 | Router del local | 1 | MikroTik hEX (RB750Gr3) | 5 puertos Gigabit, VLAN 802.1Q, NAT, cortafuegos, SSH | 61,90 | [Galaxus (Austria)](https://galaxus.at/en/s1/product/mikrotik-rb750gr3-hex-routers-5831427) · 27/10/2026. **Precio con IVA austriaco y sin envío; falta buscarlo en una tienda española** |
 | Switch gestionable 24 puertos | 1 | TP-Link TL-SG3428 | 24 Gigabit + 4 SFP, gestionable L2, VLAN 802.1Q, seguridad de puerto, SSH | 214,81 | [PcComponentes](https://www.pccomponentes.com/tp-link-tlsg3428-switch-24-puertos-gigabit-plus-4-sfp) · 27/10/2026 |
 | Punto de acceso / router Wi-Fi | 2 | Los 2 routers del laboratorio | WDS, WPA2-AES | 0 | — |
@@ -50,6 +50,6 @@ Todo el software del reto es gratuito: Ubuntu, MariaDB, PostgreSQL, Odoo Communi
 | Red | 276,71 |
 | Arcade stick | 33,05 |
 | **Total parcial (con IVA)** | **2.296,74** |
-| Línea de fibra | *por completar* €/mes (gasto mensual, aparte) |
+| Línea de fibra (gasto mensual, aparte) | 24,90 €/mes el primer año (298,80 €); después 35,00 €/mes |
 
-**Falta para el total completo**: equipo del gerente, impresora con Ethernet (sustituye a la USB), cableado, caja del stick y la cuota de la línea.
+**Falta para el total completo**: equipo del gerente, impresora con Ethernet (sustituye a la USB), cableado y caja del stick.
