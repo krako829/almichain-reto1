@@ -20,14 +20,14 @@ El router R1 se conecta a la red de clase (192.168.1.0/24) y crea la red del ret
 
 | Equipo | IP |
 |---|---|
-| Router R1 | 192.168.0.1 (WAN 192.168.1.150) |
+| Router R1 | 192.168.0.1 (WAN 192.168.1.112) |
 | Router R2 (repetidor WDS) | 192.168.0.60 |
 | Servidor de copias | 192.168.0.52 |
 | ALMI-GERENTE (Windows 10 + Debian 13) | 192.168.0.63 |
-| ALMI-ODOO | 192.168.0.70 |
-| ALMI-BD | 192.168.0.71 |
-| ALMI-TPV | 192.168.0.80 |
-| ALMI-ARCADE | 192.168.0.90 |
+| ALMI-ODOO (`odooserver`) | 192.168.0.53 |
+| ALMI-BD (MySQL) | 192.168.0.54 |
+| TPV-1 y TPV-2 | 192.168.0.71 y .72 |
+| ALMI-ARCADE (recreativa) | 192.168.0.81 |
 | PC de clase | 192.168.0.100 |
 
 # 3. Puestos Windows: gerente con arranque dual y TPV
@@ -77,27 +77,33 @@ El router R1 se conecta a la red de clase (192.168.1.0/24) y crea la red del ret
 
 # 6. Red del restaurante
 
-1. **Diseño**: red separada por **VLAN** (gestión, TPV, clientes y administración) para que la Wi-Fi de los clientes no llegue a los TPV ni a los servidores.
-2. **Packet Tracer**: router, switch, servidores, TPV y punto de acceso Wi-Fi con las VLAN y las reglas entre ellas.
-3. **Router principal (R1)**: contraseña de administración cambiada, Wi-Fi con WPA2 y la red del reto 192.168.0.0/24 con su DHCP.
-4. **Router secundario (R2)**: configurado como **repetidor WDS** de R1, sin DHCP, para ampliar la cobertura.
-5. **Línea WAN**: comparación de operadores para elegir la fibra del restaurante.
+1. **Packet Tracer**: red completa del restaurante con un router 2911 (R-Principal), un switch para el local y otro para la parte de Internet.
+2. **Red del local** 192.168.0.0/24: Odoo con la impresora, la base de datos, el equipo del gerente, los dos TPV y la recreativa, cada uno con IP fija.
+3. **Wi-Fi de clientes** en una red separada (192.168.50.0/24) con su propio router, WPA2 y DHCP, para que los clientes no lleguen a los equipos del local.
+4. **Internet simulado** (192.168.1.0/24) con los servicios que usa el reto: la web en AWS, DuckDNS, GitHub y Trello.
+5. Pruebas de conectividad con `ping` e `ipconfig` entre los equipos.
+6. **Routers físicos**: R1 con la contraseña de administración cambiada, Wi-Fi WPA2 y la red 192.168.0.0/24; R2 como **repetidor WDS** para ampliar la cobertura.
+
+![Red final en Packet Tracer](../04-red/capturas/01-packet-tracer-red-final.png)
 
 # 7. ERP Odoo con TPV
 
-1. VM con Ubuntu Server e instalación de **Docker**.
-2. Odoo 18 y su base de datos PostgreSQL con `docker compose`.
-3. Crear la empresa y activar las aplicaciones: Punto de venta, Facturación, Inventario, Contactos y Empleados.
-4. Dar de alta empleados, productos con su stock y clientes.
-5. Configurar dos TPV, **Barra 1 y Barra 2**, y los usuarios camareros con acceso solo al TPV.
-6. Regla automática: al cobrar a un cliente se crea y publica su factura sola, y el stock baja.
-7. Copia diaria de Odoo y prueba de restauración.
+1. VM con Ubuntu Server (`odooserver`, 192.168.0.53) y **PostgreSQL 16**.
+2. Instalar Odoo en un entorno virtual de Python, con su configuración en `/etc/odoo.conf`.
+3. Crear el servicio `odoo.service` de systemd para que Odoo arranque solo. Al principio fallaba por una ruta mal escrita en el servicio; se corrigió y quedó en marcha.
+4. Abrir el puerto 8069 en el cortafuegos (`ufw`) y comprobar que escucha.
+5. Crear la base de datos `almi-chain` desde el navegador (`http://192.168.0.53:8069`).
+6. Activar las aplicaciones (Punto de venta, Facturación, Inventario…). Para el Punto de venta hubo que instalar la librería `phonenumbers` con `pip`.
+7. Dar de alta empleados, productos con stock y clientes, y configurar los TPV de las dos barras.
+8. Activar SSH para administrar el servidor desde el PC de clase.
 
-![Productos con stock](../05-erp-odoo/capturas/15-productos-stock.png)
+![Servicio de Odoo en marcha](../05-erp-odoo/capturas/clase-05-servicio-activo.png)
+
+![Creación de la base de datos](../05-erp-odoo/capturas/clase-10-selector-bd.png)
+
+![Aplicaciones de Odoo](../05-erp-odoo/capturas/clase-13-aplicaciones.png)
 
 ![Ticket de la Barra 1](../05-erp-odoo/capturas/25-barra1-4-ticket.png)
-
-![Stock después de vender](../05-erp-odoo/capturas/30-stock-despues-de-vender.png)
 
 **Disco redundante del servidor de Odoo:** se añadieron dos discos de 25 GB y se creó un **RAID 1** con `mdadm`, montado en `/srv/raid1`.
 
@@ -106,14 +112,15 @@ El router R1 se conecta a la red de clase (192.168.1.0/24) y crea la red del ret
 # 8. Base de datos
 
 1. **Modelo entidad-relación** del restaurante y paso a tablas (13 tablas: clientes, mesas, reservas, empleados, comandas, platos, ingredientes, proveedores, facturas…).
-2. Crear las tablas con su script SQL, con claves primarias y ajenas, y cargar datos de prueba.
-3. Tres usuarios con **mínimo privilegio**: la aplicación (lee y escribe), consulta (solo lectura) y copias.
-4. **RAID 1** con dos discos para los datos.
-5. **Copia automática** diaria con `cron`, enviada también al servidor de Odoo, y prueba de restauración.
+2. Crear las tablas en **MySQL** con su script SQL, con claves primarias y ajenas, y cargar datos de prueba.
+3. Importar también la base del restaurante en el **PostgreSQL** del servidor de Odoo y conectarse a ella con DBeaver.
+4. Tres usuarios con **mínimo privilegio**: la aplicación (lee y escribe), consulta (solo lectura) y copias.
+5. **RAID 1** con dos discos para los datos.
+6. **Copia automática** con `cron`, enviada también al servidor de Odoo y a un bucket S3 de AWS, y prueba de restauración.
 
 ![Modelo entidad-relación del equipo](../diagramas/modelo-er-equipo.png)
 
-![Tablas creadas](../07-bd-raid-copias/capturas/02-esquema-cargado.png)
+![Base del restaurante importada en PostgreSQL](../05-erp-odoo/capturas/clase-25-importar-sql.png)
 
 ![Fallo de un disco: el RAID sigue funcionando y avisa](../07-bd-raid-copias/capturas/20-vm-raid-fallo-y-aviso.png)
 

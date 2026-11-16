@@ -55,6 +55,21 @@ flowchart TB
   V20 -. "ACL: solo Odoo (443/80)" .-> V10
 ```
 
+## Red final en Packet Tracer (Gontzal, 12 de noviembre)
+
+Archivo: [`packet-tracer/RETO1-FINAL.pkz`](packet-tracer/RETO1-FINAL.pkz).
+
+![Red final en Packet Tracer](capturas/01-packet-tracer-red-final.png)
+
+| Zona | Red | Equipos |
+|---|---|---|
+| Local (switch SW-Local) | 192.168.0.0/24, puerta de enlace 192.168.0.1 | Odoo .53 (con la impresora), BD-MySQL .54, PC-Gerente .61 (doble arranque), TPV-1 .71, TPV-2 .72, PC-Recreativa .81 |
+| Router R-Principal (2911) | Gi0/0 192.168.0.1 (LAN), Gi0/1 192.168.1.112 (WAN), Gi0/2 192.168.2.1 (Wi-Fi) | — |
+| Wi-Fi de clientes (WRT300N) | WAN 192.168.2.2, LAN 192.168.50.0/24 con DHCP desde .100, WPA2 | Móviles de los clientes, separados del local |
+| Internet (switch SW-Internet) | 192.168.1.0/24, puerta de enlace 192.168.1.112 | Internet, Web-AWS, DuckDNS, Trello, GitHub y nginx (simulados) |
+
+Los clientes de la Wi-Fi están en una red aparte (192.168.50.0/24), detrás de su propio router, así que no llegan a los equipos del local.
+
 ## Packet Tracer (R05-R06)
 
 Equipos: R-ALMI y ISP (Router 2911), SW-ALMI (2960-24TT), INTERNET (Server-PT), PC-GERENTE, SRV-BD, SRV-ODOO, TPV1, TPV2, IMP-TICKET1, AP-SALA, AP-TERRAZA, RECREATIVA y dos portátiles con WPC300N.

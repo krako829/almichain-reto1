@@ -46,6 +46,39 @@ flowchart LR
 - La contraseña de PostgreSQL está en `/opt/odoo/.env` (solo la lee root) y no sale del servidor.
 - Los datos están en volúmenes de Docker (`odoo-db` y `odoo-data`), así que se puede actualizar la imagen sin perder nada.
 
+## Instalación hecha en clase (servidor `odooserver`)
+
+Así se montó Odoo en la VM de clase, según los **apuntes de Oier** ([`Apuntes_Odoo.pdf`](Apuntes_Odoo.pdf)) y las 31 capturas de **Richar** (23, 26 y 27 de octubre), que están en [`capturas/`](capturas/) con el prefijo `clase-`.
+
+| Elemento | Valor |
+|---|---|
+| Servidor | Ubuntu Server en VirtualBox (`odooserver`, usuario `odoo`) |
+| Acceso | `http://192.168.0.53:8069` |
+| Base de datos | PostgreSQL 16, puerto 5432: base de Odoo `almi-chain` y base del reto `restaurante` |
+| Configuración | `/etc/odoo.conf` |
+| Servicio | `odoo.service` (systemd), con un entorno virtual de Python |
+
+1. **Configurar Odoo y su servicio.** `/etc/odoo.conf` con la contraseña maestra, el usuario de base de datos `odoo` y la carpeta de módulos. El servicio `odoo.service` arranca Odoo después de la red y de PostgreSQL, con el usuario `odoo`, y lo reinicia si se cae.
+2. **Arreglar el arranque.** El servicio fallaba (`status=203/EXEC`) porque la ruta de `ExecStart` no era la real. Con las rutas correctas (`/home/odoo/odoo/venv/bin/python3` y `odoo-bin`), `daemon-reload` y `restart`, queda `active (running)` y `enabled`.
+3. **Red.** `ufw allow 8069/tcp`, comprobar con `ss -tulpn` que escucha en el 8069 y con `ip a` la IP del servidor (192.168.0.53).
+4. **Crear la base de datos** desde el navegador: contraseña maestra, nombre `almi-chain`, idioma español, país España y sin datos de demostración. El error *Access Denied* se debía a la contraseña maestra.
+5. **Aplicaciones.** Al activar Punto de venta faltaba la librería `phonenumbers`: se instaló con `pip` dentro del entorno virtual y se reinició Odoo.
+6. **SSH** para administrar el servidor desde el PC de clase (`ssh odoo@192.168.0.53`).
+7. **PostgreSQL.** Comprobar el clúster 16 (`pg_lsclusters`), ver las bases y los roles con `psql`, crear el usuario `almi_chain` e importar la base del restaurante con `psql restaurante < restaurante_postgres.sql`.
+8. **DBeaver.** Para conectarse desde otro equipo hace falta que PostgreSQL escuche en la red (`listen_addresses`, `pg_hba.conf` y `ufw allow 5432/tcp`).
+
+![Servicio de Odoo en marcha](capturas/clase-05-servicio-activo.png)
+
+![Puerto 8069 a la escucha](capturas/clase-07-puerto-8069-escucha.png)
+
+![Crear la base de datos desde el navegador](capturas/clase-10-selector-bd.png)
+
+![Aplicaciones de Odoo](capturas/clase-13-aplicaciones.png)
+
+![Importar la base del restaurante en PostgreSQL](capturas/clase-25-importar-sql.png)
+
+![Instalar phonenumbers para activar Punto de venta](capturas/clase-31-pip-phonenumbers.png)
+
 ## Instalación y configuración paso a paso
 
 Los archivos que se usan están en [`config/`](config/) y [`scripts/`](scripts/). Las contraseñas de los ejemplos (`<…>`) se sustituyen por las del gestor de contraseñas.

@@ -76,7 +76,7 @@ En clase hay **dos redes**:
 
 | Red | Rango | Qué hay |
 |---|---|---|
-| **Red de clase** | 192.168.1.0/24 | La red del aula. Aquí se conecta la **WAN del router R1** (192.168.1.150) |
+| **Red de clase** | 192.168.1.0/24 | La red del aula. Aquí se conecta la **WAN del router R1** (192.168.1.112) |
 | **Red del reto** (LAN del router R1) | 192.168.0.0/24 | Todo lo del reto: el PC de clase, las VM en **adaptador puente** y el repetidor WDS. Puerta de enlace y DNS: **192.168.0.1** (R1). El DHCP de R1 reparte de la .50 a la .199 |
 
 ```mermaid
@@ -86,15 +86,15 @@ flowchart TB
     GWC["Salida a Internet del aula"]
   end
   subgraph LAN["Red del reto · LAN de R1 · 192.168.0.0/24 · DHCP .50–.199"]
-    R1{{"Router R1<br/>LAN 192.168.0.1<br/>WAN 192.168.1.150<br/>WPA2-AES"}}
+    R1{{"Router R1<br/>LAN 192.168.0.1<br/>WAN 192.168.1.112<br/>WPA2-AES"}}
     R2{{"Router R2 · repetidor WDS<br/>192.168.0.60<br/>sin DHCP"}}
     subgraph PCC["PC de clase · Zorin OS · 192.168.0.100 · VirtualBox (adaptador puente)"]
       GER["ALMI-GERENTE · 192.168.0.63<br/>Windows 10 Pro / Debian 13 (arranque dual)"]
       COP["almichaincopia · 192.168.0.52<br/>Ubuntu Server · RAID 1 de copias"]
-      TPV["ALMI-TPV · 192.168.0.80<br/>Windows 10 · TPV1 / TPV2 (quiosco)"]
-      ODOO["ALMI-ODOO · 192.168.0.70<br/>Odoo 18 · puerto 8069"]
-      BD["ALMI-BD · 192.168.0.71<br/>PostgreSQL"]
-      ARC["ALMI-ARCADE · 192.168.0.90<br/>MAME · 1 núcleo · 1 GB · sin swap"]
+      TPV["ALMI-TPV · 192.168.0.71 / .72<br/>Windows 10 · TPV1 / TPV2 (quiosco)"]
+      ODOO["ALMI-ODOO (odooserver) · 192.168.0.53<br/>Odoo · puerto 8069 · PostgreSQL 16"]
+      BD["ALMI-BD · 192.168.0.54<br/>MySQL"]
+      ARC["ALMI-ARCADE · 192.168.0.81<br/>MAME · 1 núcleo · 1 GB · sin swap"]
     end
     MOV["Móviles y portátiles<br/>(Wi-Fi, DHCP)"]
   end
@@ -122,15 +122,15 @@ flowchart TB
 
 | Máquina | Sistema | IP | Dónde está | Para qué |
 |---|---|---|---|---|
-| **Router R1** | Router Wi-Fi | LAN **192.168.0.1** · WAN **192.168.1.150** | Físico | Puerta de enlace de la red del reto, DHCP .50–.199, Wi-Fi WPA2 ([bloque 04](04-red/README.md)) |
+| **Router R1** | Router Wi-Fi | LAN **192.168.0.1** · WAN **192.168.1.112** | Físico | Puerta de enlace de la red del reto, DHCP .50–.199, Wi-Fi WPA2 ([bloque 04](04-red/README.md)) |
 | **Router R2** | Router Wi-Fi | **192.168.0.60** | Físico | Repetidor WDS de R1, sin DHCP |
 | **PC de clase** | Zorin OS | 192.168.0.100 | Físico | Anfitrión de VirtualBox; administración por SSH y Terraform |
 | **ALMI-GERENTE** | Windows 10 Pro + Debian 13 | **192.168.0.63** (la misma en los dos sistemas) | VirtualBox | Equipo del gerente con arranque dual ([01](01-windows-gerente-tpv/README.md), [08](08-copias-so/README.md)) |
 | **Servidor de copias** (`almichaincopia`) | Ubuntu Server | **192.168.0.52** | VirtualBox | Copias de los SO de ALMI-GERENTE en RAID 1 ([08](08-copias-so/README.md)) |
-| **ALMI-TPV** | Windows 10 Pro | **192.168.0.80** | VirtualBox | Los dos TPV de barra (TPV1 y TPV2) en quiosco ([01](01-windows-gerente-tpv/README.md)) |
-| **ALMI-ODOO** | Ubuntu Server 24.04 + Docker | **192.168.0.70** | VirtualBox | ERP Odoo 18 y los TPV; se entra por el puerto **8069** (`http://192.168.0.70:8069`) ([05](05-erp-odoo/README.md)) |
-| **ALMI-BD** | Ubuntu Server 24.04 | **192.168.0.71** | VirtualBox | Base de datos **PostgreSQL**, copias cruzadas con ALMI-ODOO y **copia automática a un bucket S3** de AWS ([07](07-bd-raid-copias/README.md)) |
-| **ALMI-ARCADE** | Ubuntu 24.04 mínimo + MAME | **192.168.0.90** | VirtualBox | Recreativa: 1 núcleo, 1 GB, sin swap ([02](02-linux-recreativa/README.md)) |
+| **ALMI-TPV** | Windows 10 Pro | **192.168.0.71** (TPV-1) y **.72** (TPV-2) | VirtualBox | Los dos TPV de barra (TPV1 y TPV2) en quiosco ([01](01-windows-gerente-tpv/README.md)) |
+| **ALMI-ODOO** (`odooserver`) | Ubuntu Server | **192.168.0.53** | VirtualBox | Odoo con PostgreSQL 16; se entra por `http://192.168.0.53:8069` ([05](05-erp-odoo/README.md)) |
+| **ALMI-BD** | Ubuntu Server | **192.168.0.54** | VirtualBox | Base de datos **MySQL** del restaurante, copias cruzadas con ALMI-ODOO y **copia automática a un bucket S3** de AWS ([07](07-bd-raid-copias/README.md)) |
+| **ALMI-ARCADE** | Ubuntu 24.04 mínimo + MAME | **192.168.0.81** | VirtualBox | Recreativa: 1 núcleo, 1 GB, sin swap ([02](02-linux-recreativa/README.md)) |
 | **almichain-web** | Ubuntu 24.04 en EC2 | IP elástica | AWS | Web https://almichain2.duckdns.org ([06](06-web-aws/README.md)) |
 | **almichain-backup-remoto** | Ubuntu 24.04 en EC2 | 32.193.36.186 | AWS | Copia remota de las copias de los SO ([08](08-copias-so/README.md)) |
 | **Bucket S3** | Amazon S3 | — | AWS | Copia automática de ALMI-BD |

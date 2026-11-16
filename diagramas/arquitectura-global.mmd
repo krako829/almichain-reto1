@@ -4,15 +4,15 @@ flowchart TB
     GWC["Salida a Internet del aula"]
   end
   subgraph LAN["Red del reto · LAN de R1 · 192.168.0.0/24 · DHCP .50–.199"]
-    R1{{"Router R1<br/>LAN 192.168.0.1<br/>WAN 192.168.1.150<br/>WPA2-AES"}}
+    R1{{"Router R1<br/>LAN 192.168.0.1<br/>WAN 192.168.1.112<br/>WPA2-AES"}}
     R2{{"Router R2 · repetidor WDS<br/>192.168.0.60<br/>sin DHCP"}}
     subgraph PCC["PC de clase · Zorin OS · 192.168.0.100 · VirtualBox (adaptador puente)"]
       GER["ALMI-GERENTE · 192.168.0.63<br/>Windows 10 Pro / Debian 13 (arranque dual)"]
       COP["almichaincopia · 192.168.0.52<br/>Ubuntu Server · RAID 1 de copias"]
-      TPV["ALMI-TPV · 192.168.0.80<br/>Windows 10 · TPV1 / TPV2 (quiosco)"]
-      ODOO["ALMI-ODOO · 192.168.0.70<br/>Odoo 18 · puerto 8069"]
-      BD["ALMI-BD · 192.168.0.71<br/>PostgreSQL"]
-      ARC["ALMI-ARCADE · 192.168.0.90<br/>MAME · 1 núcleo · 1 GB · sin swap"]
+      TPV["ALMI-TPV · 192.168.0.71 / .72<br/>Windows 10 · TPV1 / TPV2 (quiosco)"]
+      ODOO["ALMI-ODOO (odooserver) · 192.168.0.53<br/>Odoo · puerto 8069 · PostgreSQL 16"]
+      BD["ALMI-BD · 192.168.0.54<br/>MySQL"]
+      ARC["ALMI-ARCADE · 192.168.0.81<br/>MAME · 1 núcleo · 1 GB · sin swap"]
     end
     MOV["Móviles y portátiles<br/>(Wi-Fi, DHCP)"]
   end
