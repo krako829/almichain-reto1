@@ -102,7 +102,8 @@ def rutas(texto, carpeta):
             return m.group(0)
         nueva = os.path.relpath(os.path.normpath(os.path.join(REPO, carpeta, destino)), os.path.join(REPO, 'docs'))
         return f'{m.group(1)}({nueva})'
-    return re.sub(r'(!?\[[^\]]*\])\(([^)\s]+)\)', fix, texto)
+    trozos = re.split(r'(```.*?```)', texto, flags=re.S)   # los bloques de código no se tocan
+    return ''.join(t if t.startswith('```') else re.sub(r'(!?\[[^\]]*\])\(([^)\s]+)\)', fix, t) for t in trozos)
 
 
 def limpiar_titulo(t):

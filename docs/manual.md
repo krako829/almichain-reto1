@@ -1305,7 +1305,7 @@ Se marca `sdc` como fallido: el RAID sigue funcionando con un disco (`[U_]`) y l
 
 ```bash
 sudo mdadm /dev/md0 --fail /dev/sdc
-cat /proc/mdstat                        # sdc[2](../08-copias-so/F) · [2/1] [U_]
+cat /proc/mdstat                        # sdc[2](F) · [2/1] [U_]
 ls /backups/gerente                     # los datos siguen ahí
 sudo mdadm /dev/md0 --remove /dev/sdc
 sudo mdadm /dev/md0 --add /dev/sdc      # reconstrucción (recovery)
