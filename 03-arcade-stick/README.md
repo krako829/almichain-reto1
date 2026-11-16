@@ -108,11 +108,17 @@ Esas placas no pueden ser mando USB de serie. Opciones: (1) pedir un Pro Micro (
 | 3 | Las 4 direcciones | `jstest` (ejes) o editor de texto (flechas) | Cada dirección mueve su eje o flecha | Pendiente — en clase | |
 | 4 | Los 9 botones | `jstest` o `evtest` | Cada botón su número o tecla | Pendiente — en clase | |
 | 5 | Funciona en la VM | Filtro USB y `lsusb` dentro de ALMI-ARCADE | Aparece en la VM | Pendiente — en clase | |
-| 6 | Se juega en MAME | Pong o Breakout con el stick | Moneda, Start y movimiento funcionan | Pendiente — en clase | |
+| 6 | Se juega en MAME | Pong o Breakout con el stick | Moneda, Start y movimiento funcionan | **Correcto** (validado en clase) | [Vídeo](https://drive.google.com/file/d/1sB5696oLMcich_KJwhIkgUCDqDXQG4Dg/view) |
 | 7 | Remapeo sin reprogramar | `MAP 1 2`, `SAVE`, desconectar y volver a conectar; `SHOW` y `jstest` | El botón físico 1 sale como botón 2 y se mantiene | Pendiente — en clase | |
 | 8 | Antirrebote | Pulsar rápido un botón mirando `jstest` | Una pulsación = un cambio | Pendiente — en clase | |
 
-**Estado**: los cuatro programas compilan, pero el stick **no se ha montado ni probado** todavía (falta el material y la placa). Las capturas y fotos del montaje irán en [`capturas/`](capturas/).
+**Estado**: el stick está montado y **funciona en la recreativa** (validado en clase el 10 de noviembre).
+
+### Vídeo del arcade stick funcionando
+
+[Abrir el vídeo en Google Drive](https://drive.google.com/file/d/1sB5696oLMcich_KJwhIkgUCDqDXQG4Dg/view) (`IMG_3358.MOV`, carpeta `reto1` del Drive del equipo). Para abrirlo desde el papel, escanear el código:
+
+![Código QR del vídeo del arcade stick funcionando](capturas/qr-video-stick.png)
 
 ## Seguridad aplicada
 
@@ -122,7 +128,7 @@ Esas placas no pueden ser mando USB de serie. Opciones: (1) pedir un Pro Micro (
 
 ## Problemas previstos y solución
 
-El stick todavía no se ha montado, así que estos problemas son **previstos**, no encontrados:
+Problemas que pueden aparecer al montarlo y cómo resolverlos:
 
 | Problema | Solución |
 |---|---|

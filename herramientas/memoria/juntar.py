@@ -18,7 +18,7 @@ W = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else 'trabajo')
 os.makedirs(f'{W}/mmd', exist_ok=True)
 
 CAPITULOS = [
-    ('docs/documentacion.md', None),
+    ('docs/manual.md', None),
 ]
 ANEXOS = []
 figura = 0
@@ -74,7 +74,7 @@ def procesar(ruta, titulo, anexo=False):
         alt, src = m.group(2), m.group(3)
         if not src.startswith('/'):
             src = os.path.normpath(f'{REPO}/{base}/{src}')
-        ancho = '5.2cm' if 'ticket' in src else '16cm'
+        ancho = '5.2cm' if 'ticket' in src else '5cm' if 'qr-' in src else '16cm'
         if 'modelo-er' in src:
             src = recortar(src)
         texto = f'Figura {figura}. {alt}' if alt else f'Figura {figura}.'
