@@ -114,6 +114,8 @@ Esas placas no pueden ser mando USB de serie. Opciones: (1) pedir un Pro Micro (
 
 **Estado**: el stick está montado y **funciona en la recreativa** (validado en clase el 10 de noviembre).
 
+![Arcade stick funcionando en clase: jugando en MAME con el joystick y los botones](capturas/stick-funcionando-clase.png)
+
 ### Vídeo del arcade stick funcionando
 
 [Abrir el vídeo en Google Drive](https://drive.google.com/file/d/1sB5696oLMcich_KJwhIkgUCDqDXQG4Dg/view) (`IMG_3358.MOV`, carpeta `reto1` del Drive del equipo). Para abrirlo desde el papel, escanear el código:

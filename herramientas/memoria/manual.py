@@ -118,7 +118,8 @@ for n, (carpeta, titulo, partes) in enumerate(BLOQUES, start=3):
     trozos = [f'# {n}. {titulo}']
     for nombre, nuevo in partes:
         if nombre == 'VIDEO':
-            cuerpo = (f'Vídeo de la prueba del arcade stick conectado a la recreativa y jugando en MAME: '
+            cuerpo = ('![Arcade stick funcionando en clase: jugando en MAME con el joystick y los botones](../03-arcade-stick/capturas/stick-funcionando-clase.png)\n\n'
+                      f'Vídeo de la prueba del arcade stick conectado a la recreativa y jugando en MAME: '
                       f'[abrir el vídeo en Google Drive]({VIDEO}). Para verlo desde el papel, escanear el código QR.\n\n'
                       f'![Código QR del vídeo del arcade stick funcionando](../03-arcade-stick/capturas/qr-video-stick.png)')
             trozos.append(f'## {nuevo}\n\n{cuerpo}')
