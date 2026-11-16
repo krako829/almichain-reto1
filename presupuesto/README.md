@@ -1,55 +1,64 @@
 # Presupuesto global (G11)
 
-Precios con IVA en tiendas online, con el enlace y la fecha en que se miraron, porque cambian a menudo. Las filas que todavía están *por completar* las rellena el responsable de cada bloque (P02, R02, S01). Por eso el total de abajo es **parcial**.
+Presupuesto con IVA incluido de lo que necesita el restaurante. Es el mismo que va en el capítulo 11 de la documentación entregada.
 
-## Equipos del restaurante (P02)
+## Qué necesita la empresa
 
-| Elemento | Cant. | Modelo elegido | Características clave | Precio unidad (€) | Total (€) | Enlace y fecha |
-|---|---|---|---|---|---|---|
-| TPV táctil de barra | 2 | Geon Zazoo POS 360 | Intel N150, 8 GB, SSD 128 GB, táctil 15" Full HD, Windows 11, 4×USB 3.0, LAN | 556,94 | 1.113,88 | [PcComponentes](https://www.pccomponentes.com/tpv-tactil-geon-zazoo-pos-360-intel-n150-8gb-128gb-15) · 26/10/2026 |
-| Impresora de tickets | 2 | Epson TM-T20III (USB + serie) | Térmica 80 mm, ESC/POS, corte automático | 251,58 | 503,16 | [PcComponentes](https://www.pccomponentes.com/epson-tm-t20iii-impresora-tickets-usb-serial-negra) · 26/10/2026 |
-| Cajón portamonedas | 2 | AVPos Cash-U280 | Acero, 5 billetes y 8 monedas, conector RJ11 (lo abre la impresora) | 45,99 | 91,98 | [PcComponentes](https://www.pccomponentes.com/cajon-portamonedas-avpos-cash-u280-acero-5-billetes-8-monedas-negro-rj-11) · 27/10/2026 |
-| Equipo del gerente | 1 | *por completar* (4 núcleos, 16 GB, SSD NVMe 500 GB, **Windows 11 Pro incluido**) | | | | |
-| Monitor del gerente | 1 | LG 24BA560-B | 23,8" IPS Full HD, altura ajustable, altavoces | 132,97 | 132,97 | [PcComponentes](https://www.pccomponentes.com/monitor-lg-24ba560-b-23-8-led-ips-fullhd-100hz-altavoces-altura-ajustable) · 27/10/2026 |
-| SAI | 1 | APC Back-UPS BE850G2-GR | 850 VA, 8 enchufes Schuko, 2 USB (router, switch y servidores) | 144,99 | 144,99 | [PcComponentes](https://www.pccomponentes.com/apc-be850g2-gr-sai-850va-8-x-schucko-plus-2-x-usb) · 27/10/2026 |
-| **Subtotal equipos** | | | | | **1.986,98** | Sin el equipo del gerente |
+1. Un PC para el despacho del gerente, con Windows 10 y Linux (arranque dual).
+2. Dos equipos de barra que funcionen como TPV en Windows, con los permisos muy limitados.
+3. Dos impresoras de tickets, una por barra.
+4. Una máquina recreativa con MAME, usando el equipo que ya tienen (1 núcleo y 1 GB de RAM).
+5. Un arcade stick con Arduino, compatible con cualquier emulador.
 
-> **Impresora**: según las opiniones de compradores, el modelo USB + serie de la TM-T20III no trae conexión para el cajón; para el restaurante real conviene el modelo con **Ethernet** (C31CH51012), que además permite ponerla en la VLAN de TPV. No se ha encontrado su precio en una tienda española: *por completar* y sustituir la fila.
->
-> **Licencias de Windows**: los TPV vienen con Windows 11 y el equipo del gerente se elige con Windows 11 Pro incluido, así que no hace falta comprar licencias aparte. Hay que comprobar que la de los TPV sea **Pro** (las directivas de grupo del quiosco no existen en Home); si fuera Home, sumar la actualización a Pro. Microsoft ya no vende licencias de Windows 10 ([BleepingComputer](https://www.bleepingcomputer.com/news/microsoft/microsoft-stops-selling-windows-10-licenses-a-day-early)). En el laboratorio se usa Windows 10 Pro/Education con la licencia del centro.
+## Hardware
 
-## Red (R02, R04)
-
-| Elemento | Cant. | Modelo / tarifa | Características | Precio (€) | Enlace y fecha |
+| Equipo | Características | Uds. | Precio ud. | Total | Enlace |
 |---|---|---|---|---|---|
-| Línea de fibra | 1 | Movistar Fibra 600 Mb Autónomos (comparada con Vodafone Business en el [bloque de red](../04-red/README.md#línea-wan-r02)) | 600 Mb simétricos, fijo incluido, router Wi-Fi 7, sin permanencia | 24,90 €/mes (12 meses), después 35,00 €/mes | [Movistar](https://www.movistar.es/autonomos/fibra-optica/internet-autonomos) · 16/11/2026 |
-| Router del local | 1 | MikroTik hEX (RB750Gr3) | 5 puertos Gigabit, VLAN 802.1Q, NAT, cortafuegos, SSH | 61,90 | [Galaxus (Austria)](https://galaxus.at/en/s1/product/mikrotik-rb750gr3-hex-routers-5831427) · 27/10/2026. **Precio con IVA austriaco y sin envío; falta buscarlo en una tienda española** |
-| Switch gestionable 24 puertos | 1 | TP-Link TL-SG3428 | 24 Gigabit + 4 SFP, gestionable L2, VLAN 802.1Q, seguridad de puerto, SSH | 214,81 | [PcComponentes](https://www.pccomponentes.com/tp-link-tlsg3428-switch-24-puertos-gigabit-plus-4-sfp) · 27/10/2026 |
-| Punto de acceso / router Wi-Fi | 2 | Los 2 routers del laboratorio | WDS, WPA2-AES | 0 | — |
-| Cable Cat 6 U/UTP, conectores, tomas y panel | 1 lote | *por completar* | T568B | | |
-| **Subtotal red** | | | | **276,71** | Sin la línea ni el cableado |
+| PC del gerente | Core i5, 16 GB RAM, SSD 500 GB | 1 | 520 € | 520 € | [Ver equipos](https://www.pccomponentes.com/buscar/?query=pc+sobremesa+core+i5+16gb+ssd+500gb) |
+| Monitor 24" + teclado y ratón | Full HD | 1 | 135 € | 135 € | [Ver monitores](https://www.pccomponentes.com/buscar/?query=monitor+24+pulgadas) |
+| Mini PC para TPV | Core i3, 8 GB RAM, SSD 256 GB | 2 | 240 € | 480 € | [Ver mini PC](https://www.pccomponentes.com/buscar/?query=mini+pc+core+i3+8gb) |
+| Pantalla táctil | 15" | 2 | 160 € | 320 € | [Ver pantallas](https://www.pccomponentes.com/buscar/?query=monitor+tactil+15) |
+| Cajón portamonedas | Se abre con la impresora | 2 | 35 € | 70 € | [Ver cajones](https://www.pccomponentes.com/buscar/?query=cajon+portamonedas) |
+| Lector de códigos | USB | 2 | 30 € | 60 € | [Ver lectores](https://www.pccomponentes.com/buscar/?query=lector+codigo+barras+usb) |
+| Impresora de tickets | Térmica 80 mm, USB y Ethernet (tipo Epson TM-T20III) | 2 | 185 € | 370 € | [Ver impresoras](https://www.pccomponentes.com/buscar/?query=impresora+tickets+termica+80mm) |
+| Arcade stick | Arduino Leonardo, joystick, botones y cables | 1 | 65 € | 65 € | [Arduino](https://www.arduino.cc/) |
+| Papel térmico y cables | Rollos y cableado | 1 | 55 € | 55 € | |
+| **Total hardware** | | | | **2.075 €** | |
 
-## Arcade stick (S01)
+## Software
 
-| Elemento | Cant. | Detalle | Precio (€) | Enlace y fecha |
+| Software | Instalado en | Para qué sirve | Precio | Enlace |
 |---|---|---|---|---|
-| Placa Arduino | 1 | La que da el centro | 0 | — |
-| Kit de joystick y botones | 1 | Eurojoystick 2 de 8 direcciones, 10 botones de 28 mm (8 de juego, 1 jugador y moneda), cables y microinterruptores. Trae un codificador USB que no hace falta (se usa el Arduino) | 33,05 | [Arcadexpress](https://www.arcadexpress.com/en/arcade-joystick-kits/118-kit-1-jugador-eurojoystick-2-10-botones-usb.html) · 27/10/2026 |
-| Caja | 1 | MDF o impresión 3D: *por completar* | | |
-| **Subtotal arcade stick** | | | **33,05** | Sin la caja |
+| Windows 10 Pro | Gerente y 2 TPV (3 licencias) | Sistema operativo | 138 € (3 × 46 €) | [Microsoft](https://www.microsoft.com/es-es/windows) |
+| Debian 13 | Gerente (segundo sistema) | Linux del arranque dual | Gratis | [Debian](https://www.debian.org/download) |
+| Odoo Community | Servidor | ERP y TPV | Gratis | [Odoo](https://www.odoo.com/es_ES) |
+| LibreOffice | Gerente | Ofimática | Gratis | [LibreOffice](https://es.libreoffice.org/) |
+| Ubuntu Server (instalación mínima) | Máquina recreativa | Linux ligero para 1 GB de RAM, con un entorno gráfico mínimo | Gratis | [Ubuntu Server](https://ubuntu.com/download/server) |
+| MAME | Máquina recreativa | Emulador de juegos arcade | Gratis | [MAME](https://www.mamedev.org/) |
+| Arduino IDE | Arcade stick | Programar los botones | Gratis | [Arduino IDE](https://www.arduino.cc/en/software) |
+| **Total software** | | | **138 €** | |
 
-## Software (P03)
+> **Licencias de Windows**: Microsoft ya no vende licencias de Windows 10, así que en un local real se comprarían equipos con Windows 11 Pro incluido. En clase se usa Windows 10 con la licencia del centro.
 
-Todo el software del reto es gratuito: Ubuntu, MariaDB, PostgreSQL, Odoo Community (LGPL), Docker, nginx, MAME (GPL), KeePassXC, Arduino IDE, Terraform y AWS Academy (créditos del curso). Windows va incluido en los equipos (ver la nota de licencias).
+## Línea de Internet
 
-## Total
+Comparación de Movistar y Vodafone Business a 600 Mb, consultada el 16/11/2026. El detalle está en el [bloque de red](../04-red/README.md#línea-wan-r02).
 
-| Apartado | Total (€) |
+| | Movistar · Fibra 600 Mb Autónomos | Vodafone Business · Fibra 600 Mbps |
+|---|---|---|
+| Precio al mes (IVA incluido) | 24,90 € los 12 primeros meses; después 35,00 € | 37,05 € |
+| Coste el primer año | 298,80 € | 444,60 € |
+| Línea fija | Llamadas ilimitadas a fijos y 50 min a móviles | 6.000 min a fijos y móviles |
+| Router | Wi-Fi 7 | Wi-Fi 6 |
+| Permanencia | Sin permanencia | No se indica |
+
+**Elección: Movistar Fibra 600 Mb** ([movistar.es](https://www.movistar.es/autonomos/fibra-optica/internet-autonomos), promoción hasta el 30/11/2026).
+
+## Presupuesto total
+
+| Concepto | Total |
 |---|---|
-| Equipos | 1.986,98 |
-| Red | 276,71 |
-| Arcade stick | 33,05 |
-| **Total parcial (con IVA)** | **2.296,74** |
-| Línea de fibra (gasto mensual, aparte) | 24,90 €/mes el primer año (298,80 €); después 35,00 €/mes |
-
-**Falta para el total completo**: equipo del gerente, impresora con Ethernet (sustituye a la USB), cableado y caja del stick.
+| Hardware | 2.075 € |
+| Software | 138 € |
+| **Total (IVA incluido)** | **2.213 €** |
+| Fibra (al mes, aparte) | 24,90 €/mes el primer año; después 35,00 €/mes |

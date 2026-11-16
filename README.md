@@ -44,7 +44,7 @@ Lo que está hecho, lo que está preparado pero sin probar y lo que falta. "Prob
 | 06 Web en AWS | **Desplegada** en AWS Academy (instancia `almibites-web` en ejecución) | 2 de 10 documentadas, con [capturas del despliegue](06-web-aws/docs/06-evidencias-despliegue.md) (Lighthouse solo en local) | Pruebas 3 a 10: HTTPS, redirección, DNS, SSL Labs, geolocalización, móvil, Lighthouse y destroy/apply |
 | 07 Base de datos | **Hecho y probado** | 15 de 15 | — |
 | 08 Copias de los SO | **Hecho, probado y validado por el profesor** (10 nov) | RAID con fallo de disco, copia Win10 y Debian, incremental, retención, cron semanal real, réplica en AWS y restauración desde AWS | — |
-| Presupuesto | **Incompleto** | — | Filas *por completar* |
+| Presupuesto | Hecho | — | 2.213 € con IVA, más la fibra (24,90 €/mes) |
 
 ## Uso de inteligencia artificial
 

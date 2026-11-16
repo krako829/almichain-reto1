@@ -153,4 +153,4 @@ El router R1 se conecta a la red de clase (192.168.1.0/24) y crea la red del ret
 
 # 11. Presupuesto
 
-Presupuesto con IVA de los equipos del restaurante (TPV, impresoras de tickets, cajones, monitor, SAI), la red (router y switch gestionable) y el arcade stick: **2.296,74 €** de momento. El detalle, con enlaces y fechas, está en `presupuesto/README.md`.
+Presupuesto con IVA incluido: hardware 2.075 € y software 138 €, en total **2.213 €**, más la fibra de Movistar a 24,90 €/mes el primer año. El detalle, con enlaces, está en `presupuesto/README.md`.

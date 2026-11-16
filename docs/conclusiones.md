@@ -30,7 +30,6 @@ Cada bloque tiene su tabla de pruebas con el resultado obtenido y la captura. Es
 1. Montar en clase los bloques 03, 04 y 06, terminar el 01 (quiosco, impresora, certificado; se puede hacer con sus scripts) y rellenar sus tablas de pruebas con capturas.
 3. Poner la contraseña de aplicación de Gmail en Odoo y probar el envío real; imprimir un ticket en la impresora física.
 4. Gestión: repartir las tareas en el tablero, exportarlo, Anexo I firmado (sin datos personales en el repositorio), Anexo II y commits de los cinco.
-5. Presupuesto: completar las filas que faltan y el total.
 6. Diagramas que faltan: plano del local (draw.io), archivo `.pkt` de Packet Tracer y **diseño conceptual (boceto) de la web**.
 7. Recreativa: 3 ROMs legales de mamedev.org y un tercer juego en el benchmark.
 8. Windows: `Test-NetConnection` al 443 y al 8069 de Odoo desde ALMI-TPV (prueba 2 de Odoo desde Windows).
